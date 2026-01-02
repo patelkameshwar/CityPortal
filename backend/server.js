@@ -15,6 +15,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/test", require("./routes/testRoutes"));
 app.use("/api/hotels", require("./routes/hotelRoutes"));
 app.use("/api/events", require("./routes/eventRoutes"));
+app.use("/api/tourism", require("./routes/tourismRoutes"));
 
 
 
