@@ -15,35 +15,37 @@ const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
-// --------------------- PUBLIC ROUTES ---------------------
-// Get all events
-router.get("/list", getAllEvents);
+/**   ---------------- PUBLIC ROUTES ----------------   */
 
-// Get single event by ID
+// Get all events
+router.get("/", getAllEvents);
+
+// Get single event
 router.get("/:id", getEventById);
 
-// --------------------- PROTECTED ROUTES ---------------------
-// Create new event (Client / Admin)
+/**   ------------- PROTECTED ROUTES ----------------   */
+
+// Create event (Client / Admin)
 router.post(
-  "/add",
+  "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   createEvent
 );
 
-// Update event (only owner / Admin)
+// Update event (Owner / Admin)
 router.put(
-  "/update/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   updateEvent
 );
 
-// Delete event (only owner / Admin)
+// Delete event (Owner / Admin)
 router.delete(
-  "/delete/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   deleteEvent

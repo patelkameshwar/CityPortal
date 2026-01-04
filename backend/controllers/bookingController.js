@@ -34,30 +34,46 @@ exports.createBooking = async (req, res) => {
     let item;
     let totalPrice = 0;
 
-    // ================= EVENT BOOKING =================
-    if (itemType === "Event") {
-      item = await Event.findById(itemId);
-      if (!item) return res.status(404).json({ message: "Event not found" });
+    
+   // ================= EVENT BOOKING =================
+if (itemType === "Event") {
+  item = await Event.findById(itemId);
+  if (!item) return res.status(404).json({ message: "Event not found" });
 
-      if (!bookingDate || !bookingTime) {
-        return res.status(400).json({ message: "Booking date & time required for Event" });
-      }
+  if (!bookingDate) {
+    return res.status(400).json({ message: "Booking date required for Event" });
+  }
 
-      const eventDate = new Date(bookingDate);
-      if (eventDate.toDateString() !== item.eventDate.toDateString()) {
-        return res.status(400).json({ message: "Event not available on this date" });
-      }
+  const date = new Date(bookingDate);
+  const from = new Date(item.bookingFromDate);
+  const to = new Date(item.bookingToDate);
 
-      if (item.availableSeats < totalQuantity) {
-        return res.status(400).json({ message: "Not enough seats available" });
-      }
+  // Validate bookingDate is within event date range
+  if (date < from || date > to) {
+    return res.status(400).json({
+      message: "Booking date must be within event dates",
+    });
+  }
 
-      totalPrice = item.price * totalQuantity;
+  // Calculate seats already booked for that day
+  const bookedSeats = item.bookings
+    .filter(b => b.bookingDate.toDateString() === date.toDateString())
+    .reduce((sum, b) => sum + b.seats, 0);
 
-      // Reduce available seats
-      item.availableSeats -= totalQuantity;
-      await item.save();
-    }
+  if (bookedSeats + totalQuantity > item.totalSeats) {
+    return res.status(400).json({
+      message: "Not enough seats available on this date",
+    });
+  }
+
+  totalPrice = item.price * totalQuantity;
+
+  // Add booking entry to event bookings array
+  item.bookings.push({ user: req.user.id, seats: totalQuantity, bookingDate: date });
+
+  await item.save();
+}
+
 
     // ================= HOTEL BOOKING =================
     if (itemType === "Hotel") {

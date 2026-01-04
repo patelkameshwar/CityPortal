@@ -8,10 +8,18 @@ const Booking = require("../models/Booking");
  */
 exports.createEvent = async (req, res) => {
   try {
-    const { title, location, description, eventDate, eventTime, totalSeats, price } = req.body;
+    const { title, location, description, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
 
-    if (!eventDate || !eventTime) {
-      return res.status(400).json({ success: false, message: "Event date and time are required" });
+    if (!title || !location || !bookingFromDate || !bookingToDate || !eventTime || !totalSeats || !price) {
+      return res.status(400).json({ success: false, message: "All required fields must be provided" });
+    }
+
+    const from = new Date(bookingFromDate);
+    const to = new Date(bookingToDate);
+
+    // Validate that end date is after start date
+    if (from >= to) {
+      return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 
     const images = req.files ? req.files.map(file => file.path) : [];
@@ -20,14 +28,14 @@ exports.createEvent = async (req, res) => {
       title,
       location,
       description,
-      eventDate,
+      bookingFromDate: from,
+      bookingToDate: to,
       eventTime,
       totalSeats,
-      availableSeats: totalSeats,
+      owner: req.user.id,
       price,
       images,
-      owner: req.user.id,
-      bookings: [],
+      bookings: [], // store per-day bookings
     });
 
     res.status(201).json({ success: true, message: "Event created successfully", event });
@@ -68,7 +76,21 @@ exports.getEventById = async (req, res) => {
 
     if (!event) return res.status(404).json({ success: false, message: "Event not found" });
 
-    res.status(200).json({ success: true, event });
+    // Optional: Return remaining seats per day
+    const today = new Date();
+    const eventDates = [];
+    for (let d = new Date(event.bookingFromDate); d <= event.bookingToDate; d.setDate(d.getDate() + 1)) {
+      const dateCopy = new Date(d);
+      const bookedSeats = event.bookings
+        .filter(b => b.bookingDate.toDateString() === dateCopy.toDateString())
+        .reduce((sum, b) => sum + b.seats, 0);
+      eventDates.push({
+        date: dateCopy.toDateString(),
+        remainingSeats: event.totalSeats - bookedSeats
+      });
+    }
+
+    res.status(200).json({ success: true, event, eventDates });
   } catch (error) {
     console.error("Get Event Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -90,21 +112,30 @@ exports.updateEvent = async (req, res) => {
 
     const images = req.files?.length ? req.files.map(file => file.path) : event.images;
 
-    // Update total seats safely
-    if (req.body.totalSeats) {
-      const usedSeats = event.totalSeats - event.availableSeats;
-      event.totalSeats = req.body.totalSeats;
-      event.availableSeats = Math.max(req.body.totalSeats - usedSeats, 0);
-    }
-
-    // Update fields
+    // Update fields safely
     event.title = req.body.title || event.title;
     event.location = req.body.location || event.location;
     event.description = req.body.description || event.description;
-    event.eventDate = req.body.eventDate || event.eventDate;
     event.eventTime = req.body.eventTime || event.eventTime;
     event.price = req.body.price || event.price;
     event.images = images;
+
+    // Update totalSeats safely
+    if (req.body.totalSeats) {
+      const bookedSeats = event.bookings.reduce((sum, b) => sum + b.seats, 0);
+      if (req.body.totalSeats < bookedSeats) {
+        return res.status(400).json({ success: false, message: "Total seats cannot be less than already booked seats" });
+      }
+      event.totalSeats = req.body.totalSeats;
+    }
+
+    // Update booking dates
+    if (req.body.bookingFromDate) event.bookingFromDate = new Date(req.body.bookingFromDate);
+    if (req.body.bookingToDate) event.bookingToDate = new Date(req.body.bookingToDate);
+
+    if (event.bookingFromDate >= event.bookingToDate) {
+      return res.status(400).json({ success: false, message: "End date must be after start date" });
+    }
 
     await event.save();
 
@@ -141,24 +172,38 @@ exports.deleteEvent = async (req, res) => {
 };
 
 /**
- * ADD BOOKING TO EVENT
+ * BOOK EVENT
  * Access: User
  * Route: POST /api/events/:id/book
  */
 exports.bookEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ success: false, message: "Event not found" });
+    if (!event)
+      return res.status(404).json({ success: false, message: "Event not found" });
 
-    const { seats } = req.body;
-    if (!seats || seats < 1) return res.status(400).json({ success: false, message: "Seats required" });
+    const { seats, bookingDate } = req.body;
 
-    if (seats > event.availableSeats)
-      return res.status(400).json({ success: false, message: "Not enough seats available" });
+    if (!seats || seats < 1)
+      return res.status(400).json({ success: false, message: "Seats required" });
 
-    // Add booking entry
-    event.bookings.push({ user: req.user.id, seats });
-    event.availableSeats -= seats;
+    if (!bookingDate)
+      return res.status(400).json({ success: false, message: "Booking date required" });
+
+    const date = new Date(bookingDate);
+    if (date < event.bookingFromDate || date > event.bookingToDate) {
+      return res.status(400).json({ success: false, message: "Booking date must be within event dates" });
+    }
+
+    // Calculate already booked seats on that day
+    const bookedSeats = event.bookings
+      .filter(b => b.bookingDate.toDateString() === date.toDateString())
+      .reduce((sum, b) => sum + b.seats, 0);
+
+    if (bookedSeats + seats > event.totalSeats)
+      return res.status(400).json({ success: false, message: "Not enough seats available on this date" });
+
+    event.bookings.push({ user: req.user.id, seats, bookingDate: date });
 
     await event.save();
 

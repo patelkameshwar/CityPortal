@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const eventSchema = new mongoose.Schema(
   {
+    // Basic Info
     title: {
       type: String,
       required: true,
@@ -19,13 +20,29 @@ const eventSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Event start date
-    eventDate: {
+    // Event booking availability (support multi-day events)
+    bookingFromDate: {
       type: Date,
       required: true,
+      default: () => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+      },
     },
 
-    // Event start time
+    bookingToDate: {
+      type: Date,
+      required: true,
+      default: () => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        d.setFullYear(d.getFullYear() + 1);
+        return d;
+      },
+    },
+
+    // Event start time (default daily start time if needed)
     eventTime: {
       type: String,
       required: true,
@@ -35,19 +52,18 @@ const eventSchema = new mongoose.Schema(
       ],
     },
 
-    // Total seats available for the event
+    // Total seats available
     totalSeats: {
       type: Number,
       required: true,
       min: 1,
     },
 
-    // Seats already booked
-    availableSeats: {
-      type: Number,
-      default: function () {
-        return this.totalSeats;
-      },
+    // Owner (Client / Admin)
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
 
     // Price per ticket
@@ -62,20 +78,14 @@ const eventSchema = new mongoose.Schema(
       default: [],
     },
 
-    // Owner (Client/Admin who created the event)
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    // Array of booking ranges for calendar-like flexibility
+    // Bookings array (stores dynamic bookings)
     bookings: {
       type: [
         {
           user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
           bookedAt: { type: Date, default: Date.now },
           seats: { type: Number, required: true, min: 1 },
+          bookingDate: { type: Date, required: true },
         },
       ],
       default: [],

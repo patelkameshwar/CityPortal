@@ -59,14 +59,24 @@ const hotelSchema = new mongoose.Schema(
 
     // Booking availability dates
     bookingFromDate: {
-      type: Date,
-      default: Date.now, // available from today
-    },
+  type: Date,
+  default: () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  },
+},
 
-    bookingToDate: {
-      type: Date,
-      default: () => new Date(+new Date() + 365 * 24 * 60 * 60 * 1000), // 1 year ahead
-    },
+bookingToDate: {
+  type: Date,
+  default: () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setFullYear(d.getFullYear() + 1);
+    return d;
+  },
+},
+
 
     // Created by (Client / Admin)
     owner: {
