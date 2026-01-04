@@ -1,8 +1,10 @@
 const Tourism = require("../models/Tourism");
+const Booking = require("../models/Booking"); // Optional, for cancelling bookings
 
 /**
  * CREATE TOURISM PLACE
- * Client / Admin
+ * Access: Client / Admin
+ * Route: POST /api/tourism
  */
 exports.createTourism = async (req, res) => {
   try {
@@ -13,9 +15,15 @@ exports.createTourism = async (req, res) => {
       entryFee,
       openTime,
       closeTime,
+      bookingDate,
+      bookingTime,
     } = req.body;
 
-    const images = req.files.map((file) => file.path);
+    if (!bookingDate || !bookingTime) {
+      return res.status(400).json({ success: false, message: "Booking date and time are required" });
+    }
+
+    const images = req.files ? req.files.map((file) => file.path) : [];
 
     const tourism = await Tourism.create({
       name,
@@ -24,21 +32,23 @@ exports.createTourism = async (req, res) => {
       entryFee,
       openTime,
       closeTime,
+      bookingDate,
+      bookingTime,
       images,
       owner: req.user.id,
     });
 
-    res.status(201).json({
-      message: "Tourism place created successfully",
-      tourism,
-    });
+    res.status(201).json({ success: true, message: "Tourism place created successfully", tourism });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Create Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
- * GET ALL TOURISM PLACES (PUBLIC)
+ * GET ALL TOURISM PLACES
+ * Access: Public
+ * Route: GET /api/tourism
  */
 exports.getAllTourism = async (req, res) => {
   try {
@@ -46,105 +56,89 @@ exports.getAllTourism = async (req, res) => {
       .populate("owner", "name email")
       .sort({ createdAt: -1 });
 
-    res.json(tourismPlaces);
+    res.status(200).json({ success: true, tourismPlaces });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get All Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * GET SINGLE TOURISM PLACE
+ * Access: Public
+ * Route: GET /api/tourism/:id
  */
 exports.getTourismById = async (req, res) => {
   try {
-    const tourism = await Tourism.findById(req.params.id).populate(
-      "owner",
-      "name email"
-    );
+    const tourism = await Tourism.findById(req.params.id).populate("owner", "name email");
 
-    if (!tourism)
-      return res
-        .status(404)
-        .json({ message: "Tourism place not found" });
+    if (!tourism) return res.status(404).json({ success: false, message: "Tourism place not found" });
 
-    res.json(tourism);
+    res.status(200).json({ success: true, tourism });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * UPDATE TOURISM PLACE
- * Owner / Admin
+ * Access: Owner / Admin
+ * Route: PUT /api/tourism/:id
  */
 exports.updateTourism = async (req, res) => {
   try {
     const tourism = await Tourism.findById(req.params.id);
-    if (!tourism)
-      return res
-        .status(404)
-        .json({ message: "Tourism place not found" });
+    if (!tourism) return res.status(404).json({ success: false, message: "Tourism place not found" });
 
-    // Ownership check
-    if (
-      req.user.role !== "admin" &&
-      tourism.owner.toString() !== req.user.id
-    ) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
+    if (req.user.role !== "admin" && tourism.owner.toString() !== req.user.id)
+      return res.status(403).json({ success: false, message: "Not authorized" });
 
-    const images =
-      req.files?.length > 0
-        ? req.files.map((file) => file.path)
-        : tourism.images;
+    const images = req.files?.length ? req.files.map((file) => file.path) : tourism.images;
 
     tourism.name = req.body.name || tourism.name;
     tourism.location = req.body.location || tourism.location;
-    tourism.description =
-      req.body.description || tourism.description;
-    tourism.entryFee =
-      req.body.entryFee || tourism.entryFee;
+    tourism.description = req.body.description || tourism.description;
+    tourism.entryFee = req.body.entryFee || tourism.entryFee;
     tourism.openTime = req.body.openTime || tourism.openTime;
-    tourism.closeTime =
-      req.body.closeTime || tourism.closeTime;
+    tourism.closeTime = req.body.closeTime || tourism.closeTime;
+    tourism.bookingDate = req.body.bookingDate || tourism.bookingDate;
+    tourism.bookingTime = req.body.bookingTime || tourism.bookingTime;
     tourism.images = images;
 
     await tourism.save();
 
-    res.json({
-      message: "Tourism place updated successfully",
-      tourism,
-    });
+    res.status(200).json({ success: true, message: "Tourism place updated successfully", tourism });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Update Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * DELETE TOURISM PLACE
- * Owner / Admin
+ * Access: Owner / Admin
+ * Route: DELETE /api/tourism/:id
  */
 exports.deleteTourism = async (req, res) => {
   try {
     const tourism = await Tourism.findById(req.params.id);
-    if (!tourism)
-      return res
-        .status(404)
-        .json({ message: "Tourism place not found" });
+    if (!tourism) return res.status(404).json({ success: false, message: "Tourism place not found" });
 
-    if (
-      req.user.role !== "admin" &&
-      tourism.owner.toString() !== req.user.id
-    ) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
+    if (req.user.role !== "admin" && tourism.owner.toString() !== req.user.id)
+      return res.status(403).json({ success: false, message: "Not authorized" });
+
+    // Optional: Cancel all related bookings
+    await Booking.updateMany(
+      { itemType: "Tourism", itemId: tourism._id },
+      { status: "Cancelled" }
+    );
 
     await tourism.deleteOne();
 
-    res.json({
-      message: "Tourism place deleted successfully",
-    });
+    res.status(200).json({ success: true, message: "Tourism place deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

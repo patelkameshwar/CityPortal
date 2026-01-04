@@ -1,35 +1,54 @@
 const Hotel = require("../models/Hotel");
+const Booking = require("../models/Booking"); // Optional, for cancelling bookings
 
 /**
  * CREATE HOTEL
- * Client / Admin
+ * Access: Client / Admin
+ * Route: POST /api/hotels
  */
 exports.createHotel = async (req, res) => {
   try {
-    const { name, location, description, pricePerNight } = req.body;
+    const {
+      name,
+      location,
+      description,
+      pricePerNight,
+      bookingFromDate,
+      bookingFromTime,
+      bookingToDate,
+      bookingToTime,
+    } = req.body;
 
-    const images = req.files.map((file) => file.path);
+    if (!bookingFromDate || !bookingFromTime || !bookingToDate || !bookingToTime) {
+      return res.status(400).json({ success: false, message: "Booking from/to date and time are required" });
+    }
+
+    const images = req.files ? req.files.map((file) => file.path) : [];
 
     const hotel = await Hotel.create({
       name,
       location,
       description,
       pricePerNight,
+      bookingFromDate,
+      bookingFromTime,
+      bookingToDate,
+      bookingToTime,
       images,
       owner: req.user.id,
     });
 
-    res.status(201).json({
-      message: "Hotel created successfully",
-      hotel,
-    });
+    res.status(201).json({ success: true, message: "Hotel created successfully", hotel });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Create Hotel Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
- * GET ALL HOTELS (PUBLIC)
+ * GET ALL HOTELS
+ * Access: Public
+ * Route: GET /api/hotels
  */
 exports.getAllHotels = async (req, res) => {
   try {
@@ -37,89 +56,89 @@ exports.getAllHotels = async (req, res) => {
       .populate("owner", "name email")
       .sort({ createdAt: -1 });
 
-    res.json(hotels);
+    res.status(200).json({ success: true, hotels });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get All Hotels Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * GET SINGLE HOTEL
+ * Access: Public
+ * Route: GET /api/hotels/:id
  */
 exports.getHotelById = async (req, res) => {
   try {
-    const hotel = await Hotel.findById(req.params.id).populate(
-      "owner",
-      "name email"
-    );
+    const hotel = await Hotel.findById(req.params.id).populate("owner", "name email");
 
-    if (!hotel)
-      return res.status(404).json({ message: "Hotel not found" });
+    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
 
-    res.json(hotel);
+    res.status(200).json({ success: true, hotel });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get Hotel Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * UPDATE HOTEL
- * Owner / Admin
+ * Access: Owner / Admin
+ * Route: PUT /api/hotels/:id
  */
 exports.updateHotel = async (req, res) => {
   try {
     const hotel = await Hotel.findById(req.params.id);
-    if (!hotel)
-      return res.status(404).json({ message: "Hotel not found" });
+    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
 
-    // Ownership check
-    if (
-      req.user.role !== "admin" &&
-      hotel.owner.toString() !== req.user.id
-    ) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
+    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id)
+      return res.status(403).json({ success: false, message: "Not authorized" });
 
-    const images =
-      req.files?.length > 0
-        ? req.files.map((file) => file.path)
-        : hotel.images;
+    const images = req.files?.length ? req.files.map((file) => file.path) : hotel.images;
 
     hotel.name = req.body.name || hotel.name;
     hotel.location = req.body.location || hotel.location;
     hotel.description = req.body.description || hotel.description;
-    hotel.pricePerNight =
-      req.body.pricePerNight || hotel.pricePerNight;
+    hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
+    hotel.bookingFromDate = req.body.bookingFromDate || hotel.bookingFromDate;
+    hotel.bookingFromTime = req.body.bookingFromTime || hotel.bookingFromTime;
+    hotel.bookingToDate = req.body.bookingToDate || hotel.bookingToDate;
+    hotel.bookingToTime = req.body.bookingToTime || hotel.bookingToTime;
     hotel.images = images;
 
     await hotel.save();
 
-    res.json({ message: "Hotel updated", hotel });
+    res.status(200).json({ success: true, message: "Hotel updated successfully", hotel });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Update Hotel Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /**
  * DELETE HOTEL
- * Owner / Admin
+ * Access: Owner / Admin
+ * Route: DELETE /api/hotels/:id
  */
 exports.deleteHotel = async (req, res) => {
   try {
     const hotel = await Hotel.findById(req.params.id);
-    if (!hotel)
-      return res.status(404).json({ message: "Hotel not found" });
+    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
 
-    if (
-      req.user.role !== "admin" &&
-      hotel.owner.toString() !== req.user.id
-    ) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
+    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id)
+      return res.status(403).json({ success: false, message: "Not authorized" });
+
+    // Optional: Cancel related bookings
+    await Booking.updateMany(
+      { itemType: "Hotel", itemId: hotel._id },
+      { status: "Cancelled" }
+    );
 
     await hotel.deleteOne();
-    res.json({ message: "Hotel deleted successfully" });
+
+    res.status(200).json({ success: true, message: "Hotel deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete Hotel Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

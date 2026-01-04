@@ -13,6 +13,7 @@ module.exports = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
+    console.error("Error in authMiddleware:", error);
     res.status(401).json({ message: "Token failed" });
   }
 };

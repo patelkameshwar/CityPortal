@@ -9,33 +9,38 @@ const {
   deleteEvent,
 } = require("../controllers/eventController");
 
+// Middlewares
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
-// Public
-router.get("/", getAllEvents);
+// Get all events
+router.get("/list", getAllEvents);
+
+// Get single event by ID
 router.get("/:id", getEventById);
 
-// Protected
+// Add new event
 router.post(
-  "/",
+  "/add",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   createEvent
 );
 
+// Update event (only owner client or admin)
 router.put(
-  "/:id",
+  "/update/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   updateEvent
 );
 
+// Delete event (only owner client or admin)
 router.delete(
-  "/:id",
+  "/delete/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   deleteEvent

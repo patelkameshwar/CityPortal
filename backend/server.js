@@ -6,6 +6,13 @@ const connectDB = require("./config/db");
 dotenv.config();
 connectDB();
 
+// Register models
+require("./models/User");
+require("./models/Hotel");
+require("./models/Event");
+require("./models/Tourism");
+require("./models/Booking");
+
 const app = express();
 
 app.use(cors());
@@ -16,7 +23,7 @@ app.use("/api/test", require("./routes/testRoutes"));
 app.use("/api/hotels", require("./routes/hotelRoutes"));
 app.use("/api/events", require("./routes/eventRoutes"));
 app.use("/api/tourism", require("./routes/tourismRoutes"));
-
+app.use("/api/bookings", require("./routes/bookingRoutes"));
 
 
 app.get("/", (req, res) => {
