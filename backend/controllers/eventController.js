@@ -1,10 +1,9 @@
 const Event = require("../models/Event");
 const Booking = require("../models/Booking");
 
-/**
+/*
  * CREATE EVENT
  * Access: Client / Admin
- * Route: POST /api/events
  */
 exports.createEvent = async (req, res) => {
   try {
@@ -35,7 +34,7 @@ exports.createEvent = async (req, res) => {
       owner: req.user.id,
       price,
       images,
-      bookings: [], // store per-day bookings
+      bookings: [], 
     });
 
     res.status(201).json({ success: true, message: "Event created successfully", event });
@@ -45,10 +44,9 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-/**
+/*
  * GET ALL EVENTS
  * Access: Public
- * Route: GET /api/events
  */
 exports.getAllEvents = async (req, res) => {
   try {
@@ -63,10 +61,9 @@ exports.getAllEvents = async (req, res) => {
   }
 };
 
-/**
+/*
  * GET SINGLE EVENT
  * Access: Public
- * Route: GET /api/events/:id
  */
 exports.getEventById = async (req, res) => {
   try {
@@ -100,7 +97,6 @@ exports.getEventById = async (req, res) => {
 /**
  * UPDATE EVENT
  * Access: Owner / Admin
- * Route: PUT /api/events/:id
  */
 exports.updateEvent = async (req, res) => {
   try {
@@ -146,10 +142,9 @@ exports.updateEvent = async (req, res) => {
   }
 };
 
-/**
+/*
  * DELETE EVENT
  * Access: Owner / Admin
- * Route: DELETE /api/events/:id
  */
 exports.deleteEvent = async (req, res) => {
   try {
@@ -171,10 +166,9 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 
-/**
+/*
  * BOOK EVENT
  * Access: User
- * Route: POST /api/events/:id/book
  */
 exports.bookEvent = async (req, res) => {
   try {

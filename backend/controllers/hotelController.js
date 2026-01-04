@@ -4,7 +4,6 @@ const Booking = require("../models/Booking");
 /**
  * CREATE HOTEL
  * Access: Client / Admin
- * Route: POST /api/hotels/add
  */
 exports.createHotel = async (req, res) => {
   try {
@@ -40,7 +39,7 @@ exports.createHotel = async (req, res) => {
       bookingFromDate: bookingFromDate ? new Date(bookingFromDate) : Date.now(),
       bookingToDate: bookingToDate
         ? new Date(bookingToDate)
-        : new Date(+new Date() + 365 * 24 * 60 * 60 * 1000), // default 1 year ahead
+        : new Date(+new Date() + 365 * 24 * 60 * 60 * 1000), 
       images,
       owner: req.user.id,
     });
@@ -59,7 +58,6 @@ exports.createHotel = async (req, res) => {
 /**
  * GET ALL HOTELS
  * Access: Public
- * Route: GET /api/hotels/list
  */
 exports.getAllHotels = async (req, res) => {
   try {
@@ -74,10 +72,9 @@ exports.getAllHotels = async (req, res) => {
   }
 };
 
-/**
+/*
  * GET SINGLE HOTEL
  * Access: Public
- * Route: GET /api/hotels/:id
  */
 exports.getHotelById = async (req, res) => {
   try {
@@ -99,10 +96,9 @@ exports.getHotelById = async (req, res) => {
   }
 };
 
-/**
+/*
  * UPDATE HOTEL
  * Access: Owner / Admin
- * Route: PUT /api/hotels/update/:id
  */
 exports.updateHotel = async (req, res) => {
   try {
@@ -151,10 +147,9 @@ exports.updateHotel = async (req, res) => {
   }
 };
 
-/**
+/*
  * DELETE HOTEL
  * Access: Owner / Admin
- * Route: DELETE /api/hotels/delete/:id
  */
 exports.deleteHotel = async (req, res) => {
   try {

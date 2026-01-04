@@ -8,7 +8,7 @@ const {
   getTourismById,
   updateTourism,
   deleteTourism,
-  bookTourism, // booking endpoint
+  bookTourism,
 } = require("../controllers/tourismController");
 
 // Middlewares
@@ -16,37 +16,50 @@ const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
-// Public Routes
-router.get("/list", getAllTourism);           // Get all tourism places
-router.get("/:id", getTourismById);          // Get single tourism place by ID
+// ================= PUBLIC ROUTES =================
+// Get all tourism places
+// GET /api/tourism
+router.get("/", getAllTourism);
 
-// Protected Routes - Client/Admin
+// Get single tourism place by ID
+// GET /api/tourism/:id
+router.get("/:id", getTourismById);
+
+// ================= CLIENT / ADMIN ROUTES =================
+// Create tourism place
+// POST /api/tourism
 router.post(
-  "/add",
+  "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   createTourism
 );
 
+// Update tourism place
+// PUT /api/tourism/:id
 router.put(
-  "/update/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
   updateTourism
 );
 
+// Delete tourism place
+// DELETE /api/tourism/:id
 router.delete(
-  "/delete/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   deleteTourism
 );
 
-// Booking Route - User
+// ================= USER BOOKING ROUTE =================
+// Book a tourism place
+// POST /api/tourism/:id/book
 router.post(
-  "/book/:tourismId",
+  "/:id/book",
   authMiddleware,
   roleMiddleware("user"), // Only users can book
   bookTourism

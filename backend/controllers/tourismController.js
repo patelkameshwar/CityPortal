@@ -4,7 +4,7 @@ const Booking = require("../models/Booking");
 /**
  * CREATE TOURISM PLACE
  * Access: Client / Admin
- * Route: POST /api/tourism
+ * Route: POST /api/tourism/add
  */
 exports.createTourism = async (req, res) => {
   try {
@@ -22,11 +22,19 @@ exports.createTourism = async (req, res) => {
       totalVisitors,
     } = req.body;
 
-    if (!bookingFromDate || !bookingFromTime || !bookingToDate || !bookingToTime) {
+    if (!bookingFromDate || !bookingToDate || !bookingFromTime || !bookingToTime) {
       return res.status(400).json({
         success: false,
         message: "Booking from/to date and time are required",
       });
+    }
+
+    const from = new Date(bookingFromDate);
+    const to = new Date(bookingToDate);
+
+    // Validate that end date is after start date
+    if (from >= to) {
+      return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 
     const images = req.files ? req.files.map((file) => file.path) : [];
@@ -38,19 +46,17 @@ exports.createTourism = async (req, res) => {
       entryFee,
       openTime,
       closeTime,
-      bookingFromDate,
+      bookingFromDate: from,
       bookingFromTime,
-      bookingToDate,
+      bookingToDate: to,
       bookingToTime,
       totalVisitors: totalVisitors || 100,
-      availableVisitors: totalVisitors || 100,
+      bookings: [], // Store per-day bookings
       images,
       owner: req.user.id,
     });
 
-    res
-      .status(201)
-      .json({ success: true, message: "Tourism place created successfully", tourism });
+    res.status(201).json({ success: true, message: "Tourism place created successfully", tourism });
   } catch (error) {
     console.error("Create Tourism Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -60,13 +66,12 @@ exports.createTourism = async (req, res) => {
 /**
  * GET ALL TOURISM PLACES
  * Access: Public
- * Route: GET /api/tourism
  */
 exports.getAllTourism = async (req, res) => {
   try {
     const tourismPlaces = await Tourism.find()
       .populate("owner", "name email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1, _id: -1 });
 
     res.status(200).json({ success: true, tourismPlaces });
   } catch (error) {
@@ -78,11 +83,12 @@ exports.getAllTourism = async (req, res) => {
 /**
  * GET SINGLE TOURISM PLACE
  * Access: Public
- * Route: GET /api/tourism/:id
  */
 exports.getTourismById = async (req, res) => {
   try {
-    const tourism = await Tourism.findById(req.params.id).populate("owner", "name email");
+    const tourism = await Tourism.findById(req.params.id)
+      .populate("owner", "name email")
+      .populate("bookings.user", "name email");
 
     if (!tourism)
       return res.status(404).json({ success: false, message: "Tourism place not found" });
@@ -97,7 +103,6 @@ exports.getTourismById = async (req, res) => {
 /**
  * UPDATE TOURISM PLACE
  * Access: Owner / Admin
- * Route: PUT /api/tourism/:id
  */
 exports.updateTourism = async (req, res) => {
   try {
@@ -116,25 +121,28 @@ exports.updateTourism = async (req, res) => {
     tourism.entryFee = req.body.entryFee || tourism.entryFee;
     tourism.openTime = req.body.openTime || tourism.openTime;
     tourism.closeTime = req.body.closeTime || tourism.closeTime;
-    tourism.bookingFromDate = req.body.bookingFromDate || tourism.bookingFromDate;
+    if (req.body.bookingFromDate) tourism.bookingFromDate = new Date(req.body.bookingFromDate);
+    if (req.body.bookingToDate) tourism.bookingToDate = new Date(req.body.bookingToDate);
     tourism.bookingFromTime = req.body.bookingFromTime || tourism.bookingFromTime;
-    tourism.bookingToDate = req.body.bookingToDate || tourism.bookingToDate;
     tourism.bookingToTime = req.body.bookingToTime || tourism.bookingToTime;
+
+    // Validate booking dates
+    if (tourism.bookingFromDate >= tourism.bookingToDate) {
+      return res.status(400).json({ success: false, message: "End date must be after start date" });
+    }
 
     // Update totalVisitors safely without breaking existing bookings
     if (req.body.totalVisitors) {
-      const usedVisitors = tourism.totalVisitors - tourism.availableVisitors;
+      const usedVisitors = tourism.bookings.reduce((sum, b) => sum + b.visitors, 0);
       tourism.totalVisitors = req.body.totalVisitors;
-      tourism.availableVisitors = Math.max(req.body.totalVisitors - usedVisitors, 0);
+      // Note: availableVisitors now calculated per day dynamically
     }
 
     tourism.images = images;
 
     await tourism.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Tourism place updated successfully", tourism });
+    res.status(200).json({ success: true, message: "Tourism place updated successfully", tourism });
   } catch (error) {
     console.error("Update Tourism Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -144,7 +152,6 @@ exports.updateTourism = async (req, res) => {
 /**
  * DELETE TOURISM PLACE
  * Access: Owner / Admin
- * Route: DELETE /api/tourism/:id
  */
 exports.deleteTourism = async (req, res) => {
   try {
@@ -156,16 +163,11 @@ exports.deleteTourism = async (req, res) => {
       return res.status(403).json({ success: false, message: "Not authorized" });
 
     // Cancel all related bookings
-    await Booking.updateMany(
-      { itemType: "Tourism", itemId: tourism._id },
-      { status: "Cancelled" }
-    );
+    await Booking.updateMany({ itemType: "Tourism", itemId: tourism._id }, { status: "Cancelled" });
 
     await tourism.deleteOne();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Tourism place deleted successfully" });
+    res.status(200).json({ success: true, message: "Tourism place deleted successfully" });
   } catch (error) {
     console.error("Delete Tourism Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -175,7 +177,7 @@ exports.deleteTourism = async (req, res) => {
 /**
  * BOOK TOURISM PLACE
  * Access: User
- * Route: POST /api/bookings/tourism/:tourismId
+ * Route: POST /api/tourism/book/:tourismId
  */
 exports.bookTourism = async (req, res) => {
   try {
@@ -186,38 +188,41 @@ exports.bookTourism = async (req, res) => {
     if (!tourism)
       return res.status(404).json({ success: false, message: "Tourism place not found" });
 
-    // Check booking date is within allowed range
+    if (!bookingDate || !bookingTime || !visitors || visitors < 1) {
+      return res.status(400).json({ success: false, message: "Booking date, time, and visitors required" });
+    }
+
+    const date = new Date(bookingDate);
     const from = new Date(tourism.bookingFromDate);
     const to = new Date(tourism.bookingToDate);
-    const requestedDate = new Date(bookingDate);
 
-    if (requestedDate < from || requestedDate > to)
-      return res.status(400).json({
-        success: false,
-        message: `Booking date must be between ${from.toDateString()} and ${to.toDateString()}`,
-      });
+    if (date < from || date > to) {
+      return res.status(400).json({ success: false, message: `Booking date must be between ${from.toDateString()} and ${to.toDateString()}` });
+    }
 
-    // Check if enough visitors are available
-    if (visitors > tourism.availableVisitors)
-      return res.status(400).json({
-        success: false,
-        message: `Only ${tourism.availableVisitors} visitors left`,
-      });
+    // Calculate total visitors already booked on that day
+    const bookedVisitors = tourism.bookings
+      .filter(b => b.bookingDate.toDateString() === date.toDateString())
+      .reduce((sum, b) => sum + b.visitors, 0);
 
-    // Create booking
+    if (bookedVisitors + visitors > tourism.totalVisitors) {
+      return res.status(400).json({ success: false, message: `Only ${tourism.totalVisitors - bookedVisitors} visitors left on this date` });
+    }
+
+    // Add booking to tourism place
+    tourism.bookings.push({ user: req.user.id, bookingDate: date, visitors });
+    await tourism.save();
+
+    // Create booking record
     const booking = await Booking.create({
       itemType: "Tourism",
       itemId: tourism._id,
       user: req.user.id,
-      bookingDate,
+      bookingDate: date,
       bookingTime,
       visitors,
       status: "Confirmed",
     });
-
-    // Reduce available visitors
-    tourism.availableVisitors -= visitors;
-    await tourism.save();
 
     res.status(201).json({ success: true, message: "Booking successful", booking });
   } catch (error) {

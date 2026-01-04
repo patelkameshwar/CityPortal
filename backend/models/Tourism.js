@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const tourismSchema = new mongoose.Schema(
   {
-    // Tourism Place Info
+    // Basic Info
     name: {
       type: String,
       required: true,
@@ -27,73 +27,73 @@ const tourismSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // Opening Time (e.g. 09:00 AM)
+    // Default visiting hours (optional)
     openTime: {
       type: String,
       required: true,
+      default: "09:00 AM",
       match: [
         /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
         "Time must be in hh:mm AM/PM format",
       ],
     },
 
-    // Closing Time (e.g. 06:00 PM)
     closeTime: {
       type: String,
       required: true,
+      default: "06:00 PM",
       match: [
         /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
         "Time must be in hh:mm AM/PM format",
       ],
     },
 
-    // Booking Dates (from client/admin, like a calendar)
+    // Booking availability (support multi-day bookings)
     bookingFromDate: {
       type: Date,
       required: true,
-    },
-
-    bookingFromTime: {
-      type: String,
-      required: true,
-      match: [
-        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
-        "Time must be in hh:mm AM/PM format",
-      ],
+      default: () => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+      },
     },
 
     bookingToDate: {
       type: Date,
       required: true,
+      default: () => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        d.setFullYear(d.getFullYear() + 1);
+        return d;
+      },
     },
 
-    bookingToTime: {
-      type: String,
+    // Total visitors per day
+    totalVisitors: {
+      type: Number,
       required: true,
-      match: [
-        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
-        "Time must be in hh:mm AM/PM format",
+      min: 1,
+      default: 100,
+    },
+
+    // Bookings array per day
+    bookings: {
+      type: [
+        {
+          user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          bookedAt: { type: Date, default: Date.now },
+          seats: { type: Number, required: true, min: 1 },
+          bookingDate: { type: Date, required: true },
+        },
       ],
+      default: [],
     },
 
     images: {
       type: [String],
       default: [],
-    },
-
-    // Total visitors/seats for that tourism place (optional)
-    totalVisitors: {
-      type: Number,
-      default: 100, // Default 100 visitors per day
-      min: 1,
-    },
-
-    availableVisitors: {
-      type: Number,
-      default: function () {
-        return this.totalVisitors;
-      },
-      min: 0,
     },
 
     // Created by (Client / Admin)

@@ -3,10 +3,9 @@ const Event = require("../models/Event");
 const Hotel = require("../models/Hotel");
 const Tourism = require("../models/Tourism");
 
-/**
+/*
  * CREATE BOOKING
  * Access: User
- * Route: POST /api/bookings
  */
 exports.createBooking = async (req, res) => {
   try {
