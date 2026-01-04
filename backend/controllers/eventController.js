@@ -27,6 +27,7 @@ exports.createEvent = async (req, res) => {
       price,
       images,
       owner: req.user.id,
+      bookings: [],
     });
 
     res.status(201).json({ success: true, message: "Event created successfully", event });
@@ -61,7 +62,9 @@ exports.getAllEvents = async (req, res) => {
  */
 exports.getEventById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id).populate("owner", "name email");
+    const event = await Event.findById(req.params.id)
+      .populate("owner", "name email")
+      .populate("bookings.user", "name email");
 
     if (!event) return res.status(404).json({ success: false, message: "Event not found" });
 
@@ -87,13 +90,14 @@ exports.updateEvent = async (req, res) => {
 
     const images = req.files?.length ? req.files.map(file => file.path) : event.images;
 
-    // Adjust seats safely
+    // Update total seats safely
     if (req.body.totalSeats) {
       const usedSeats = event.totalSeats - event.availableSeats;
       event.totalSeats = req.body.totalSeats;
       event.availableSeats = Math.max(req.body.totalSeats - usedSeats, 0);
     }
 
+    // Update fields
     event.title = req.body.title || event.title;
     event.location = req.body.location || event.location;
     event.description = req.body.description || event.description;
@@ -132,6 +136,35 @@ exports.deleteEvent = async (req, res) => {
     res.status(200).json({ success: true, message: "Event deleted successfully" });
   } catch (error) {
     console.error("Delete Event Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * ADD BOOKING TO EVENT
+ * Access: User
+ * Route: POST /api/events/:id/book
+ */
+exports.bookEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ success: false, message: "Event not found" });
+
+    const { seats } = req.body;
+    if (!seats || seats < 1) return res.status(400).json({ success: false, message: "Seats required" });
+
+    if (seats > event.availableSeats)
+      return res.status(400).json({ success: false, message: "Not enough seats available" });
+
+    // Add booking entry
+    event.bookings.push({ user: req.user.id, seats });
+    event.availableSeats -= seats;
+
+    await event.save();
+
+    res.status(200).json({ success: true, message: "Event booked successfully", event });
+  } catch (error) {
+    console.error("Book Event Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

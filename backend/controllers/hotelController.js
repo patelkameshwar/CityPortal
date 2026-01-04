@@ -1,10 +1,10 @@
 const Hotel = require("../models/Hotel");
-const Booking = require("../models/Booking"); // Optional, for cancelling bookings
+const Booking = require("../models/Booking");
 
 /**
  * CREATE HOTEL
  * Access: Client / Admin
- * Route: POST /api/hotels
+ * Route: POST /api/hotels/add
  */
 exports.createHotel = async (req, res) => {
   try {
@@ -13,14 +13,16 @@ exports.createHotel = async (req, res) => {
       location,
       description,
       pricePerNight,
-      bookingFromDate,
-      bookingFromTime,
-      bookingToDate,
-      bookingToTime,
+      totalRooms,
+      defaultCheckInTime,
+      defaultCheckOutTime,
     } = req.body;
 
-    if (!bookingFromDate || !bookingFromTime || !bookingToDate || !bookingToTime) {
-      return res.status(400).json({ success: false, message: "Booking from/to date and time are required" });
+    if (!name || !location || !pricePerNight || !totalRooms) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, location, pricePerNight, and totalRooms are required",
+      });
     }
 
     const images = req.files ? req.files.map((file) => file.path) : [];
@@ -30,15 +32,18 @@ exports.createHotel = async (req, res) => {
       location,
       description,
       pricePerNight,
-      bookingFromDate,
-      bookingFromTime,
-      bookingToDate,
-      bookingToTime,
+      totalRooms,
+      defaultCheckInTime: defaultCheckInTime || "12:00 PM",
+      defaultCheckOutTime: defaultCheckOutTime || "10:00 AM",
       images,
       owner: req.user.id,
     });
 
-    res.status(201).json({ success: true, message: "Hotel created successfully", hotel });
+    res.status(201).json({
+      success: true,
+      message: "Hotel created successfully",
+      hotel,
+    });
   } catch (error) {
     console.error("Create Hotel Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -48,7 +53,7 @@ exports.createHotel = async (req, res) => {
 /**
  * GET ALL HOTELS
  * Access: Public
- * Route: GET /api/hotels
+ * Route: GET /api/hotels/list
  */
 exports.getAllHotels = async (req, res) => {
   try {
@@ -70,9 +75,16 @@ exports.getAllHotels = async (req, res) => {
  */
 exports.getHotelById = async (req, res) => {
   try {
-    const hotel = await Hotel.findById(req.params.id).populate("owner", "name email");
+    const hotel = await Hotel.findById(req.params.id).populate(
+      "owner",
+      "name email"
+    );
 
-    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
+    if (!hotel) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Hotel not found" });
+    }
 
     res.status(200).json({ success: true, hotel });
   } catch (error) {
@@ -84,15 +96,22 @@ exports.getHotelById = async (req, res) => {
 /**
  * UPDATE HOTEL
  * Access: Owner / Admin
- * Route: PUT /api/hotels/:id
+ * Route: PUT /api/hotels/update/:id
  */
 exports.updateHotel = async (req, res) => {
   try {
     const hotel = await Hotel.findById(req.params.id);
-    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
+    if (!hotel) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Hotel not found" });
+    }
 
-    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id)
-      return res.status(403).json({ success: false, message: "Not authorized" });
+    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
+    }
 
     const images = req.files?.length ? req.files.map((file) => file.path) : hotel.images;
 
@@ -100,15 +119,18 @@ exports.updateHotel = async (req, res) => {
     hotel.location = req.body.location || hotel.location;
     hotel.description = req.body.description || hotel.description;
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
-    hotel.bookingFromDate = req.body.bookingFromDate || hotel.bookingFromDate;
-    hotel.bookingFromTime = req.body.bookingFromTime || hotel.bookingFromTime;
-    hotel.bookingToDate = req.body.bookingToDate || hotel.bookingToDate;
-    hotel.bookingToTime = req.body.bookingToTime || hotel.bookingToTime;
+    hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
+    hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
+    hotel.defaultCheckOutTime = req.body.defaultCheckOutTime || hotel.defaultCheckOutTime;
     hotel.images = images;
 
     await hotel.save();
 
-    res.status(200).json({ success: true, message: "Hotel updated successfully", hotel });
+    res.status(200).json({
+      success: true,
+      message: "Hotel updated successfully",
+      hotel,
+    });
   } catch (error) {
     console.error("Update Hotel Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -118,17 +140,24 @@ exports.updateHotel = async (req, res) => {
 /**
  * DELETE HOTEL
  * Access: Owner / Admin
- * Route: DELETE /api/hotels/:id
+ * Route: DELETE /api/hotels/delete/:id
  */
 exports.deleteHotel = async (req, res) => {
   try {
     const hotel = await Hotel.findById(req.params.id);
-    if (!hotel) return res.status(404).json({ success: false, message: "Hotel not found" });
+    if (!hotel) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Hotel not found" });
+    }
 
-    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id)
-      return res.status(403).json({ success: false, message: "Not authorized" });
+    if (req.user.role !== "admin" && hotel.owner.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
+    }
 
-    // Optional: Cancel related bookings
+    // Cancel all related bookings automatically
     await Booking.updateMany(
       { itemType: "Hotel", itemId: hotel._id },
       { status: "Cancelled" }
@@ -136,7 +165,10 @@ exports.deleteHotel = async (req, res) => {
 
     await hotel.deleteOne();
 
-    res.status(200).json({ success: true, message: "Hotel deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Hotel deleted successfully",
+    });
   } catch (error) {
     console.error("Delete Hotel Error:", error);
     res.status(500).json({ success: false, message: error.message });

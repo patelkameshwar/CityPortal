@@ -47,14 +47,13 @@ const tourismSchema = new mongoose.Schema(
       ],
     },
 
-    // Booking Date (same as Event: 4 Jan, 2026)
-    bookingDate: {
+    // Booking Dates (from client/admin, like a calendar)
+    bookingFromDate: {
       type: Date,
       required: true,
     },
 
-    // Booking Time (same as Event: 6:45 PM)
-    bookingTime: {
+    bookingFromTime: {
       type: String,
       required: true,
       match: [
@@ -63,10 +62,38 @@ const tourismSchema = new mongoose.Schema(
       ],
     },
 
-    // Images
+    bookingToDate: {
+      type: Date,
+      required: true,
+    },
+
+    bookingToTime: {
+      type: String,
+      required: true,
+      match: [
+        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
+        "Time must be in hh:mm AM/PM format",
+      ],
+    },
+
     images: {
       type: [String],
       default: [],
+    },
+
+    // Total visitors/seats for that tourism place (optional)
+    totalVisitors: {
+      type: Number,
+      default: 100, // Default 100 visitors per day
+      min: 1,
+    },
+
+    availableVisitors: {
+      type: Number,
+      default: function () {
+        return this.totalVisitors;
+      },
+      min: 0,
     },
 
     // Created by (Client / Admin)

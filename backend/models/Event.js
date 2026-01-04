@@ -19,11 +19,13 @@ const eventSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Event start date
     eventDate: {
       type: Date,
       required: true,
     },
 
+    // Event start time
     eventTime: {
       type: String,
       required: true,
@@ -33,12 +35,14 @@ const eventSchema = new mongoose.Schema(
       ],
     },
 
+    // Total seats available for the event
     totalSeats: {
       type: Number,
       required: true,
       min: 1,
     },
 
+    // Seats already booked
     availableSeats: {
       type: Number,
       default: function () {
@@ -46,6 +50,7 @@ const eventSchema = new mongoose.Schema(
       },
     },
 
+    // Price per ticket
     price: {
       type: Number,
       required: true,
@@ -57,10 +62,23 @@ const eventSchema = new mongoose.Schema(
       default: [],
     },
 
+    // Owner (Client/Admin who created the event)
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    // Array of booking ranges for calendar-like flexibility
+    bookings: {
+      type: [
+        {
+          user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          bookedAt: { type: Date, default: Date.now },
+          seats: { type: Number, required: true, min: 1 },
+        },
+      ],
+      default: [],
     },
   },
   { timestamps: true }

@@ -15,15 +15,21 @@ const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
+/**
+ * PUBLIC ROUTES
+ */
 // Get all hotels
-router.get("/list", getAllHotels);
+router.get("/", getAllHotels);
 
 // Get single hotel by ID
 router.get("/:id", getHotelById);
 
-// Add hotel
+/**
+ * PROTECTED ROUTES (CLIENT / ADMIN)
+ */
+// Add a new hotel
 router.post(
-  "/add",
+  "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
@@ -32,7 +38,7 @@ router.post(
 
 // Update hotel (only owner client or admin)
 router.put(
-  "/update/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   upload.array("images", 5),
@@ -41,7 +47,7 @@ router.put(
 
 // Delete hotel (only owner client or admin)
 router.delete(
-  "/delete/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
   deleteHotel

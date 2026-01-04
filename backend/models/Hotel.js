@@ -31,32 +31,26 @@ const hotelSchema = new mongoose.Schema(
       default: [],
     },
 
-    // Booking FROM date (4 Jan, 2026)
-    bookingFromDate: {
-      type: Date,
+    // Total rooms available in the hotel
+    totalRooms: {
+      type: Number,
       required: true,
+      min: 1,
     },
 
-    // Booking FROM time (12:00 PM)
-    bookingFromTime: {
+    // Optional default check-in/check-out times
+    defaultCheckInTime: {
       type: String,
-      required: true,
+      default: "12:00 PM",
       match: [
         /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
         "Time must be in hh:mm AM/PM format",
       ],
     },
 
-    // Booking TO date (6 Jan, 2026)
-    bookingToDate: {
-      type: Date,
-      required: true,
-    },
-
-    // Booking TO time (10:00 AM)
-    bookingToTime: {
+    defaultCheckOutTime: {
       type: String,
-      required: true,
+      default: "10:00 AM",
       match: [
         /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
         "Time must be in hh:mm AM/PM format",

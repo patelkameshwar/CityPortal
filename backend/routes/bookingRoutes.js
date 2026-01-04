@@ -77,7 +77,8 @@ router.get(
  * ========================
  */
 
-// Approve or Reject booking
+// Update booking status (Confirm / Cancel)
+// Clients can approve/reject only bookings for their own items
 router.put(
   "/:id/status",
   authMiddleware,

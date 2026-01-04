@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    // The user who booked
+    // User who made the booking
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -12,44 +12,53 @@ const bookingSchema = new mongoose.Schema(
     // Type of booked item
     itemType: {
       type: String,
-      enum: ["Event", "Hotel", "Tourism"],
+      enum: ["Hotel", "Event", "Tourism"],
       required: true,
     },
 
-    // ID of the booked item
+    // Reference to booked item (dynamic based on itemType)
     itemId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      refPath: "itemType", // Dynamic reference to Event, Hotel, or Tourism
+      refPath: "itemType",
     },
 
-    // For Event & Tourism bookings
-    bookingDate: {
-      type: Date,
-    },
-    bookingTime: {
-      type: String, // hh:mm AM/PM
-      match: [/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i, "Time must be in hh:mm AM/PM format"],
-    },
-
-    // For Hotel bookings
+    // HOTEL: Check-in / Check-out
     bookingFromDate: {
       type: Date,
     },
     bookingFromTime: {
       type: String,
-      match: [/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i, "Time must be in hh:mm AM/PM format"],
+      match: [
+        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
+        "Time must be in hh:mm AM/PM format",
+      ],
     },
     bookingToDate: {
       type: Date,
     },
     bookingToTime: {
       type: String,
-      match: [/^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i, "Time must be in hh:mm AM/PM format"],
+      match: [
+        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
+        "Time must be in hh:mm AM/PM format",
+      ],
     },
 
-    // Number of seats (Event/Tourism) or rooms (Hotel)
-    totalSeatsOrRooms: {
+    // EVENT / TOURISM: Specific date & time
+    bookingDate: {
+      type: Date,
+    },
+    bookingTime: {
+      type: String,
+      match: [
+        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
+        "Time must be in hh:mm AM/PM format",
+      ],
+    },
+
+    // Number of rooms (Hotel) or seats/visitors (Event/Tourism)
+    totalQuantity: {
       type: Number,
       required: true,
       min: 1,
