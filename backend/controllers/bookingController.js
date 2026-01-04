@@ -61,56 +61,75 @@ exports.createBooking = async (req, res) => {
 
     // ================= HOTEL BOOKING =================
     if (itemType === "Hotel") {
-      item = await Hotel.findById(itemId);
-      if (!item) return res.status(404).json({ message: "Hotel not found" });
+  item = await Hotel.findById(itemId);
+  if (!item) {
+    return res.status(404).json({ message: "Hotel not found" });
+  }
 
-      if (!bookingFromDate || !bookingToDate) {
-        return res.status(400).json({ message: "Check-in and check-out dates required for Hotel" });
-      }
+  if (!bookingFromDate || !bookingToDate) {
+    return res
+      .status(400)
+      .json({ message: "Check-in and check-out dates required for Hotel" });
+  }
 
-      const from = new Date(bookingFromDate);
-      const to = new Date(bookingToDate);
+  // Normalize dates (remove time)
+  const from = new Date(bookingFromDate);
+  const to = new Date(bookingToDate);
+  from.setHours(0, 0, 0, 0);
+  to.setHours(0, 0, 0, 0);
 
-      if (from >= to) {
-        return res.status(400).json({ message: "Invalid hotel booking dates" });
-      }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      // Prevent booking past dates
-      const today = new Date();
-      if (from < today) {
-        return res.status(400).json({ message: "Cannot book past dates" });
-      }
+  // Validate dates
+  if (from >= to) {
+    return res.status(400).json({ message: "Invalid hotel booking dates" });
+  }
 
-      // Check if dates are within hotel availability
-      if (from < item.bookingFromDate || to > item.bookingToDate) {
-        return res.status(400).json({ message: "Hotel not available for selected dates" });
-      }
+  if (from < today) {
+    return res.status(400).json({ message: "Cannot book past dates" });
+  }
 
-      // Check existing bookings for overlapping dates
-      const existingBookings = await Booking.find({
-        itemType: "Hotel",
-        itemId: itemId,
-        status: "Confirmed",
-        $or: [
-          { bookingFromDate: { $lt: to, $gte: from } },
-          { bookingToDate: { $gt: from, $lte: to } },
-          { bookingFromDate: { $lte: from }, bookingToDate: { $gte: to } },
-        ],
-      });
+  // Hotel availability window
+  const hotelFrom = new Date(item.bookingFromDate);
+  const hotelTo = new Date(item.bookingToDate);
+  hotelFrom.setHours(0, 0, 0, 0);
+  hotelTo.setHours(0, 0, 0, 0);
 
-      let roomsBooked = 0;
-      existingBookings.forEach(b => {
-        roomsBooked += b.totalQuantity;
-      });
+  if (from < hotelFrom || to > hotelTo) {
+    return res
+      .status(400)
+      .json({ message: "Hotel not available for selected dates" });
+  }
 
-      if (roomsBooked + totalQuantity > item.totalRooms) {
-        return res.status(400).json({ message: "Not enough rooms available for selected dates" });
-      }
+  // ✅ Correct overlap logic
+  const existingBookings = await Booking.find({
+    itemType: "Hotel",
+    itemId: itemId,
+    status: "Confirmed",
+    bookingFromDate: { $lt: to },
+    bookingToDate: { $gt: from },
+  });
 
-      // Calculate total nights
-      const nights = Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
-      totalPrice = nights * item.pricePerNight * totalQuantity;
-    }
+  let roomsBooked = 0;
+  existingBookings.forEach(b => {
+    roomsBooked += b.totalQuantity;
+  });
+
+  if (roomsBooked + totalQuantity > item.totalRooms) {
+    return res
+      .status(400)
+      .json({ message: "Not enough rooms available for selected dates" });
+  }
+
+  // Calculate total nights
+  const nights = Math.ceil(
+    (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  totalPrice = nights * item.pricePerNight * totalQuantity;
+}
+
 
     // ================= TOURISM BOOKING =================
     if (itemType === "Tourism") {
@@ -151,6 +170,7 @@ exports.createBooking = async (req, res) => {
       bookingToTime,
       totalQuantity,
       totalPrice,
+      status: "Confirmed",
     });
 
     res.status(201).json({
