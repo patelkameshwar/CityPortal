@@ -16,6 +16,8 @@ exports.createHotel = async (req, res) => {
       totalRooms,
       defaultCheckInTime,
       defaultCheckOutTime,
+      bookingFromDate,
+      bookingToDate,
     } = req.body;
 
     if (!name || !location || !pricePerNight || !totalRooms) {
@@ -35,6 +37,10 @@ exports.createHotel = async (req, res) => {
       totalRooms,
       defaultCheckInTime: defaultCheckInTime || "12:00 PM",
       defaultCheckOutTime: defaultCheckOutTime || "10:00 AM",
+      bookingFromDate: bookingFromDate ? new Date(bookingFromDate) : Date.now(),
+      bookingToDate: bookingToDate
+        ? new Date(bookingToDate)
+        : new Date(+new Date() + 365 * 24 * 60 * 60 * 1000), // default 1 year ahead
       images,
       owner: req.user.id,
     });
@@ -123,6 +129,14 @@ exports.updateHotel = async (req, res) => {
     hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
     hotel.defaultCheckOutTime = req.body.defaultCheckOutTime || hotel.defaultCheckOutTime;
     hotel.images = images;
+
+    // Update booking availability dates
+    hotel.bookingFromDate = req.body.bookingFromDate
+      ? new Date(req.body.bookingFromDate)
+      : hotel.bookingFromDate;
+    hotel.bookingToDate = req.body.bookingToDate
+      ? new Date(req.body.bookingToDate)
+      : hotel.bookingToDate;
 
     await hotel.save();
 

@@ -39,7 +39,6 @@ exports.createBooking = async (req, res) => {
       item = await Event.findById(itemId);
       if (!item) return res.status(404).json({ message: "Event not found" });
 
-      // Check event date
       if (!bookingDate || !bookingTime) {
         return res.status(400).json({ message: "Booking date & time required for Event" });
       }
@@ -76,20 +75,26 @@ exports.createBooking = async (req, res) => {
         return res.status(400).json({ message: "Invalid hotel booking dates" });
       }
 
-      // Check if dates fall within hotel's available booking range
-      const hotelStart = new Date(item.bookingFromDate);
-      const hotelEnd = new Date(item.bookingToDate);
-      if (from < hotelStart || to > hotelEnd) {
+      // Prevent booking past dates
+      const today = new Date();
+      if (from < today) {
+        return res.status(400).json({ message: "Cannot book past dates" });
+      }
+
+      // Check if dates are within hotel availability
+      if (from < item.bookingFromDate || to > item.bookingToDate) {
         return res.status(400).json({ message: "Hotel not available for selected dates" });
       }
 
-      // Check existing bookings for hotel conflict
+      // Check existing bookings for overlapping dates
       const existingBookings = await Booking.find({
         itemType: "Hotel",
         itemId: itemId,
         status: "Confirmed",
         $or: [
-          { bookingFromDate: { $lt: to }, bookingToDate: { $gt: from } }, // overlapping
+          { bookingFromDate: { $lt: to, $gte: from } },
+          { bookingToDate: { $gt: from, $lte: to } },
+          { bookingFromDate: { $lte: from }, bookingToDate: { $gte: to } },
         ],
       });
 
@@ -103,7 +108,7 @@ exports.createBooking = async (req, res) => {
       }
 
       // Calculate total nights
-      const nights = (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
+      const nights = Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
       totalPrice = nights * item.pricePerNight * totalQuantity;
     }
 
@@ -118,10 +123,7 @@ exports.createBooking = async (req, res) => {
       }
 
       const tourDate = new Date(bookingDate);
-      const startDate = new Date(item.bookingFromDate);
-      const endDate = new Date(item.bookingToDate);
-
-      if (tourDate < startDate || tourDate > endDate) {
+      if (tourDate < item.bookingFromDate || tourDate > item.bookingToDate) {
         return res.status(400).json({ message: "Tourism place not available on this date" });
       }
 
@@ -264,15 +266,15 @@ exports.cancelBooking = async (req, res) => {
       return res.status(400).json({ message: "Booking already cancelled" });
     }
 
-    // Restore availability
-    if (booking.itemType === "Event" && booking.status === "Confirmed") {
-      booking.itemId.availableSeats += booking.totalQuantity;
-      await booking.itemId.save();
-    }
-
-    if (booking.itemType === "Tourism" && booking.status === "Confirmed") {
-      booking.itemId.availableVisitors += booking.totalQuantity;
-      await booking.itemId.save();
+    // Restore availability if it was confirmed
+    if (booking.status === "Confirmed") {
+      if (booking.itemType === "Event") {
+        booking.itemId.availableSeats += booking.totalQuantity;
+        await booking.itemId.save();
+      } else if (booking.itemType === "Tourism") {
+        booking.itemId.availableVisitors += booking.totalQuantity;
+        await booking.itemId.save();
+      }
     }
 
     booking.status = "Cancelled";
