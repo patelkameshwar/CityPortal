@@ -1,49 +1,41 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-import Navbar from "./components/Navbar";
-import ScrollToTop from "./components/ScrollToTop";
-
-import Home from "./pages/Home";
-import Hotels from "./pages/Hotels";
-import Events from "./pages/Events";
-import Tourism from "./pages/Tourism";
-import Blogs from "./pages/Blogs";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import UpdatePassword from "./pages/UpdatePassword";
+import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import Home from './pages/Home'
+import Hotels from './pages/Hotels'
+import Events from './pages/Events'
+import Tourism from './pages/Tourism'
+import Blogs from './pages/Blogs'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import MyProfile from './pages/MyProfile'
+import MyBookings from './pages/MyBookings'
+import Navbar from './components/Navbar'
 
 const App = () => {
-  const [user, setUser] = React.useState(null);
-
   return (
-    <Router>
-      <ScrollToTop />
-      <Navbar user={user} setUser={setUser} />
+    <AuthProvider>
+      <div className='mx-4 sm:mx-[10%]'>
+        <Navbar />
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/hotels' element={<Hotels />} />
+          <Route path='/events' element={<Events />} />
+          <Route path='/tourism' element={<Tourism />} />
+          <Route path='/blogs' element={<Blogs />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/my-profile' element={<MyProfile />} />
+          <Route path='/my-bookings' element={<MyBookings />} />
+        </Routes>
+      </div>
+    </AuthProvider>
+  )
+}
 
-      <Routes>
-        {/* Auth */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/update-password" element={<UpdatePassword />} />
+export default App
 
-        {/* SPA Pages */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/hotels" element={<Hotels />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/tourism" element={<Tourism />} />
-        <Route path="/blogs" element={<Blogs />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-      </Routes>
-    </Router>
-  );
-};
-
-export default App;

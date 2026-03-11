@@ -1,137 +1,110 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
 
-function Navbar({ user, setUser }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+import React, { useState } from 'react';
+import { assets } from '../assets/assets';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { FiMenu, FiX, FiUser, FiLogOut, FiCalendar } from 'react-icons/fi';
+
+const Navbar = () => {
   const navigate = useNavigate();
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const { user, isAuthenticated, logout } = useAuth();
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleLogout = () => {
-    setDropdownOpen(false);
-    setUser(null);
-    navigate("/login");
+    logout();
+    navigate('/');
   };
 
-  // SPA navigation links
-  const navLinks = [
-    "/home",
-    "/hotels",
-    "/events",
-    "/tourism",
-    "/blogs",
-    "/about",
-    "/contact",
-  ];
-
   return (
-    <nav className="w-full bg-white sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 border-b border-gray-200">
-        <div className="flex items-center justify-between h-16">
+    <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
+      <img 
+        className='w-30 h-9 cursor-pointer' 
+        src={assets.logo2} 
+        alt="CityPortal" 
+        onClick={() => navigate('/')}
+      />
+      
+      <ul className='hidden md:flex items-start gap-5 font-medium'>
+        <NavLink to='/'>
+          <li className='py-1'>Home</li>
+        </NavLink>
+        <NavLink to='/hotels'>
+          <li className='py-1'>Hotels</li>
+        </NavLink>
+        <NavLink to='/events'>
+          <li className='py-1'>Events</li>
+        </NavLink>
+        <NavLink to='/tourism'>
+          <li className='py-1'>Tourism</li>
+        </NavLink>
+        <NavLink to='/blogs'>
+          <li className='py-1'>Blogs</li>
+        </NavLink>
+        <NavLink to='/about'>
+          <li className='py-1'>About</li>
+        </NavLink>
+        <NavLink to='/contact'>
+          <li className='py-1'>Contact</li>
+        </NavLink>
+      </ul>
 
-          {/* Logo */}
-          <NavLink
-            to="/home"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="text-2xl font-bold text-blue-600"
+      <div className='flex items-center gap-4'>
+        {isAuthenticated ? (
+          <div className='flex items-center gap-2 cursor-pointer group relative'>
+            <img className='w-8 rounded-full bg-gray-200' src={assets.kaushalpic} alt="" />
+            <img className='w-2.5' src={assets.dropdown} alt="" />
+            <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
+              <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
+                <p className='text-gray-800 font-semibold'>{user?.name}</p>
+                <hr className='border-gray-300' />
+                <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer flex items-center gap-2'><FiUser className="h-4 w-4" /> My Profile</p>
+                <p onClick={() => navigate('/my-bookings')} className='hover:text-black cursor-pointer flex items-center gap-2'><FiCalendar className="h-4 w-4" /> My Bookings</p>
+                <p onClick={handleLogout} className='hover:text-black cursor-pointer flex items-center gap-2'><FiLogOut className="h-4 w-4" /> Logout</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <button 
+            onClick={() => navigate('/login')} 
+            className='bg-gray-800 text-white px-8 py-3 rounded-full font-light hidden md:block hover:bg-gray-700 transition'
           >
-            CityPortal
-          </NavLink>
-
-          {/* Center Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((path) => {
-              const label =
-                path === "/home"
-                  ? "Home"
-                  : path.slice(1).charAt(0).toUpperCase() + path.slice(2);
-
-              return (
-                <NavLink
-                  key={path}
-                  to={path}
-                  onClick={() =>
-                    path === "/home" &&
-                    window.scrollTo({ top: 0, behavior: "smooth" })
-                  }
-                  className={({ isActive }) =>
-                    `font-medium text-gray-700 hover:text-blue-600 ${
-                      isActive
-                        ? "underline underline-offset-4 decoration-blue-600"
-                        : ""
-                    }`
-                  }
-                >
-                  {label}
-                </NavLink>
-              );
-            })}
-          </div>
-
-          {/* Right Section */}
-          <div className="relative" ref={dropdownRef}>
-            {user ? (
-              <>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="focus:outline-none"
-                >
-                  <img
-                    src={user.profilePic || "https://i.pravatar.cc/40"}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full border"
-                  />
-                </button>
-
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
-                    <NavLink
-                      to="/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      My Profile
-                    </NavLink>
-                    <NavLink
-                      to="/bookings"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
-                      My Bookings
-                    </NavLink>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <button
-                onClick={() => navigate("/register")}
-                className="px-4 py-2 rounded-full border text-gray-700 hover:bg-gray-100"
-              >
-                Create Account
-              </button>
-            )}
-          </div>
-
-        </div>
+            Login
+          </button>
+        )}
+        
+        <button 
+          className='md:hidden' 
+          onClick={() => setShowMenu(!showMenu)}
+        >
+          {showMenu ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+        </button>
       </div>
-    </nav>
+
+      {showMenu && (
+        <div className='fixed top-0 left-0 w-full h-full bg-white z-50 p-4 md:hidden'>
+          <div className='flex justify-between items-center mb-4'>
+            <img className='w-30 h-9' src={assets.logo2} alt="" />
+            <button onClick={() => setShowMenu(false)}>
+              <FiX className="w-6 h-6" />
+            </button>
+          </div>
+          <ul className='flex flex-col gap-4 font-medium'>
+            <NavLink to='/' onClick={() => setShowMenu(false)}>Home</NavLink>
+            <NavLink to='/hotels' onClick={() => setShowMenu(false)}>Hotels</NavLink>
+            <NavLink to='/events' onClick={() => setShowMenu(false)}>Events</NavLink>
+            <NavLink to='/tourism' onClick={() => setShowMenu(false)}>Tourism</NavLink>
+            <NavLink to='/blogs' onClick={() => setShowMenu(false)}>Blogs</NavLink>
+            <NavLink to='/about' onClick={() => setShowMenu(false)}>About</NavLink>
+            <NavLink to='/contact' onClick={() => setShowMenu(false)}>Contact</NavLink>
+            {!isAuthenticated && (
+              <NavLink to='/login' onClick={() => setShowMenu(false)}>Login</NavLink>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
   );
-}
+};
 
 export default Navbar;
+
