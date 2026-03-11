@@ -1,13 +1,51 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FiUser, FiMail, FiLogOut, FiEdit2, FiSave } from 'react-icons/fi';
+import { authAPI } from '../services/api';
+import { FiUser, FiMail, FiLogOut, FiEdit2, FiSave, FiPhone, FiMapPin } from 'react-icons/fi';
 
 const MyProfile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [address, setAddress] = useState(user?.address || '');
+  const [gender, setGender] = useState(user?.gender || '');
+  const [birthday, setBirthday] = useState(user?.birthday ? user.birthday.split('T')[0] : '');
+  const [saving, setSaving] = useState(false);
+
+  // Sync state with user data when it changes
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setPhone(user.phone || '');
+      setAddress(user.address || '');
+      setGender(user.gender || '');
+      setBirthday(user.birthday ? user.birthday.split('T')[0] : '');
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const response = await authAPI.updateProfile({ 
+        name, 
+        phone, 
+        address, 
+        gender, 
+        birthday: birthday ? new Date(birthday) : null 
+      });
+      if (response.data.success) {
+        updateUser(response.data.user);
+        alert('Profile updated successfully!');
+        setEditing(false);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -56,23 +94,82 @@ const MyProfile = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
               ) : (
-                <p className="text-gray-800 text-lg">{user.name}</p>
+                <p className="text-gray-800 text-lg">{user.name || 'Not set'}</p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                <FiMail className="h-4 w-4" /> Email
+                <FiMail className="h-4 w-4" /> Email ID
+              </label>
+              <p className="text-gray-800 text-lg">{user.email}</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <FiPhone className="h-4 w-4" /> Phone
               </label>
               {editing ? (
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter phone number"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
               ) : (
-                <p className="text-gray-800 text-lg">{user.email}</p>
+                <p className="text-gray-800 text-lg">{user.phone || 'Not set'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <FiMapPin className="h-4 w-4" /> Address
+              </label>
+              {editing ? (
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter address"
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              ) : (
+                <p className="text-gray-800 text-lg">{user.address || 'Not set'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+              {editing ? (
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              ) : (
+                <p className="text-gray-800 text-lg capitalize">{user.gender || 'Not set'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Birthday</label>
+              {editing ? (
+                <input
+                  type="date"
+                  value={birthday}
+                  onChange={(e) => setBirthday(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              ) : (
+                <p className="text-gray-800 text-lg">
+                  {user.birthday ? new Date(user.birthday).toLocaleDateString() : 'Not set'}
+                </p>
               )}
             </div>
 
@@ -83,13 +180,11 @@ const MyProfile = () => {
 
             {editing && (
               <button
-                onClick={() => {
-                  alert('Profile updated successfully!');
-                  setEditing(false);
-                }}
-                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium flex items-center justify-center gap-2"
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium flex items-center justify-center gap-2 disabled:bg-green-400"
               >
-                <FiSave className="h-4 w-4" /> Save Changes
+                <FiSave className="h-4 w-4" /> {saving ? 'Saving...' : 'Save Changes'}
               </button>
             )}
 
