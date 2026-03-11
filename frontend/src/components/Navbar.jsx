@@ -25,26 +25,26 @@ const Navbar = () => {
       />
       
       <ul className='hidden md:flex items-start gap-5 font-medium'>
-        <NavLink to='/'>
-          <li className='py-1'>Home</li>
+        <NavLink to='/' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Home</li>
         </NavLink>
-        <NavLink to='/hotels'>
-          <li className='py-1'>Hotels</li>
+        <NavLink to='/hotels' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Hotels</li>
         </NavLink>
-        <NavLink to='/events'>
-          <li className='py-1'>Events</li>
+        <NavLink to='/events' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Events</li>
         </NavLink>
-        <NavLink to='/tourism'>
-          <li className='py-1'>Tourism</li>
+        <NavLink to='/tourism' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Tourism</li>
         </NavLink>
-        <NavLink to='/blogs'>
-          <li className='py-1'>Blogs</li>
+        <NavLink to='/blogs' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Blogs</li>
         </NavLink>
-        <NavLink to='/about'>
-          <li className='py-1'>About</li>
+        <NavLink to='/about' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>About</li>
         </NavLink>
-        <NavLink to='/contact'>
-          <li className='py-1'>Contact</li>
+        <NavLink to='/contact' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
+          <li>Contact</li>
         </NavLink>
       </ul>
 
@@ -52,10 +52,10 @@ const Navbar = () => {
         {isAuthenticated ? (
           <div className='flex items-center gap-2 cursor-pointer group relative'>
             {user?.profilePicture ? (
-              <img className='w-8 rounded-full bg-gray-200' src={user.profilePicture} alt="" />
+              <img className='w-9 h-9 rounded-full border-2 border-white shadow-lg' src={user.profilePicture} alt="Profile" />
             ) : (
-              <div className='w-8 rounded-full bg-gray-200 flex items-center justify-center'>
-                <FiUser className="h-4 w-4 text-gray-600" />
+              <div className='w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white shadow-lg'>
+                <FiUser className="h-4 w-4 text-white" />
               </div>
             )}
             <img className='w-2.5' src={assets.dropdown} alt="" />
