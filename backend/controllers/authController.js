@@ -69,6 +69,7 @@ exports.login = async (req, res) => {
         address: user.address,
         gender: user.gender,
         birthday: user.birthday,
+        profilePicture: user.profilePicture,
         role: user.role,
       },
     });
@@ -111,6 +112,46 @@ exports.updateProfile = async (req, res) => {
         address: updatedUser.address,
         gender: updatedUser.gender,
         birthday: updatedUser.birthday,
+        profilePicture: updatedUser.profilePicture,
+        role: updatedUser.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// UPLOAD PROFILE PICTURE
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePicture: req.file.path },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile picture updated successfully",
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        address: updatedUser.address,
+        gender: updatedUser.gender,
+        birthday: updatedUser.birthday,
+        profilePicture: updatedUser.profilePicture,
         role: updatedUser.role,
       },
     });

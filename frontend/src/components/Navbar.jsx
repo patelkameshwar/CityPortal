@@ -51,7 +51,13 @@ const Navbar = () => {
       <div className='flex items-center gap-4'>
         {isAuthenticated ? (
           <div className='flex items-center gap-2 cursor-pointer group relative'>
-            <img className='w-8 rounded-full bg-gray-200' src={assets.kaushalpic} alt="" />
+            {user?.profilePicture ? (
+              <img className='w-8 rounded-full bg-gray-200' src={user.profilePicture} alt="" />
+            ) : (
+              <div className='w-8 rounded-full bg-gray-200 flex items-center justify-center'>
+                <FiUser className="h-4 w-4 text-gray-600" />
+              </div>
+            )}
             <img className='w-2.5' src={assets.dropdown} alt="" />
             <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
               <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>

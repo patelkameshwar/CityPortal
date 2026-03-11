@@ -13,3 +13,9 @@
 - [x] 6. Updated frontend profile page with new fields
 - [x] 7. Email is now read-only (not editable)
 
+## Profile Picture Feature
+- [x] 8. Added profilePicture field to User model
+- [x] 9. Created profile upload middleware
+- [x] 10. Added upload profile picture endpoint
+- [x] 11. Updated frontend with image upload and display
+

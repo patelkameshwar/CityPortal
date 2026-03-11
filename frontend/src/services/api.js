@@ -36,6 +36,11 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   updateProfile: (data) => api.put('/auth/profile', data),
+  uploadProfilePicture: (formData) => api.post('/auth/profile-picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
 };
 
 // Hotel APIs

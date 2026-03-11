@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
-import { FiUser, FiMail, FiLogOut, FiEdit2, FiSave, FiPhone, FiMapPin } from 'react-icons/fi';
+import { FiUser, FiMail, FiLogOut, FiEdit2, FiSave, FiPhone, FiMapPin, FiCamera } from 'react-icons/fi';
 
 const MyProfile = () => {
   const { user, logout, updateUser } = useAuth();
@@ -13,6 +13,8 @@ const MyProfile = () => {
   const [gender, setGender] = useState(user?.gender || '');
   const [birthday, setBirthday] = useState(user?.birthday ? user.birthday.split('T')[0] : '');
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Sync state with user data when it changes
   useEffect(() => {
@@ -24,6 +26,27 @@ const MyProfile = () => {
       setBirthday(user.birthday ? user.birthday.split('T')[0] : '');
     }
   }, [user]);
+
+  const handleProfilePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      const response = await authAPI.uploadProfilePicture(formData);
+      if (response.data.success) {
+        updateUser(response.data.user);
+        alert('Profile picture updated successfully!');
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to upload profile picture');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -76,10 +99,40 @@ const MyProfile = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-                <FiUser className="h-12 w-12 text-gray-600" />
+            <div className="flex flex-col items-center justify-center mb-6">
+              <div className="relative">
+                {user?.profilePicture ? (
+                  <img 
+                    src={user.profilePicture} 
+                    alt="Profile" 
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                    <FiUser className="h-12 w-12 text-gray-600" />
+                  </div>
+                )}
+                {editing && (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition disabled:bg-blue-400"
+                  >
+                    {uploading ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <FiCamera className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
               </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleProfilePictureUpload}
+                accept="image/*"
+                className="hidden"
+              />
             </div>
 
             <div>
