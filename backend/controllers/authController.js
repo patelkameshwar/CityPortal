@@ -87,8 +87,18 @@ exports.updateProfile = async (req, res) => {
     // Build update object - only include fields that are provided
     const updateData = { name };
     if (phone !== undefined) updateData.phone = phone;
-    if (address !== undefined) updateData.address = address;
-    if (gender !== undefined) updateData.gender = gender;
+    if (address !== undefined) {
+      // Handle address - can be string or object with line1/line2
+      if (typeof address === 'string') {
+        updateData.address = address;
+      } else if (address && typeof address === 'object') {
+        // Combine line1 and line2 for storage
+        const line1 = address.line1 || '';
+        const line2 = address.line2 || '';
+        updateData.address = line2 ? `${line1}, ${line2}` : line1;
+      }
+    }
+    if (gender !== undefined) updateData.gender = gender.toLowerCase();
     if (birthday !== undefined) updateData.birthday = birthday;
 
     const updatedUser = await User.findByIdAndUpdate(

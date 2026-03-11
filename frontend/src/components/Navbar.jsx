@@ -61,8 +61,6 @@ const Navbar = () => {
             <img className='w-2.5' src={assets.dropdown} alt="" />
             <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
               <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
-                <p className='text-gray-800 font-semibold'>{user?.name}</p>
-                <hr className='border-gray-300' />
                 <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer flex items-center gap-2'><FiUser className="h-4 w-4" /> My Profile</p>
                 <p onClick={() => navigate('/my-bookings')} className='hover:text-black cursor-pointer flex items-center gap-2'><FiCalendar className="h-4 w-4" /> My Bookings</p>
                 <p onClick={handleLogout} className='hover:text-black cursor-pointer flex items-center gap-2'><FiLogOut className="h-4 w-4" /> Logout</p>
