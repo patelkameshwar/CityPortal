@@ -4,6 +4,14 @@ import { tourismAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiSearch, FiMapPin, FiClock, FiX, FiUsers } from 'react-icons/fi';
 
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const Tourism = () => {
   const [tourismSpots, setTourismSpots] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +53,7 @@ const Tourism = () => {
     }
     setSelectedSpot(spot);
     setBookingData({
-      date: new Date().toISOString().split('T')[0],
+      date: getTodayDate(),
       visitors: 1,
     });
   };
@@ -188,6 +196,7 @@ const Tourism = () => {
                   value={bookingData.date}
                   onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
                   required
+                  min={getTodayDate()}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>

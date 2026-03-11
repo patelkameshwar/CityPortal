@@ -3,6 +3,14 @@ import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiSearch, FiMapPin, FiHome, FiX, FiCalendar, FiUsers } from 'react-icons/fi';
 
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const Hotels = () => {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +57,16 @@ const Hotels = () => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    
     setBookingData({
-      checkIn: today.toISOString().split('T')[0],
-      checkOut: tomorrow.toISOString().split('T')[0],
+      checkIn: formatDate(today),
+      checkOut: formatDate(tomorrow),
       rooms: 1,
     });
   };
@@ -197,6 +212,7 @@ const Hotels = () => {
                   value={bookingData.checkIn}
                   onChange={(e) => setBookingData({ ...bookingData, checkIn: e.target.value })}
                   required
+                  min={getTodayDate()}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -207,7 +223,7 @@ const Hotels = () => {
                   value={bookingData.checkOut}
                   onChange={(e) => setBookingData({ ...bookingData, checkOut: e.target.value })}
                   required
-                  min={bookingData.checkIn}
+                  min={bookingData.checkIn || getTodayDate()}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
