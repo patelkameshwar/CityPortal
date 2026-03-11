@@ -4,20 +4,24 @@ import { Link } from "react-router-dom";
 function Register() {
   return (
     <div className="min-h-screen flex bg-gray-100">
-      
       <div className="hidden lg:flex flex-1 items-center justify-center p-12">
-        {/* You can add image or text here */}
+        {/* Optional image or text */}
       </div>
 
       <div className="flex-1 flex items-center justify-start lg:justify-center p-8">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
-
-          <div className="flex justify-center mb-4">
-            <h2 className="text-3xl font-semibold text-center text-gray-900">
-              Sign Up
+          
+          {/* Title and subtitle */}
+          <div className="flex flex-col items-center mb-6">
+            <h2 className="text-3xl font-semibold text-gray-600">
+              Create Account
             </h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Please sign up to book appointment
+            </p>
           </div>
 
+          {/* Form */}
           <form className="space-y-4">
             <input
               type="text"
@@ -47,7 +51,10 @@ function Register() {
               className="w-full p-3 border-b-2 border-gray-300 outline-none focus:border-blue-500 placeholder-gray-400"
             />
 
-            <button className="w-full p-3 bg-blue-500 text-white rounded-full text-lg font-medium hover:opacity-90 transition">
+            <button
+              type="submit"
+              className="w-full p-3 bg-blue-500 text-white rounded-full text-lg font-medium hover:opacity-90 transition"
+            >
               Create Account
             </button>
 
