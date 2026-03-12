@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiSearch, FiMapPin, FiHome, FiX, FiCalendar, FiUsers } from 'react-icons/fi';
@@ -12,6 +13,7 @@ const getTodayDate = () => {
 };
 
 const Hotels = () => {
+  const navigate = useNavigate();
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -148,7 +150,11 @@ const Hotels = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredHotels.length > 0 ? (
           filteredHotels.map((hotel) => (
-            <div key={hotel._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            <div 
+              key={hotel._id} 
+              onClick={() => navigate(`/hotels/${hotel._id}`)}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+            >
               <div className="h-48 bg-gray-200 relative">
                 {hotel.images && hotel.images.length > 0 ? (
                   <img src={hotel.images[0]} alt={hotel.name} className="w-full h-full object-cover" />
@@ -172,7 +178,10 @@ const Hotels = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">{hotel.totalRooms} rooms available</span>
                   <button
-                    onClick={() => handleBookNow(hotel)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookNow(hotel);
+                    }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
                   >
                     Book Now

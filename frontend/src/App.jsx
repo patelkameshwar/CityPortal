@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Home from './pages/Home'
 import Hotels from './pages/Hotels'
+import HotelDetails from './pages/HotelDetails'
 import Events from './pages/Events'
 import Tourism from './pages/Tourism'
 import Blogs from './pages/Blogs'
@@ -22,6 +23,7 @@ const App = () => {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/hotels' element={<Hotels />} />
+          <Route path='/hotels/:id' element={<HotelDetails />} />
           <Route path='/events' element={<Events />} />
           <Route path='/tourism' element={<Tourism />} />
           <Route path='/blogs' element={<Blogs />} />
