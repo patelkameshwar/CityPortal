@@ -94,11 +94,11 @@ const MyBookings = () => {
             <div className='grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b' key={index}>
               {/* Image Section */}
               <div>
-                {booking.itemId?.image ? (
+{(booking.itemId?.images && booking.itemId.images.length > 0) ? (
                   <img 
-                    className='w-32 bg-indigo-50' 
-                    src={booking.itemId.image} 
-                    alt={booking.itemId?.name || 'Booking'} 
+                    className='w-32 bg-indigo-50 object-cover rounded' 
+                    src={booking.itemId.images[0]} 
+                    alt={booking.itemId?.name || booking.itemId?.title || 'Booking'} 
                   />
                 ) : (
                   <div className='w-32 h-32 bg-indigo-50 flex items-center justify-center'>
@@ -140,6 +140,12 @@ const MyBookings = () => {
               <div className='flex flex-col gap-2 justify-end'>
                 {booking.status === 'Confirmed' && (
                   <>
+                    <button 
+                      className='text-sm bg-green-600 text-white text-center sm:min-w-48 py-2 border rounded hover:bg-green-700 transition-all duration-300'
+                      onClick={() => alert('Payment gateway integration coming soon')}
+                    >
+                      Pay Online
+                    </button>
                     <button 
                       onClick={() => handleCancelBooking(booking._id)}
                       disabled={cancelLoading === booking._id}

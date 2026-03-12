@@ -26,6 +26,7 @@ const Hotels = () => {
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
+  const [displayCount, setDisplayCount] = useState(9);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -149,7 +150,7 @@ const Hotels = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredHotels.length > 0 ? (
-          filteredHotels.map((hotel) => (
+          filteredHotels.slice(0, displayCount).map((hotel) => (
             <div 
               key={hotel._id} 
               onClick={() => navigate(`/hotels/${hotel._id}`)}
@@ -196,6 +197,17 @@ const Hotels = () => {
           </div>
         )}
       </div>
+
+      {filteredHotels.length > displayCount && (
+        <div className="text-center mt-8">
+          <button
+            onClick={() => setDisplayCount((prev) => prev + 9)}
+            className="bg-gray-600/70 text-white px-8 py-3 rounded-3xl hover:bg-blue-700 transition font-semibold text-base"
+          >
+            Load More Hotels ( {filteredHotels.length - displayCount} left )
+          </button>
+        </div>
+      )}
 
       {selectedHotel && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
