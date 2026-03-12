@@ -33,7 +33,7 @@ const Tourism = () => {
   const fetchTourismSpots = async () => {
     try {
       const response = await tourismAPI.getAll();
-      setTourismSpots(response.data.tourism || []);
+      setTourismSpots(response.data.tourismPlaces || []);
     } catch (err) {
       setError('Failed to load tourism spots');
     } finally {
