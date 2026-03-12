@@ -3,11 +3,19 @@ const Booking = require("../models/Booking");
 
 /**
  * CREATE TOURISM PLACE
- * Access: Client / Admin
- * Route: POST /api/tourism/add
+ * Access: Client / Admin 
  */
 exports.createTourism = async (req, res) => {
   try {
+    console.log('Tourism files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 50 images allowed"
+      });
+    }
+
     const {
       name,
       location,
@@ -106,6 +114,15 @@ exports.getTourismById = async (req, res) => {
  */
 exports.updateTourism = async (req, res) => {
   try {
+    console.log('Update tourism files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 50 images allowed"
+      });
+    }
+
     const tourism = await Tourism.findById(req.params.id);
     if (!tourism)
       return res.status(404).json({ success: false, message: "Tourism place not found" });
@@ -177,7 +194,6 @@ exports.deleteTourism = async (req, res) => {
 /**
  * BOOK TOURISM PLACE
  * Access: User
- * Route: POST /api/tourism/book/:tourismId
  */
 exports.bookTourism = async (req, res) => {
   try {

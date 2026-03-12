@@ -7,6 +7,15 @@ const Booking = require("../models/Booking");
  */
 exports.createHotel = async (req, res) => {
   try {
+    console.log('Files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 50 images allowed"
+      });
+    }
+
     const {
       name,
       location,
@@ -102,6 +111,15 @@ exports.getHotelById = async (req, res) => {
  */
 exports.updateHotel = async (req, res) => {
   try {
+    console.log('Update files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Maximum 50 images allowed"
+      });
+    }
+
     const hotel = await Hotel.findById(req.params.id);
     if (!hotel) {
       return res

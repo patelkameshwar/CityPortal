@@ -7,6 +7,12 @@ const Booking = require("../models/Booking");
  */
 exports.createEvent = async (req, res) => {
   try {
+    console.log('Event files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
+    }
+
     const { title, location, description, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
 
     if (!title || !location || !bookingFromDate || !bookingToDate || !eventTime || !totalSeats || !price) {
@@ -100,6 +106,12 @@ exports.getEventById = async (req, res) => {
  */
 exports.updateEvent = async (req, res) => {
   try {
+    console.log('Update event files received:', req.files?.length || 0);
+    
+    if (req.files && req.files.length > 50) {
+      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
+    }
+
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ success: false, message: "Event not found" });
 

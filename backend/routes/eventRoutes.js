@@ -17,33 +17,28 @@ const upload = require("../middleware/uploadMiddleware");
 
 /**   ---------------- PUBLIC ROUTES ----------------   */
 
-// Get all events
 router.get("/", getAllEvents);
 
-// Get single event
 router.get("/:id", getEventById);
 
 /**   ------------- PROTECTED ROUTES ----------------   */
 
-// Create event (Client / Admin)
 router.post(
   "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  upload.array("images", 5),
+  upload.array("images", 50),
   createEvent
 );
 
-// Update event (Owner / Admin)
 router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  upload.array("images", 5),
+  upload.array("images", 50),
   updateEvent
 );
 
-// Delete event (Owner / Admin)
 router.delete(
   "/:id",
   authMiddleware,

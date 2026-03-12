@@ -53,7 +53,7 @@ const Footer = () => {
               <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-blue-600 hover:text-white transition">
                 <FiFacebook className="h-5 w-5" />
               </a>
-              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-blue-400 hover:text-white transition">
+              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-black hover:text-white transition">
                 <FiTwitter className="h-5 w-5" />
               </a>
               <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-pink-600 hover:text-white transition">
