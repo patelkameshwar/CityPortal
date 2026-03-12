@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { FiMapPin, FiHome, FiCalendar, FiUsers, FiArrowLeft, FiX, FiArrowRight, FiClock, FiTag, FiAlertCircle } from 'react-icons/fi';
+import { FiMapPin, FiHome, FiCalendar, FiUsers, FiArrowLeft, FiX, FiArrowRight, FiClock, FiTag, FiAlertCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const getTodayDate = () => {
   const today = new Date();
@@ -25,6 +25,8 @@ const HotelDetails = () => {
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -107,6 +109,27 @@ const HotelDetails = () => {
     return hotel.pricePerNight * days * bookingData.rooms;
   };
 
+  const nextImage = () => {
+    if (hotel && hotel.images) {
+      setCurrentImageIndex((prev) => (prev + 1) % hotel.images.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (hotel && hotel.images) {
+      setCurrentImageIndex((prev) => (prev - 1 + hotel.images.length) % hotel.images.length);
+    }
+  };
+
+  const openPhotoModal = () => {
+    setCurrentImageIndex(0);
+    setShowPhotoModal(true);
+  };
+
+  const closePhotoModal = () => {
+    setShowPhotoModal(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -161,7 +184,7 @@ const HotelDetails = () => {
                 
                 {/* Property Photos Button */}
                 {hotel.images && hotel.images.length > 0 && (
-                  <button className="absolute bottom-4 right-4 bg-gray-800/70 border-2 border-white text-white px-4 py-2 rounded-4xl font-medium flex items-center gap-2 hover:bg-gray-800 transition">
+                  <button onClick={openPhotoModal} className="absolute bottom-4 right-4 bg-gray-800/70 border-2 border-white text-white px-4 py-2 rounded-4xl font-medium flex items-center gap-2 hover:bg-gray-800 transition -mb-2 cursor-pointer">
                     <span>{hotel.images.length}</span>
                     <span>Property Photos</span>
                     <FiArrowRight className="h-4 w-4" />
@@ -319,6 +342,76 @@ const HotelDetails = () => {
                   {bookingLoading ? 'Processing...' : 'Confirm Booking'}
                 </button>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Photo Modal */}
+        {showPhotoModal && hotel && hotel.images && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+            <div className="relative max-w-4xl w-full">
+              {/* Close Button */}
+              <button
+                onClick={closePhotoModal}
+                className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
+              >
+                <FiX className="h-8 w-8" />
+              </button>
+
+              {/* Main Image */}
+              <div className="relative">
+                <img
+                  src={hotel.images[currentImageIndex]}
+                  alt={`${hotel.name} - ${currentImageIndex + 1}`}
+                  className="w-full h-120 object-contain rounded-lg"
+                />
+                
+                {/* Previous Button */}
+                {hotel.images.length > 1 && (
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"
+                  >
+                    <FiChevronLeft className="h-6 w-6" />
+                  </button>
+                )}
+
+                {/* Next Button */}
+                {hotel.images.length > 1 && (
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"
+                  >
+                    <FiChevronRight className="h-6 w-6" />
+                  </button>
+                )}
+              </div>
+
+              {/* Image Counter */}
+              <div className="text-center text-white mt-4">
+                {currentImageIndex + 1} / {hotel.images.length}
+              </div>
+
+              {/* Thumbnail Strip */}
+              {hotel.images.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto justify-center ">
+                  {hotel.images.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
+                        index === currentImageIndex ? 'border-blue-500' : 'border-transparent'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
