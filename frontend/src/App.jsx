@@ -14,6 +14,7 @@ import Register from './pages/Register'
 import MyProfile from './pages/MyProfile'
 import MyBookings from './pages/MyBookings'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
           <Route path='/my-profile' element={<MyProfile />} />
           <Route path='/my-bookings' element={<MyBookings />} />
         </Routes>
+        <Footer />
       </div>
     </AuthProvider>
   )

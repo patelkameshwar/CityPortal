@@ -8,6 +8,7 @@ const {
   getHotelById,
   updateHotel,
   deleteHotel,
+  getSimilarHotels,
 } = require("../controllers/hotelController");
 
 // Middlewares
@@ -23,6 +24,9 @@ router.get("/", getAllHotels);
 
 // Get single hotel by ID
 router.get("/:id", getHotelById);
+
+// Get similar hotels
+router.get("/:id/similar", getSimilarHotels);
 
 /**
  * PROTECTED ROUTES (CLIENT / ADMIN)

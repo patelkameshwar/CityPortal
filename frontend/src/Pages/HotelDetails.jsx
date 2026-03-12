@@ -27,11 +27,21 @@ const HotelDetails = () => {
   const [bookingSuccess, setBookingSuccess] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('amenities');
+  const [similarHotels, setSimilarHotels] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const [similarError, setSimilarError] = useState('');
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchHotel();
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab === 'similar' && hotel) {
+      fetchSimilarHotels();
+    }
+  }, [activeTab, hotel]);
 
   const fetchHotel = async () => {
     try {
@@ -41,6 +51,20 @@ const HotelDetails = () => {
       setError('Failed to load hotel details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSimilarHotels = async () => {
+    if (!hotel) return;
+    setSimilarLoading(true);
+    setSimilarError('');
+    try {
+      const response = await hotelAPI.getSimilar(hotel._id);
+      setSimilarHotels(response.data.similarHotels || []);
+    } catch (err) {
+      setSimilarError('Failed to load similar hotels');
+    } finally {
+      setSimilarLoading(false);
     }
   };
 
@@ -154,7 +178,7 @@ const HotelDetails = () => {
 
   return (
     <div className="py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <button
           onClick={() => navigate('/hotels')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
@@ -228,13 +252,13 @@ const HotelDetails = () => {
 
           <div className="p-8">
             
-            <h2 className="text-xl font-bold text-gray-800 mb-4">About Properties</h2>
-
+            {/* About Properties Section */}
             <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">About Properties</h2>
               <p className="text-gray-600">{hotel.description}</p>
             </div>
             
-            
+            {/* Location and Rooms */}
             <div className="flex items-center gap-2 text-gray-600 mb-2">
               <FiMapPin className="h-5 w-5" />
               <span>{hotel.location}</span>
@@ -245,25 +269,186 @@ const HotelDetails = () => {
               <span>{hotel.totalRooms} rooms available</span>
             </div>
 
-            {hotel.amenities && hotel.amenities.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">Amenities</h2>
-                <div className="flex flex-wrap gap-2">
-                  {hotel.amenities.map((amenity, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
+            {/* Tab Navigation */}
+            <div className="flex border-b border-gray-200 mb-6">
+              <button
+                onClick={() => setActiveTab('amenities')}
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === 'amenities'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Amenities
+              </button>
+              <button
+                onClick={() => setActiveTab('policies')}
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === 'policies'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Property Policies
+              </button>
+              <button
+                onClick={() => setActiveTab('location')}
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === 'location'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Location
+              </button>
+              <button
+                onClick={() => setActiveTab('similar')}
+                className={`px-4 py-2 font-medium text-sm ${
+                  activeTab === 'similar'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Similar Properties
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="min-h-64">
+              {activeTab === 'amenities' && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Amenities</h2>
+                  {hotel.amenities && hotel.amenities.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {hotel.amenities.map((amenity, index) => (
+                        <span
+                          key={index}
+                          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600">No amenities available</p>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+
+              {activeTab === 'policies' && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Property Policies</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-2">
+                      <FiClock className="h-5 w-5 text-gray-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-gray-800">Check-in</h3>
+                        <p className="text-gray-600 text-sm">From 12:00 PM</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiClock className="h-5 w-5 text-gray-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-gray-800">Check-out</h3>
+                        <p className="text-gray-600 text-sm">Until 11:00 AM</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiAlertCircle className="h-5 w-5 text-gray-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-gray-800">Cancellation Policy</h3>
+                        <p className="text-gray-600 text-sm">Non-Refundable</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiUsers className="h-5 w-5 text-gray-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-medium text-gray-800">Children & Beds</h3>
+                        <p className="text-gray-600 text-sm">Children of all ages are welcome</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'location' && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Location</h2>
+                  <div className="flex items-start gap-2 mb-4">
+                    <FiMapPin className="h-5 w-5 text-gray-600 mt-0.5" />
+                    <div>
+                      <p className="text-gray-800">{hotel.location}</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                    <p className="text-gray-600">Map View</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'similar' && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Similar Properties</h2>
+                  {similarLoading ? (
+                    <div className="flex justify-center items-center h-32">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : similarError ? (
+                    <p className="text-red-600">{similarError}</p>
+                  ) : similarHotels.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {similarHotels.map((hotel) => (
+                        <div
+                          key={hotel._id}
+                          onClick={() => navigate(`/hotels/${hotel._id}`)}
+                          className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+                        >
+                          <div className="h-40 bg-gray-200 relative">
+                            {hotel.images && hotel.images.length > 0 ? (
+                              <img
+                                src={hotel.images[0]}
+                                alt={hotel.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <FiHome className="h-12 w-12" />
+                              </div>
+                            )}
+                            <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                              ${hotel.pricePerNight}/night
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-semibold text-gray-800 mb-1">{hotel.name}</h3>
+                            <div className="flex items-center text-gray-600 text-sm mb-2">
+                              <FiMapPin className="h-3 w-3 mr-1" />
+                              {hotel.location}
+                            </div>
+                            <p className="text-gray-600 text-sm line-clamp-2">{hotel.description}</p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/hotels/${hotel._id}`);
+                              }}
+                              className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600">No similar properties available</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={handleBookNow}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium text-lg"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium text-lg mt-6"
             >
               Book Now
             </button>

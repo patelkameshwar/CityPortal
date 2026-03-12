@@ -47,6 +47,7 @@ export const authAPI = {
 export const hotelAPI = {
   getAll: () => api.get('/hotels'),
   getById: (id) => api.get(`/hotels/${id}`),
+  getSimilar: (id) => api.get(`/hotels/${id}/similar`),
   create: (data) => api.post('/hotels', data),
   update: (id, data) => api.put(`/hotels/${id}`, data),
   delete: (id) => api.delete(`/hotels/${id}`),

@@ -19,3 +19,18 @@
 - [x] 10. Added upload profile picture endpoint
 - [x] 11. Updated frontend with image upload and display
 
+# Similar Properties Tab - TODO List
+
+## Backend Changes
+- [x] 1. Add getSimilarHotels function in backend/controllers/hotelController.js
+- [x] 2. Add GET /hotels/:id/similar route in backend/routes/hotelRoutes.js
+
+## Frontend Changes
+- [x] 3. Add getSimilar method in frontend/src/services/api.js
+- [x] 4. Update HotelDetails.jsx to fetch and display similar hotels
+- [x] 5. Style similar hotels grid
+
+## Testing
+- [x] 6. Test backend endpoint with curl/Postman
+- [x] 7. Run frontend and verify similar hotels appear
+

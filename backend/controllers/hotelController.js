@@ -183,3 +183,45 @@ exports.deleteHotel = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/*
+ * GET SIMILAR HOTELS
+ * Access: Public
+ */
+exports.getSimilarHotels = async (req, res) => {
+  try {
+    const hotel = await Hotel.findById(req.params.id);
+    if (!hotel) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Hotel not found" });
+    }
+
+    // Calculate price range (±50%)
+    const priceLower = hotel.pricePerNight * 0.5;
+    const priceUpper = hotel.pricePerNight * 1.5;
+
+    // Find hotels with same location and price within range, exclude current hotel
+    let similarHotels = await Hotel.find({
+      _id: { $ne: hotel._id },
+      location: { $regex: new RegExp(hotel.location, 'i') },
+      pricePerNight: { $gte: priceLower, $lte: priceUpper },
+    })
+      .populate("owner", "name email")
+      .limit(4)
+      .sort({ pricePerNight: 1 });
+
+    // If no similar hotels found by location and price, get any other hotels
+    if (similarHotels.length === 0) {
+      similarHotels = await Hotel.find({ _id: { $ne: hotel._id } })
+        .populate("owner", "name email")
+        .limit(4)
+        .sort({ createdAt: -1 });
+    }
+
+    res.status(200).json({ success: true, similarHotels });
+  } catch (error) {
+    console.error("Get Similar Hotels Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
