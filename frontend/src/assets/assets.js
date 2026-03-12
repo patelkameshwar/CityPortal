@@ -5,6 +5,11 @@ import dropdown from './dropdown.svg'
 import groupprofiles from './groupprofiles.png'
 import arrowicon from './arrowicon.svg'
 import headers from './headers.png'
+import hotel from './hotel.png'
+import tourism from './tourism.png'
+import event from './event.png'
+import blog from './blog.png'
+import banner from './banner.png'
 
 export const assets = {
     logo,
@@ -13,5 +18,17 @@ export const assets = {
     dropdown,
     groupprofiles,
     arrowicon,
-    headers
+    headers,
+    hotel,
+    tourism,
+    event,
+    blog,
+    banner
 }
+
+export const serviceData = [
+    { speciality: 'Hotels', image: hotel },
+    { speciality: 'Tourism', image: tourism },
+    { speciality: 'Events', image: event },
+    { speciality: 'Blogs', image: blog }
+]

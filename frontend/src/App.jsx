@@ -6,6 +6,8 @@ import Hotels from './pages/Hotels'
 import HotelDetails from './pages/HotelDetails'
 import Events from './pages/Events'
 import Tourism from './pages/Tourism'
+import EventDetails from './pages/EventDetails'
+import TourismDetails from './pages/TourismDetails'
 import Blogs from './pages/Blogs'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -26,7 +28,9 @@ const App = () => {
           <Route path='/hotels' element={<Hotels />} />
           <Route path='/hotels/:id' element={<HotelDetails />} />
           <Route path='/events' element={<Events />} />
+          <Route path='/events/:id' element={<EventDetails />} />
           <Route path='/tourism' element={<Tourism />} />
+          <Route path='/tourism/:id' element={<TourismDetails />} />
           <Route path='/blogs' element={<Blogs />} />
           <Route path='/about' element={<About />} />
           <Route path='/contact' element={<Contact />} />

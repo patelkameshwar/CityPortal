@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { assets } from '../assets/assets';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -16,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
+    <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-600'>
       <img 
         className='w-30 h-9 cursor-pointer' 
         src={assets.logo2} 
@@ -24,7 +23,7 @@ const Navbar = () => {
         onClick={() => navigate('/')}
       />
       
-      <ul className='hidden md:flex items-start gap-5 font-medium'>
+      <ul className='hidden md:flex items-start gap-5 font-medium text-base'>
         <NavLink to='/' className={({isActive}) => `py-1 hover:text-blue-600 transition ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : ''}`}>
           <li>Home</li>
         </NavLink>

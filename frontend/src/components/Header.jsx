@@ -3,26 +3,27 @@ import { assets } from '../assets/assets'
 
 const Header = () => {
   return (
-    <div className='flex flex-col md:flex-row flex-wrap bg-gray-200 rounded-lg px-6 md:px-10 lg:px-20'>
+    <div className='flex bg-gray-200 rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-20 mt-4'>
 
         {/*__________ left side ___________*/}
-        <div className='md:w-1/2 flex flex-col items-start justify-center gap-4 py-10 m-auto md:py-[10vw] md:mb-[-30px]'>
-            <p className='text-3xl md:text-4xl lg:text-5xl text-gray-800 font-semibold leading-tight md:leading-tight lg:leading-tight'>
-                What is in City Today ?<br /> With CityPortal
-            </p>
-            <div className='flex flex-col md:flex-row items-center gap-3 text-gray-800 text-sm'>
-                <img className='w-28' src={assets.groupprofiles} alt="" />
-                <p>Visit the city with our extensive list of Hotels, Events, Toursim <br className='hidden sm:block' /> And schedule your booking</p>
+        <div className='flex-1 py-8 sm:py-10 md:py-16 lg:py-24 lg:pl-5'>
+            <div className='text-xl mt-19 sm:text-2xl md:text-3xl lg:text-5xl font-semibold text-gray-800'>
+                <p>What is in City Today ?</p>
+                <p className=' text-lg text-gray-600 mt-2'>Stay update with CityPortal</p>
             </div>
-            <a href="" className='flex items-center gap-2 bg-gray-900 px-8 py-3 rounded-full text-gray-200 text-sm m-auto md:m-0 hover:scale-105 transition-all duration-300'>
-                Book now <img className='w-3' src={assets.arrowicon} alt="" />
-            </a>
+            <div className='flex flex-col md:flex-row items-center gap-3 text-gray-800 text-base'>
+                <img className='w-20 mt-8' src={assets.groupprofiles} alt="" />
+                <p className='mt-8'>Visit the city with our extensive list of Hotels, Events, Toursim <br className='hidden sm:block' /> And schedule your booking</p>
+            </div>
+            <button onClick={()=>{navigate('/register'); scrollTo(0,0)}} className='bg-gray-800 text-gray-200 text-sm sm:text-base px-8 py-3 rounded-full mt-4 hover:scale-105 transition-all'>Book now</button>
         </div>
+        
+        {/* ________ Right Side _________ */}
+                <div className='hidden md:block md:w-1/2 lg:w-117.5 relative'>
+                    <img className='w-full absolute bottom-12 right-0 max-w-md h-auto' src={assets.headers} alt="" />
+                </div>
 
-        {/*__________ right side ___________*/}
-        <div className='md:w-1/2 relative'>
-            <img className='w-full md:absolute bottom-0 h-auto rounded-lg' src={assets.headers} alt="" />
-        </div>
+        
     </div>
   )
 }
