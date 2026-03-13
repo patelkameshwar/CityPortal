@@ -20,11 +20,12 @@ React.useEffect(() => {
         const response = await api.get('/client/stats');
         console.log('Client stats response:', response.data);
         if (response.data.success) {
+          const statsData = response.data.data || response.data.stats || {};
           setStats([
-            { name: 'Your Hotels', value: response.data.data.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
-            { name: 'Active Bookings', value: response.data.data.bookings?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
-            { name: 'Events Hosted', value: response.data.data.events?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-            { name: 'Monthly Revenue', value: `$${response.data.data.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
+            { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
+            { name: 'Active Bookings', value: statsData.bookings?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
+            { name: 'Events Hosted', value: statsData.events?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
+            { name: 'Monthly Revenue', value: `$${statsData.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
           ]);
         }
       } catch (error) {

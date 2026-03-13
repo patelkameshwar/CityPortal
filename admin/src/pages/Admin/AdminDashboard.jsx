@@ -21,10 +21,10 @@ const AdminDashboard = () => {
         console.log('Stats response:', response.data);
         if (response.data.success) {
           setStats([
-            { name: 'Total Clients', value: response.data.data.totalClients?.toLocaleString() || '0', icon: FaUsers, color: 'bg-blue-500' },
-            { name: 'Hotels', value: response.data.data.totalHotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
-            { name: 'Tourism Spots', value: response.data.data.totalTourism?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-            { name: 'Events', value: response.data.data.totalEvents?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
+{ name: 'Total Clients', value: (response.data.stats?.totalClients || 0).toLocaleString(), icon: FaUsers, color: 'bg-blue-500' },
+            { name: 'Hotels', value: (response.data.stats?.totalHotels || 0).toLocaleString(), icon: FaHotel, color: 'bg-emerald-500' },
+            { name: 'Tourism Spots', value: (response.data.stats?.totalTourism || 0).toLocaleString(), icon: FaMapMarkedAlt, color: 'bg-purple-500' },
+            { name: 'Events', value: (response.data.stats?.totalEvents || 0).toLocaleString(), icon: FaCalendarAlt, color: 'bg-orange-500' },
           ]);
         }
       } catch (error) {
