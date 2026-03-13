@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash, FaToggleOff, FaToggleOn } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const Login = () => {
   const [role, setRole] = useState('admin');
@@ -17,6 +18,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleRoleToggle = () => {
     setRole(role === 'admin' ? 'client' : 'admin');
@@ -26,25 +28,11 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, role }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success('Login successful!');
-        navigate(role === 'admin' ? '/admin-dashboard' : '/dashboard');
-      } else {
-        toast.error(data.message || 'Login failed');
-      }
-    } catch (err) {
-      toast.error('An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
+    const success = await login(email, password, role);
+    if (success) {
+      navigate(role === 'admin' ? '/admin-dashboard' : '/client-dashboard');
     }
+    setLoading(false);
   };
 
   return (

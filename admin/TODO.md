@@ -1,15 +1,14 @@
-# Admin Login Page Implementation TODO
+# Task: Fix /admin/clients protection & backend API - COMPLETE
 
-## Steps:
-- [x] 1. Install Tailwind CSS dependencies and init config files
-- [x] 2. Update src/index.css with Tailwind directives
+Changes:
+- Protected frontend admin/client routes with ProtectedRoute → unauth redirect to /login immediately.
+- Added backend/controllers/clientController.js: getAllClients() fetches users role='client'.
+- Added backend/routes/adminRoutes.js: GET /api/admin/clients protected by auth/role middleware.
 
-- [x] 3. Create src/pages/Login.jsx component
-- [x] 4. Update src/App.jsx with routing and layout
+Test:
+1. Ensure admin vite running: cd admin && npm run dev (port 5174)
+2. Backend running: cd backend && npm start (port 5000)
+3. No login → http://localhost:5174/admin/clients → redirects to /login
+4. Login as admin → lists clients
 
-Current progress: Completed steps 1-4.
-- [ ] 3. Create src/pages/Login.jsx component
-- [ ] 4. Update src/App.jsx with routing and layout
-- [x] 5. Test with `npm run dev` (run manually)
-
-Current progress: Starting step 1.
+See admin/TODO.md for details.

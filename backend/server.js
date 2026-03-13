@@ -24,6 +24,8 @@ app.use("/api/hotels", require("./routes/hotelRoutes"));
 app.use("/api/events", require("./routes/eventRoutes"));
 app.use("/api/tourism", require("./routes/tourismRoutes"));
 app.use("/api/bookings", require("./routes/bookingRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/client", require("./routes/clientRoutes"));
 
 
 app.get("/", (req, res) => {
