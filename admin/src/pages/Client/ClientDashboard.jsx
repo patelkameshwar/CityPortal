@@ -115,7 +115,7 @@ React.useEffect(() => {
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Quick Actions</h3>
               <div className="space-y-3">
-                <Link to="/my-profile" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                <Link to="/client/view-profile" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
                   <FaUsers className="h-5 w-5 text-blue-600 mr-3" />
                   View Profile
                 </Link>

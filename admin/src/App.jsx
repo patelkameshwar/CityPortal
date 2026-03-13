@@ -9,6 +9,8 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
 import ManageHotels from "./pages/Admin/ManageHotels.jsx";
+import ViewProfile from "./pages/Client/ViewProfile.jsx";
+
 
 const App = () => {
   return (
@@ -27,7 +29,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+            <Route
             path="/client-dashboard"
             element={
               <ProtectedRoute>
@@ -35,6 +37,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/admin/clients"
             element={
@@ -51,6 +54,15 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+<Route
+            path="/client/view-profile"
+            element={
+              <ProtectedRoute>
+                <ViewProfile />
+              </ProtectedRoute>
+            }
+          />
+
         </Routes>
       </div>
     </AuthProvider>
