@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { assets } from '../assets/assets';
@@ -70,10 +71,10 @@ const MyProfile = () => {
       if (response.data.success) {
         updateUser(response.data.user);
         setUserData(prev => ({ ...prev, image: response.data.user.profilePicture }));
-        alert('Profile picture updated successfully!');
+        toast.success('Profile picture updated successfully!');
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to upload profile picture');
+      toast.error(error.response?.data?.message || 'Failed to upload profile picture');
     } finally {
       setUploading(false);
     }
@@ -111,10 +112,10 @@ const MyProfile = () => {
         
         updateUser(response.data.user);
         setIsEdit(false);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }

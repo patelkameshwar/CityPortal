@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { eventAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiSearch, FiMapPin, FiCalendar, FiX, FiUser } from 'react-icons/fi';
@@ -48,7 +49,7 @@ const Events = () => {
 
   const handleBookNow = (event) => {
     if (!isAuthenticated) {
-      alert('Please login to book event tickets');
+      toast.error('Please login to book event tickets');
       return;
     }
     setSelectedEvent(event);
@@ -74,13 +75,13 @@ const Events = () => {
         totalPrice,
       });
 
-      setBookingSuccess('Event tickets booked successfully!');
+      toast.success('Event tickets booked successfully!');
       setTimeout(() => {
         setSelectedEvent(null);
         setBookingSuccess('');
       }, 2000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Booking failed');
+      toast.error(err.response?.data?.message || 'Booking failed');
     } finally {
       setBookingLoading(false);
     }

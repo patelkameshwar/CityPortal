@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { hotelAPI, eventAPI, tourismAPI } from "../services/api";
 
@@ -24,7 +25,7 @@ const TopServices = () => {
       setTourism(tourismRes.data.tourismPlaces || []);
       setEvents(eventsRes.data.events || []);
     } catch (err) {
-      console.error("Failed to load services data");
+      toast.error("Failed to load services data");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { FiCalendar, FiMapPin, FiHome, FiUsers, FiDollarSign } from 'react-icons/fi';
@@ -29,19 +30,15 @@ const MyBookings = () => {
   };
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
-      return;
-    }
-
     setCancelLoading(bookingId);
     try {
       await bookingAPI.cancel(bookingId);
       setBookings(bookings.map(booking => 
         booking._id === bookingId ? { ...booking, status: 'Cancelled' } : booking
       ));
-      alert('Booking cancelled successfully');
+      toast.success('Booking cancelled successfully');
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to cancel booking');
+      toast.error(err.response?.data?.message || 'Failed to cancel booking');
     } finally {
       setCancelLoading(null);
     }
@@ -142,9 +139,9 @@ const MyBookings = () => {
                   <>
                     <button 
                       className='text-sm bg-green-600 text-white text-center sm:min-w-48 py-2 border rounded hover:bg-green-700 transition-all duration-300'
-                      onClick={() => alert('Payment gateway integration coming soon')}
-                    >
-                      Pay Online
+                    onClick={() => toast.info('Payment gateway integration coming soon')}
+                  >
+                    Pay Online
                     </button>
                     <button 
                       onClick={() => handleCancelBooking(booking._id)}

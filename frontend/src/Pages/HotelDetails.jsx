@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -70,7 +71,7 @@ const HotelDetails = () => {
 
   const handleBookNow = () => {
     if (!isAuthenticated) {
-      alert('Please login to book a hotel');
+      toast.error('Please login to book a hotel');
       navigate('/login');
       return;
     }
@@ -113,13 +114,13 @@ const HotelDetails = () => {
         totalPrice,
       });
 
-      setBookingSuccess('Hotel booked successfully!');
+      toast.success('Hotel booked successfully!');
       setTimeout(() => {
         setBookingSuccess('');
         navigate('/my-bookings');
       }, 2000);
     } catch (err) {
-      alert(err.response?.data?.message || 'Booking failed');
+      toast.error(err.response?.data?.message || 'Booking failed');
     } finally {
       setBookingLoading(false);
     }

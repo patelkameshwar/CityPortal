@@ -41,7 +41,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2 text-gray-600">
                 <FiMail className="h-4 w-4" />
-                <span>info@cityportal.com</span>
+                <span>contact@cityportal.com</span>
               </li>
             </ul>
           </div>
