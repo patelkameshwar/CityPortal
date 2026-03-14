@@ -14,7 +14,7 @@ const {
 // Middlewares
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
-const upload = require("../middleware/uploadMiddleware");
+const createUpload = require("../middleware/uploadMiddleware");
 
 /**
  * PUBLIC ROUTES
@@ -32,7 +32,7 @@ router.post(
   "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  upload.array("images", 50),
+  createUpload("hotels").array("images", 50),
   createHotel
 );
 
@@ -40,7 +40,7 @@ router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  upload.array("images", 50),
+  createUpload("hotels").array("images", 50),
   updateHotel
 );
 

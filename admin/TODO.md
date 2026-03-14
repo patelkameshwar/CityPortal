@@ -1,0 +1,1 @@
+- [x] 2. Fix JSX prop syntax errors (formData.description, handleInputChange)

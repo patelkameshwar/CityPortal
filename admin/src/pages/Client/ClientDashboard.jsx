@@ -127,9 +127,9 @@ React.useEffect(() => {
                   <FaCalendarAlt className="h-5 w-5 text-orange-600 mr-3" />
                   Manage Bookings
                 </Link>
-                <Link to="/create-event" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaMapMarkedAlt className="h-5 w-5 text-purple-600 mr-3" />
-                  Create Event
+                <Link to="/client/my-events" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                  <FaCalendarAlt className="h-5 w-5 text-purple-600 mr-3" />
+                  My Events
                 </Link>
               </div>
             </div>

@@ -5,6 +5,24 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 
 
+exports.getClientEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ owner: req.user.id })
+      .populate('bookings.user', 'name email')
+      .sort({ createdAt: -1 });
+    
+    const eventsWithCount = events.map(event => ({
+      ...event._doc,
+      bookingsCount: event.bookings ? event.bookings.filter(b => b.status === 'Confirmed').length : 0
+    }));
+
+    res.json({ success: true, events: eventsWithCount });
+  } catch (error) {
+    console.error('Get Client Events Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getClientHotels = async (req, res) => {
   try {
     const hotels = await Hotel.find({ owner: req.user.id })

@@ -7,10 +7,12 @@ const Booking = require("../models/Booking");
  */
 exports.createEvent = async (req, res) => {
   try {
-    console.log('Event files received:', req.files?.length || 0);
+console.log('Event files received:', req.files, req.file);
     
-    if (req.files && req.files.length > 50) {
-      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
+    // Handle fields() format: req.files = {images: [file1, ...]}
+    const imagesArray = req.files?.images || (req.file ? [req.file] : []);
+    if (imagesArray.length > 10) {
+      return res.status(400).json({ success: false, message: "Maximum 10 images allowed" });
     }
 
     const { title, location, description, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
@@ -27,7 +29,7 @@ exports.createEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 
-    const images = req.files ? req.files.map(file => file.path) : [];
+    const images = imagesArray.map(file => file.path);
 
     const event = await Event.create({
       title,
@@ -106,10 +108,10 @@ exports.getEventById = async (req, res) => {
  */
 exports.updateEvent = async (req, res) => {
   try {
-    console.log('Update event files received:', req.files?.length || 0);
+    console.log('Update event files received:', req.files ? req.files.length : (req.file ? 1 : 0));
     
-    if (req.files && req.files.length > 50) {
-      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
+    if (req.files && req.files.length > 10 || req.file && req.files) {
+      return res.status(400).json({ success: false, message: "Maximum 10 images allowed" });
     }
 
     const event = await Event.findById(req.params.id);
@@ -118,7 +120,7 @@ exports.updateEvent = async (req, res) => {
     if (req.user.role !== "admin" && event.owner.toString() !== req.user.id)
       return res.status(403).json({ success: false, message: "Not authorized" });
 
-    const images = req.files?.length ? req.files.map(file => file.path) : event.images;
+    const images = req.files ? req.files.map(file => file.path) : (req.file ? [req.file.path] : event.images);
 
     // Update fields safely
     event.title = req.body.title || event.title;
@@ -186,7 +188,7 @@ exports.bookEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event)
-      return res.status(404).json({ success: false, message: "Event not found" });
+      return res.status(400).json({ success: false, message: "Event not found" });
 
     const { seats, bookingDate } = req.body;
 
@@ -219,3 +221,4 @@ exports.bookEvent = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

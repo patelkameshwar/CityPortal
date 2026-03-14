@@ -47,8 +47,8 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
       match: [
-        /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i,
-        "Time must be in format hh:mm AM/PM",
+        /^(?:[01]\d|2[0-3]):[0-5]\d$|^(?:0?[1-9]|1[0-2]):[0-5]\d\s?(?:AM|PM)$/i,
+        "Invalid time format (use HH:mm 24hr or hh:mm AM/PM)",
       ],
     },
 
@@ -95,3 +95,4 @@ const eventSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Event", eventSchema);
+

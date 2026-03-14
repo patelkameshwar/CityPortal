@@ -172,10 +172,16 @@ const MyHotels = () => {
                       Location
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Rooms
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Price
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Bookings
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -187,7 +193,7 @@ const MyHotels = () => {
                     <tr key={hotel._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                          <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
                             {hotel.images && hotel.images[0] ? (
                               <img
                                 src={hotel.images[0]}
@@ -207,16 +213,27 @@ const MyHotels = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center">
-                          <FaMapMarkerAlt className="h-4 w-4 text-gray-400 mr-1" />
                           {hotel.location}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${hotel.pricePerNight}/
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          {hotel.totalRooms}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        ₹ {hotel.pricePerNight}/
+                      </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <b>{hotel.bookingsCount || 0}</b> bookings
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {hotel.status || 'Active'}
+                      </span>
+                    </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
                           <button className="text-blue-600 hover:text-blue-900">

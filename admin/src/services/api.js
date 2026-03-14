@@ -65,7 +65,11 @@ export const hotelAPI = {
 export const eventAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
-  create: (data) => api.post('/events', data),
+  create: (data) => api.post('/events', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
   update: (id, data) => api.put(`/events/${id}`, data),
   delete: (id) => api.delete(`/events/${id}`),
   book: (id, data) => api.post(`/events/${id}/book`, data),

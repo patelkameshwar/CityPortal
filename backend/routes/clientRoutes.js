@@ -4,7 +4,8 @@ const router = express.Router();
 const {
   getClientStats,
   getAllClients,
-  getClientHotels
+  getClientHotels,
+  getClientEvents
 } = require("../controllers/clientController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -13,8 +14,11 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 // Client stats
 router.get('/stats', authMiddleware, getClientStats);
 
-// Client hotels - NEW ENDPOINT
+// Client hotels
 router.get('/hotels/client', authMiddleware, getClientHotels);
+
+// Client events - NEW ENDPOINT (Fixes MyEvents 404)
+router.get('/events', authMiddleware, getClientEvents);
 
 // Admin get all clients
 router.get('/', authMiddleware, roleMiddleware('admin'), getAllClients);
