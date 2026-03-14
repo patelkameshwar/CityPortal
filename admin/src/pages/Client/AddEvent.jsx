@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaImage, FaRupeeSign, FaClock, FaUsers, FaUpload, FaSpinner } from "react-icons/fa";
+import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaImage, FaRupeeSign, FaClock, FaUsers, FaUpload, FaSpinner, FaPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const AddEvent = () => {
@@ -17,24 +17,49 @@ const AddEvent = () => {
     price: "",
     totalSeats: "",
     images: null,
-    imagePreviews: []
   });
-  const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'images') {
-      const imageFiles = Array.from(files);
-      setFormData(prev => ({ ...prev, images: imageFiles }));
-      const previews = imageFiles.slice(0, 4).map(file => URL.createObjectURL(file));
-      setImagePreviews(previews);
+      const newFiles = Array.from(files);
+      setImageFiles(prev => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+      setFormData(prev => ({ ...prev, images: [...prev.images || [], ...newFiles] }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  const handleRemoveImage = (index) => {
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    const newFiles = imageFiles.filter((_, i) => i !== index);
+    setImagePreviews(newPreviews);
+    setImageFiles(newFiles);
+    setFormData(prev => ({
+      ...prev,
+      images: formData.images ? formData.images.filter((_, i) => i !== index) : []
+    }));
+    // Cleanup URL objects
+    URL.revokeObjectURL(imagePreviews[index]);
+  };
+
+  const handleAddMoreImages = (e) => {
+    const newFiles = Array.from(e.target.files);
+    setImageFiles(prev => [...prev, ...newFiles]);
+    const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newPreviews]);
+    setFormData(prev => ({ ...prev, images: [...(prev.images || []), ...newFiles] }));
+    // Reset input
+    e.target.value = '';
+  };
+
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -250,10 +275,51 @@ const AddEvent = () => {
                 </label>
               </div>
               {imagePreviews.length > 0 && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {imagePreviews.map((preview, index) => (
-                    <img key={index} src={preview} alt={`Preview ${index + 1}`} className="max-h-24 object-cover rounded-lg w-full" />
-                  ))}
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-medium text-gray-900">
+                      Selected Images ({imagePreviews.length})
+                    </h4>
+                    <label 
+                      htmlFor="add-more-images" 
+                      className="flex items-center text-emerald-600 hover:text-emerald-700 text-sm font-medium cursor-pointer transition-colors"
+                    >
+                      <FaPlus className="w-4 h-4 mr-1" />
+                      Add more
+                    </label>
+                  </div>
+                  <div className="flex gap-3 pb-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-full">
+                    {imagePreviews.slice(0, 3).map((preview, index) => (
+                      <div key={index} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow">
+                        <img 
+                          src={preview} 
+                          alt={`Preview ${index + 1}`} 
+                          className="w-full h-full object-cover" 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    {imagePreviews.length > 3 && (
+                      <div className="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 font-medium text-sm shadow-sm border">
+                        +{imagePreviews.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    id="add-more-images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleAddMoreImages}
+                    className="hidden"
+                  />
                 </div>
               )}
             </div>

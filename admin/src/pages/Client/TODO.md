@@ -1,17 +1,14 @@
-# AddEvent Feature Implementation
-## Status: ✅ COMPLETE
+# AddEvent Image Preview Implementation
+## Status: 🚀 In Progress
 
-### Completed Steps:
-1. ✅ Created `admin/src/pages/Client/AddEvent.jsx` - Full event form + image upload
-2. ✅ Updated `admin/src/App.jsx` - Added `/client/add-event` route (ProtectedRoute client)
-3. ✅ Fixed API call to use `eventAPI.create()` (matches api.js)
-4. ✅ Navigation ready: MyEvents "Add Event" → `/client/add-event`
+### Steps:
+- [x] Plan created and approved
+- [✅] Step 1: Update image state handling and add remove/add functions
+- [✅] Step 2: Replace grid preview with scrollable list (3 images + more indicator)
+- [✅] Step 3: Add delete × buttons on images
+- [✅] Step 4: Add + Add More button for incremental uploads
+- [ ] Step 5: Test all functionality
+- [ ] Step 6: Complete task
 
-**Test:**
-1. Start dev server: `npm run dev` (admin/)
-2. Login as client → MyEvents → Click "Add Event"
-3. Fill form → Submit → Redirects to MyEvents (new event listed)
+**Target:** admin/src/pages/Client/AddEvent.jsx
 
-**Backend:** POST /api/events working (auth + Cloudinary). Refresh MyEvents after create.
-
-**Result:** AddEvent page fully functional! 🎉
