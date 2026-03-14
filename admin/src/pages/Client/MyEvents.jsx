@@ -31,7 +31,6 @@ const MyEvents = () => {
 
   const fetchClientEvents = async () => {
     try {
-      // Assuming backend has /client/events endpoint or filter by owner
       const response = await api.get("/client/events");
       setEvents(response.data.events || []);
     } catch (error) {
@@ -78,7 +77,7 @@ const MyEvents = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 ">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -119,7 +118,6 @@ const MyEvents = () => {
       </header>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Events List */}
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-900">
@@ -162,6 +160,9 @@ const MyEvents = () => {
                       Event
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Event Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Venue
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -185,81 +186,89 @@ const MyEvents = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {events.map((event) => (
-                    <tr key={event._id} className="hover:bg-gray-50">
-                      <td className="px-2 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
-                            {event.images && event.images[0] ? (
-                              <img
-                                src={event.images[0]}
-                                alt={event.title}
-                                className="h-12 object-cover rounded-lg mr-4"
-                              />
-                            ) : (
-                              <FaCalendarAlt className="h-8 text-gray-500" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {event.title}
+                  {events.map((event) => {
+                    const isOneDay = event.eventDate;
+                    return (
+                      <tr key={event._id} className="hover:bg-gray-50">
+                        
+                        <td className="px-2 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                              {event.images && event.images[0] ? (
+                                <img
+                                  src={event.images[0]}
+                                  alt={event.title}
+                                  className="h-12 w-12 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <FaCalendarAlt className="h-8 text-gray-500" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {event.title}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          {event.location}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          ₹ {event.price}/
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Intl.DateTimeFormat("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        }).format(new Date(event.bookingFromDate))}{" "}
-                        -{" "}
-                        {new Intl.DateTimeFormat("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        }).format(new Date(event.bookingToDate))}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {event.eventTime}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {event.totalSeats}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <b>{event.bookingsCount || 0}</b> bookings
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <FaEye className="h-4 w-4 inline" />
-                          </button>
-                          <button className="text-yellow-600 hover:text-yellow-900">
-                            <FaEdit className="h-4 w-4 inline" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(event._id)}
-                            disabled={deleteLoading === event._id}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            {deleteLoading === event._id ? (
-                              <FaSpinner className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <FaTrash className="h-4 w-4 inline" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            isOneDay
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-purple-100 text-purple-800"
+                          }`}>
+                            {isOneDay ? "One day" : "Multi-day"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            {event.location}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            ₹ {event.price}/
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {event.eventDate 
+                            ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.eventDate))
+                            : `${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingToDate))}`
+                          }
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {event.eventTime}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {event.totalSeats}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <b>{event.bookingsCount || 0}</b> bookings
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-600 hover:text-blue-900">
+                              <FaEye className="h-4 w-4 inline" />
+                            </button>
+                            <button className="text-yellow-600 hover:text-yellow-900">
+                              <FaEdit className="h-4 w-4 inline" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(event._id)}
+                              disabled={deleteLoading === event._id}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              {deleteLoading === event._id ? (
+                                <FaSpinner className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <FaTrash className="h-4 w-4 inline" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -271,3 +280,4 @@ const MyEvents = () => {
 };
 
 export default MyEvents;
+

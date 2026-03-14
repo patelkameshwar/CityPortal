@@ -12,12 +12,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 
 const AddEvent = () => {
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     location: "",
     eventType: "one-day",
     eventTime: "",
+    eventDate: "",
     bookingFromDate: "",
     bookingToDate: "",
     price: "",
@@ -53,6 +54,7 @@ const handleChange = (e) => {
     const date = e.target.value;
     setFormData(prev => ({
       ...prev, 
+      eventDate: date,
       bookingFromDate: date,
       bookingToDate: date
     }));
@@ -90,15 +92,22 @@ const handleChange = (e) => {
     if (loading) return;
 
     // Client-side validation
-    const fromDate = new Date(formData.bookingFromDate);
-    const toDate = new Date(formData.bookingToDate);
-    if (fromDate > toDate) {
-      toast.error("Booking To date must be after Booking From date");
-      return;
-    }
-    if (!formData.bookingFromDate || !formData.bookingToDate) {
-      toast.error("Please select valid dates");
-      return;
+    if (formData.eventType === 'one-day') {
+      if (!formData.eventDate) {
+        toast.error("Please select event date");
+        return;
+      }
+    } else {
+      const fromDate = new Date(formData.bookingFromDate);
+      const toDate = new Date(formData.bookingToDate);
+      if (fromDate > toDate) {
+        toast.error("Booking To date must be after Booking From date");
+        return;
+      }
+      if (!formData.bookingFromDate || !formData.bookingToDate) {
+        toast.error("Please select valid booking dates");
+        return;
+      }
     }
 
     setLoading(true);
@@ -130,10 +139,10 @@ const handleChange = (e) => {
   };
 
   useEffect(() => {
-    if (formData.eventType === 'one-day' && formData.bookingFromDate && formData.bookingFromDate !== formData.bookingToDate) {
-      setFormData(prev => ({ ...prev, bookingToDate: prev.bookingFromDate }));
+    if (formData.eventType === 'one-day' && formData.eventDate && formData.bookingFromDate !== formData.eventDate) {
+      setFormData(prev => ({ ...prev, bookingFromDate: prev.eventDate, bookingToDate: prev.eventDate }));
     }
-  }, [formData.eventType, formData.bookingFromDate]);
+  }, [formData.eventType, formData.eventDate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -303,7 +312,7 @@ const handleChange = (e) => {
                     <input
                       type="date"
                       name="eventDate"
-                      value={formData.bookingFromDate}
+                      value={formData.eventDate}
                       onChange={handleEventDateChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
                       required

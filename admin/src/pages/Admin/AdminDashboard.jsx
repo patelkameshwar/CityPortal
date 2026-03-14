@@ -166,8 +166,9 @@ const AdminDashboard = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Dates</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
@@ -179,6 +180,15 @@ const AdminDashboard = () => {
                 {items.map((event) => (
                   <tr key={event._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        event.eventDate 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {event.eventDate ? 'One day' : 'Multi-day'}
+                      </span>
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.location}</td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
@@ -186,8 +196,12 @@ const AdminDashboard = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingFromDate))} -{' '}
-                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingToDate))}
+                      {event.eventDate
+                        ? new Intl.DateTimeFormat('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                          }).format(new Date(event.eventDate))
+                        : `${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingToDate))}`}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.eventTime}</td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.totalSeats || 'N/A'}</td>

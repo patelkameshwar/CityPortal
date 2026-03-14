@@ -15,18 +15,37 @@ console.log('Event files received:', req.files, req.file);
       return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
     }
 
-    const { title, location, description, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
+    const { title, location, description, eventType, eventDate, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
 
-    if (!title || !location || !bookingFromDate || !bookingToDate || !eventTime || !totalSeats || !price) {
+    if (!title || !location || !eventTime || !totalSeats || !price) {
       return res.status(400).json({ success: false, message: "All required fields must be provided" });
     }
 
-    const from = new Date(bookingFromDate);
-    const to = new Date(bookingToDate);
-
-    // Validate that end date is after start date (allow same day)
-    if (from > to) {
-      return res.status(400).json({ success: false, message: "End date must be after start date" });
+    let fromDate, toDate, eventDateObj;
+    
+    if (eventType === 'one-day') {
+      if (!eventDate) {
+        return res.status(400).json({ success: false, message: 'eventDate is required for one-day events' });
+      }
+      eventDateObj = new Date(eventDate);
+      if (isNaN(eventDateObj.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid eventDate' });
+      }
+      fromDate = toDate = eventDateObj;
+    } else if (eventType === 'multi-day') {
+      if (!bookingFromDate || !bookingToDate) {
+        return res.status(400).json({ success: false, message: 'bookingFromDate and bookingToDate are required for multi-day events' });
+      }
+      fromDate = new Date(bookingFromDate);
+      toDate = new Date(bookingToDate);
+      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+        return res.status(400).json({ success: false, message: 'Invalid booking dates' });
+      }
+      if (fromDate > toDate) {
+        return res.status(400).json({ success: false, message: 'bookingToDate must be after or same as bookingFromDate' });
+      }
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid eventType. Use "one-day" or "multi-day"' });
     }
 
     const images = imagesArray.map(file => file.path);
@@ -35,8 +54,9 @@ console.log('Event files received:', req.files, req.file);
       title,
       location,
       description,
-      bookingFromDate: from,
-      bookingToDate: to,
+      eventDate: eventType === 'one-day' ? eventDateObj : undefined,
+      bookingFromDate: fromDate,
+      bookingToDate: toDate,
       eventTime,
       totalSeats,
       owner: req.user.id,

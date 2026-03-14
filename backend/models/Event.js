@@ -23,23 +23,26 @@ const eventSchema = new mongoose.Schema(
     // Event booking availability (support multi-day events)
     bookingFromDate: {
       type: Date,
-      required: true,
       default: () => {
         const d = new Date();
         d.setHours(0, 0, 0, 0);
         return d;
       },
-    },
+    }, // Optional - derived for one-day events from eventDate
 
     bookingToDate: {
       type: Date,
-      required: true,
       default: () => {
         const d = new Date();
         d.setHours(0, 0, 0, 0);
         d.setFullYear(d.getFullYear() + 1);
         return d;
       },
+    }, // Optional - derived for one-day events from eventDate
+
+    // Single day event date (when eventType is one-day)
+    eventDate: {
+      type: Date,
     },
 
     // Event start time (default daily start time if needed)
