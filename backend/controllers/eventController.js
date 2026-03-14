@@ -24,8 +24,8 @@ console.log('Event files received:', req.files, req.file);
     const from = new Date(bookingFromDate);
     const to = new Date(bookingToDate);
 
-    // Validate that end date is after start date
-    if (from >= to) {
+    // Validate that end date is after start date (allow same day)
+    if (from > to) {
       return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 
@@ -144,7 +144,7 @@ exports.updateEvent = async (req, res) => {
     if (req.body.bookingFromDate) event.bookingFromDate = new Date(req.body.bookingFromDate);
     if (req.body.bookingToDate) event.bookingToDate = new Date(req.body.bookingToDate);
 
-    if (event.bookingFromDate >= event.bookingToDate) {
+    if (event.bookingFromDate > event.bookingToDate) {
       return res.status(400).json({ success: false, message: "End date must be after start date" });
     }
 

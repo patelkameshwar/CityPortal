@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
@@ -12,10 +12,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 
 const AddEvent = () => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     title: "",
     description: "",
     location: "",
+    eventType: "one-day",
     eventTime: "",
     bookingFromDate: "",
     bookingToDate: "",
@@ -28,7 +29,7 @@ const AddEvent = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'images') {
       const newFiles = Array.from(files);
@@ -39,6 +40,22 @@ const AddEvent = () => {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleEventTypeChange = (type) => {
+    setFormData(prev => ({ ...prev, eventType: type }));
+    if (type === 'one-day' && formData.bookingFromDate) {
+      setFormData(prev => ({ ...prev, bookingToDate: prev.bookingFromDate }));
+    }
+  };
+
+  const handleEventDateChange = (e) => {
+    const date = e.target.value;
+    setFormData(prev => ({
+      ...prev, 
+      bookingFromDate: date,
+      bookingToDate: date
+    }));
   };
 
 
@@ -72,6 +89,18 @@ const AddEvent = () => {
     e.preventDefault();
     if (loading) return;
 
+    // Client-side validation
+    const fromDate = new Date(formData.bookingFromDate);
+    const toDate = new Date(formData.bookingToDate);
+    if (fromDate > toDate) {
+      toast.error("Booking To date must be after Booking From date");
+      return;
+    }
+    if (!formData.bookingFromDate || !formData.bookingToDate) {
+      toast.error("Please select valid dates");
+      return;
+    }
+
     setLoading(true);
     try {
       const submitData = new FormData();
@@ -99,6 +128,12 @@ const AddEvent = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (formData.eventType === 'one-day' && formData.bookingFromDate && formData.bookingFromDate !== formData.bookingToDate) {
+      setFormData(prev => ({ ...prev, bookingToDate: prev.bookingFromDate }));
+    }
+  }, [formData.eventType, formData.bookingFromDate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -226,47 +261,114 @@ const AddEvent = () => {
               </div>
             </div>
 
-            {/* Booking Dates & Seats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Event Type & Dates & Seats */}
+            <div className="space-y-6">
+              {/* Event Type Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Booking From *</label>
-                <input
-                  type="date"
-                  name="bookingFromDate"
-                  value={formData.bookingFromDate}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                  required
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-3">Event Duration *</label>
+                <div className="flex bg-gray-100 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => handleEventTypeChange('one-day')}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      formData.eventType === 'one-day'
+                        ? 'bg-white shadow-sm border-2 border-emerald-500 text-emerald-700'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    One Day Event
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleEventTypeChange('multi-day')}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      formData.eventType === 'multi-day'
+                        ? 'bg-white shadow-sm border-2 border-emerald-500 text-emerald-700'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Multi-Day Event
+                  </button>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Booking UpTo *</label>
-                <input
-                  type="date"
-                  name="bookingToDate"
-                  value={formData.bookingToDate}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                  min={formData.bookingFromDate}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                  <FaUsers className="mr-2 text-gray-500" />
-                  Total Seats *
-                </label>
-                <input
-                  type="number"
-                  name="totalSeats"
-                  value={formData.totalSeats}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                  placeholder="100"
-                  min="1"
-                  required
-                />
-              </div>
+
+              {/* Conditional Date Inputs */}
+              {formData.eventType === 'one-day' ? (
+                <div className="lg:grid-cols-2 grid grid-cols-1 gap-6 lg:grid">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <FaCalendarAlt className="mr-2 text-gray-500" />
+                      Event Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="eventDate"
+                      value={formData.bookingFromDate}
+                      onChange={handleEventDateChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <FaUsers className="mr-2 text-gray-500" />
+                      Total Seats *
+                    </label>
+                    <input
+                      type="number"
+                      name="totalSeats"
+                      value={formData.totalSeats}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="100"
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Booking From *</label>
+                    <input
+                      type="date"
+                      name="bookingFromDate"
+                      value={formData.bookingFromDate}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Booking To *</label>
+                    <input
+                      type="date"
+                      name="bookingToDate"
+                      value={formData.bookingToDate}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      min={formData.bookingFromDate}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <FaUsers className="mr-2 text-gray-500" />
+                      Total Seats *
+                    </label>
+                    <input
+                      type="number"
+                      name="totalSeats"
+                      value={formData.totalSeats}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                      placeholder="100"
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Images */}
