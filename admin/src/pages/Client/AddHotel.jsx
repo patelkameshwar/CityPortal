@@ -11,6 +11,7 @@ import {
   FaDollarSign,
   FaCalendarAlt,
   FaUser,
+  FaPlus
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -42,12 +43,21 @@ const AddHotel = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 50) {
+    if (files.length + formData.images.length > 50) {
       toast.warning("Maximum 10 images allowed");
       return;
     }
-    setFormData((prev) => ({ ...prev, images: files }));
-    // Reset input to allow re-selection
+    setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
+    e.target.value = "";
+  };
+
+  const handleAddMoreImages = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + formData.images.length > 50) {
+      toast.warning("Maximum 10 images allowed");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
     e.target.value = "";
   };
 
@@ -236,34 +246,56 @@ const AddHotel = () => {
                 onChange={handleImageChange}
                 className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
               />
-              <p className="mt-1 text-sm text-gray-500">Upload up to 10 high-quality images of your hotel (max 5MB each)</p>
+              <p className="mt-1 text-sm text-gray-500">Upload up to 50 high-quality images of your hotel (max 5MB each)</p>
             </div>
 
             {/* Image Preview */}
             {formData.images.length > 0 && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <p className="text-sm font-medium text-gray-900 mb-3">
-                  Selected Images ({formData.images.length}/50)
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {formData.images.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg shadow-md"
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-medium text-gray-900">
+                    Selected Images ({formData.images.length}/50)
+                  </h4>
+                  <label 
+                    htmlFor="add-more-images" 
+                    className="flex items-center text-emerald-600 hover:text-emerald-700 text-sm font-medium cursor-pointer transition-colors"
+                  >
+                    <FaPlus className="w-4 h-4 mr-1" />
+                    Add more
+                  </label>
+                </div>
+                <div className="flex gap-3 pb-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-full">
+                  {formData.images.slice(0, 3).map((image, index) => (
+                    <div key={index} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow">
+                      <img 
+                        src={URL.createObjectURL(image)} 
+                        alt={`Preview ${index + 1}`} 
+                        className="w-full h-full object-cover" 
                       />
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full h-6 w-6 flex items-center justify-center text-xs shadow-lg opacity-0 group-hover:opacity-100 transition-all"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+                        title="Remove image"
                       >
                         ×
                       </button>
-                      <p className="mt-1 text-xs text-gray-500 truncate">{image.name}</p>
                     </div>
                   ))}
+                  {formData.images.length > 3 && (
+                    <div className="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 font-medium text-sm shadow-sm border">
+                      +{formData.images.length - 3}
+                    </div>
+                  )}
                 </div>
+                <input
+                  type="file"
+                  id="add-more-images"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAddMoreImages}
+                  className="hidden"
+                />
               </div>
             )}
 
