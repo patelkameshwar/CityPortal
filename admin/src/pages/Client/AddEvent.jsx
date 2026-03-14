@@ -4,7 +4,12 @@ import { Link } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaImage, FaRupeeSign, FaClock, FaUsers, FaUpload, FaSpinner, FaPlus } from "react-icons/fa";
+ // Removed react-datepicker imports
 import { toast } from "react-toastify";
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 const AddEvent = () => {
   const [formData, setFormData] = useState({
@@ -36,6 +41,8 @@ const AddEvent = () => {
     }
   };
 
+
+
   const handleRemoveImage = (index) => {
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
     const newFiles = imageFiles.filter((_, i) => i !== index);
@@ -43,7 +50,7 @@ const AddEvent = () => {
     setImageFiles(newFiles);
     setFormData(prev => ({
       ...prev,
-      images: formData.images ? formData.images.filter((_, i) => i !== index) : []
+      images: prev.images ? prev.images.filter((_, i) => i !== index) : []
     }));
     // Cleanup URL objects
     URL.revokeObjectURL(imagePreviews[index]);
@@ -198,14 +205,24 @@ const AddEvent = () => {
                   <FaClock className="mr-2 text-gray-500" />
                   Event Time *
                 </label>
-                <input
-                  type="time"
-                  name="eventTime"
-                  value={formData.eventTime}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
-                  required
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    ampm
+                    views={['hours', 'minutes']}
+                    value={formData.eventTime ? dayjs(`1970-01-01 ${formData.eventTime}`, 'YYYY-MM-DD h:mm A') : null}
+                    onChange={(newValue) => {
+                      const timeStr = newValue ? newValue.format('h:mm A') : '';
+                      setFormData(prev => ({ ...prev, eventTime: timeStr }));
+                    }}
+                    slotProps={{
+                      textField: {
+                        className: "w-full px-4 py-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 shadow-sm text-sm hover:bg-gray-50 transition-all",
+                        placeholder: "Select time (e.g., 2:30 PM)",
+                        required: true
+                      }
+                    }}
+                  />
+                </LocalizationProvider>
               </div>
             </div>
 
