@@ -10,9 +10,9 @@ exports.createEvent = async (req, res) => {
 console.log('Event files received:', req.files, req.file);
     
     // Handle fields() format: req.files = {images: [file1, ...]}
-    const imagesArray = req.files?.images || (req.file ? [req.file] : []);
-    if (imagesArray.length > 10) {
-      return res.status(400).json({ success: false, message: "Maximum 10 images allowed" });
+    const imagesArray = req.files || (req.file ? [req.file] : []);
+    if (imagesArray.length > 50) {
+      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
     }
 
     const { title, location, description, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
@@ -108,10 +108,11 @@ exports.getEventById = async (req, res) => {
  */
 exports.updateEvent = async (req, res) => {
   try {
-    console.log('Update event files received:', req.files ? req.files.length : (req.file ? 1 : 0));
+    const updateImagesArray = req.files || (req.file ? [req.file] : []);
+    console.log('Update event files received:', updateImagesArray.length);
     
-    if (req.files && req.files.length > 10 || req.file && req.files) {
-      return res.status(400).json({ success: false, message: "Maximum 10 images allowed" });
+    if (updateImagesArray.length > 50) {
+      return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
     }
 
     const event = await Event.findById(req.params.id);

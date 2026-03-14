@@ -16,18 +16,21 @@ const AddEvent = () => {
     bookingToDate: "",
     price: "",
     totalSeats: "",
-    images: null
+    images: null,
+    imagePreviews: []
   });
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'images' && files[0]) {
-      setFormData(prev => ({ ...prev, images: files[0] }));
-      setImagePreview(URL.createObjectURL(files[0]));
+    if (name === 'images') {
+      const imageFiles = Array.from(files);
+      setFormData(prev => ({ ...prev, images: imageFiles }));
+      const previews = imageFiles.slice(0, 4).map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -40,13 +43,18 @@ const AddEvent = () => {
     setLoading(true);
     try {
       const submitData = new FormData();
+      // Append text fields
       Object.keys(formData).forEach(key => {
-        if (key === 'images' && formData[key]) {
-          submitData.append('images', formData[key]);
-        } else if (formData[key]) {
+        if (key !== 'images' && formData[key]) {
           submitData.append(key, formData[key]);
         }
       });
+      // Append multiple images
+      if (formData.images) {
+        formData.images.forEach(image => {
+          submitData.append('images', image);
+        });
+      }
 
       await eventAPI.create(submitData);
       
@@ -230,6 +238,7 @@ const AddEvent = () => {
                   type="file"
                   name="images"
                   accept="image/*"
+                  multiple
                   onChange={handleChange}
                   className="hidden"
                   id="image-upload"
@@ -237,12 +246,14 @@ const AddEvent = () => {
                 <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center">
                   <FaUpload className="h-12 w-12 text-gray-400 mb-4" />
                   <p className="text-lg font-medium text-gray-900 mb-1">Click to upload</p>
-                  <p className="text-sm text-gray-500">PNG, JPG up to 10MB</p>
+                  <p className="text-sm text-gray-500">PNG, JPG (max 50 images, 10MB each)</p>
                 </label>
               </div>
-              {imagePreview && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-                  <img src={imagePreview} alt="Preview" className="max-h-48 object-cover rounded-lg mx-auto" />
+              {imagePreviews.length > 0 && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {imagePreviews.map((preview, index) => (
+                    <img key={index} src={preview} alt={`Preview ${index + 1}`} className="max-h-24 object-cover rounded-lg w-full" />
+                  ))}
                 </div>
               )}
             </div>

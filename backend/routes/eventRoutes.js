@@ -27,7 +27,7 @@ router.post(
   "/",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  createUpload("events").fields([{ name: 'images', maxCount: 1 }]),
+  createUpload("events").array('images', 50),
   createEvent
 );
 
@@ -35,7 +35,7 @@ router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("client", "admin"),
-  createUpload("events").fields([{ name: 'images', maxCount: 1 }]),
+  createUpload("events").array('images', 50),
   updateEvent
 );
 
