@@ -1,13 +1,1 @@
-# Project Tasks
-
-**Previous Task (AdminDashboard.jsx) Completed ✅**
-
-**New Task: TourismManagement.jsx**
-- [ ] 1. Analyze TourismManagement.jsx issues
-- [ ] 2. Create detailed fix plan
-- [ ] 3. Get user approval on plan
-- [ ] 4. Fix the component
-- [ ] 5. Test and complete
-
-The code looks well-structured with proper search, table layout, image handling, and CRUD operations. Ready for analysis when instructed.
-
+# Fix Recent Events/Tourism Not Showing Properly in AdminDashboard\n\n**Status:** Diagnosed & Fix Ready\n\n## Problem\n- Recent Events shows 3 \"N/A\" because Event model uses `title`, code expects `item.name`\n- Tourism may have same if `name` missing\n\n## Plan\n1. Update RecentList fallback rendering to `item.title || item.name`\n2. Add location subtitle for better UX\n3. No other changes needed\n\n## Progress\n✅ Backend verified\n✅ Fetch logic correct\n⏳ Frontend render fix\n\n**Expected Result:** Events show titles + locations after refresh

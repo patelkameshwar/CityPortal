@@ -106,9 +106,10 @@ const AdminDashboard = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
@@ -120,10 +121,15 @@ const AdminDashboard = () => {
                         <div className="text-sm font-medium text-gray-900">{item.name}</div>
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.address || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.phone || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(item.createdAt)}
+                      {new Intl.DateTimeFormat('en-GB', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <Link to={`/admin/clients/${item._id}`} className="text-blue-600 hover:text-blue-900">
@@ -154,15 +160,144 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
+        ) : title === "Recent Events" ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Dates</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {items.map((event) => (
+                  <tr key={event._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.location}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        ₹ {event.price}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingFromDate))} -{' '}
+                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingToDate))}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.eventTime}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.totalSeats || 'N/A'}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(event.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <Link to={`/admin/events/${event._id}`} className="text-blue-600 hover:text-blue-900">
+                        <FaEye className="h-4 w-4 inline" />
+                      </Link>
+                      <Link to={`/admin/events/${event._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaUserEdit className="h-4 w-4 inline" />
+                      </Link>
+                      <button 
+                        onClick={async () => {
+                          if (window.confirm('Delete this event?')) {
+                            try {
+                              await api.delete(`/events/${event._id}`);
+                              toast.success('Event deleted');
+                              window.location.reload();
+                            } catch (error) {
+                              toast.error('Delete failed');
+                            }
+                          }
+                        }} 
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FaTrash className="h-4 w-4 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : title === "Recent Tourism" ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entry Fee</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Limit</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {items.map((spot) => (
+                  <tr key={spot._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{spot.name}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{spot.location}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        ₹{spot.entryFee || 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(spot.bookingFromDate))} - {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(spot.bookingToDate))}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {spot.openTime}-{spot.closeTime}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{spot.totalVisitors || 'N/A'}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(spot.createdAt)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                      <Link to={`/admin/tourism/${spot._id}`} className="text-blue-600 hover:text-blue-900">
+                        <FaEye className="h-4 w-4 inline" />
+                      </Link>
+                      <Link to={`/admin/tourism/${spot._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaUserEdit className="h-4 w-4 inline" />
+                      </Link>
+                      <button 
+                        onClick={async () => {
+                          if (window.confirm('Delete this tourism spot?')) {
+                            try {
+                              await api.delete(`/tourism/${spot._id}`);
+                              toast.success('Tourism spot deleted');
+                              window.location.reload();
+                            } catch (error) {
+                              toast.error('Delete failed');
+                            }
+                          }
+                        }} 
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FaTrash className="h-4 w-4 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : title === "Recent Hotels" ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rooms</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -170,9 +305,21 @@ const AdminDashboard = () => {
                 {items.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{item.pricePerNight || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">₹ {item.pricePerNight || 'N/A'}</span></td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {item.status || 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Intl.DateTimeFormat('en-GB', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      }).format(new Date(item.createdAt))}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <Link to={`/hotels/${item._id}`} className="text-blue-600 hover:text-blue-900">
                         <FaEye className="h-4 w-4 inline" />
@@ -207,15 +354,19 @@ const AdminDashboard = () => {
           items.map((item) => (
             <div key={item._id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0 flex items-center">
-                  <p className="text-sm text-gray-500 truncate flex-1">
-                    {item.name || 'N/A'}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {item.title || item.name || 'Untitled'}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate mt-1">
+                    {item.location || 'No location'} • {formatDate(item.createdAt)}
                   </p>
                 </div>
               </div>
             </div>
           ))
         )}
+
       </div>
     </div>
   );
