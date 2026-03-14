@@ -22,7 +22,7 @@ const AddHotel = () => {
     pricePerNight: "",
     totalRooms: "",
     amenities: "",
-    images: null,
+    images: [],
   });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +41,21 @@ const AddHotel = () => {
   };
 
   const handleImageChange = (e) => {
-    setFormData((prev) => ({ ...prev, images: e.target.files[0] }));
+    const files = Array.from(e.target.files);
+    if (files.length > 50) {
+      toast.warning("Maximum 10 images allowed");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, images: files }));
+    // Reset input to allow re-selection
+    e.target.value = "";
+  };
+
+  const removeImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -58,9 +72,9 @@ const AddHotel = () => {
     submitData.append("pricePerNight", formData.pricePerNight);
     submitData.append("totalRooms", formData.totalRooms);
     submitData.append("amenities", formData.amenities);
-    if (formData.images) {
-      submitData.append("images", formData.images);
-    }
+    formData.images?.forEach((image) => {
+      submitData.append("images", image);
+    });
 
     setSubmitting(true);
     try {
@@ -173,7 +187,7 @@ const AddHotel = () => {
                     value={formData.pricePerNight}
                     onChange={handleInputChange}
                     min="0"
-                    step="0.01"
+                    step="100"
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="500"
                     required
@@ -210,7 +224,7 @@ const AddHotel = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                 <FaImage className="mr-2 text-gray-400" />
                 Hotel Images
               </label>
@@ -218,11 +232,40 @@ const AddHotel = () => {
                 type="file"
                 name="images"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
                 className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
               />
-              <p className="mt-1 text-sm text-gray-500">Upload high-quality images of your hotel (max 5MB)</p>
+              <p className="mt-1 text-sm text-gray-500">Upload up to 10 high-quality images of your hotel (max 5MB each)</p>
             </div>
+
+            {/* Image Preview */}
+            {formData.images.length > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-sm font-medium text-gray-900 mb-3">
+                  Selected Images ({formData.images.length}/50)
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg shadow-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full h-6 w-6 flex items-center justify-center text-xs shadow-lg opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        ×
+                      </button>
+                      <p className="mt-1 text-xs text-gray-500 truncate">{image.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button
