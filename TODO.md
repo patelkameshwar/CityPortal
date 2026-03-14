@@ -1,10 +1,12 @@
-# Task: Replace "Add New Hotel" button with client profile pic/name in MyHotels.jsx
+# Hotel Images Upload Fix
+## Status: 🔄 In Progress
 
-## Steps:
-- [ ] Step 1: Create TODO.md (current)
-- [x] Step 2: Update useAuth destructuring and replace button with profile display
-- [x] Step 3: Test functionality (toggle form, image fallback)
-- [ ] Step 4: Mark complete and attempt_completion
+### Step 1: [✅] Diagnosis Complete
+- Frontend FormData not parsed (req.files=0)
+- Postman works → backend perfect
+- Root cause: axios Content-Type header conflict
 
-Progress: 0/4 complete
-
+### Step 2: [✅] Fix api.js - Add multipart headers to hotelAPI
+### Step 3: [ ] Test upload (console Files received:1, image shows)
+### Step 4: [ ] Optional: Multiple file support in AddHotel.jsx
+### Step 5: [ ] Complete & cleanup TODO

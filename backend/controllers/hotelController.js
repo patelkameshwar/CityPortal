@@ -9,10 +9,10 @@ exports.createHotel = async (req, res) => {
   try {
     console.log('Files received:', req.files?.length || 0);
     
-    if (req.files && req.files.length > 50) {
+    if (req.files && req.files.length > 100) {
       return res.status(400).json({
         success: false,
-        message: "Maximum 50 images allowed"
+        message: "Maximum 100 images allowed"
       });
     }
 
@@ -113,10 +113,10 @@ exports.updateHotel = async (req, res) => {
   try {
     console.log('Update files received:', req.files?.length || 0);
     
-    if (req.files && req.files.length > 50) {
+    if (req.files && req.files.length > 100) {
       return res.status(400).json({
         success: false,
-        message: "Maximum 50 images allowed"
+        message: "Maximum 100 images allowed"
       });
     }
 

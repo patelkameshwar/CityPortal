@@ -14,6 +14,7 @@ import EventDashboard from "./pages/Admin/EventDashboard.jsx";
 import TourismManagement from "./pages/Admin/TourismManagement.jsx";
 import ManageBooking from "./pages/Client/ManageBooking.jsx";
 import MyHotels from "./pages/Client/MyHotels.jsx";
+import AddHotel from "./pages/Client/AddHotel.jsx";
 
 const App = () => {
   return (
@@ -77,6 +78,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={['client']}>
                 <MyHotels />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client/add-hotel"
+            element={
+              <ProtectedRoute allowedRoles={['client']}>
+                <AddHotel />
               </ProtectedRoute>
             }
           />

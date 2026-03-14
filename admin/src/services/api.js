@@ -48,8 +48,16 @@ export const hotelAPI = {
   getAll: () => api.get('/hotels'),
   getById: (id) => api.get(`/hotels/${id}`),
   getSimilar: (id) => api.get(`/hotels/${id}/similar`),
-  create: (data) => api.post('/hotels', data),
-  update: (id, data) => api.put(`/hotels/${id}`, data),
+  create: (data) => api.post('/hotels', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
+  update: (id, data) => api.put(`/hotels/${id}`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
   delete: (id) => api.delete(`/hotels/${id}`),
 };
 
