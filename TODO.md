@@ -1,7 +1,13 @@
-# TODO: Merge EditProfile into ViewProfile
+# Project Tasks
 
-- [x] 1. Edit admin/src/App.jsx: Remove EditProfile import and /client/edit-profile route
-- [x] 2. Edit admin/src/pages/Client/ViewProfile.jsx: Merge edit functionality (add toggle mode, states, handlers, conditional UI from EditProfile)
-- [x] 3. Delete admin/src/pages/Client/EditProfile.jsx
-- [ ] 4. Test: Navigate to /client/profile, toggle edit, update profile, verify changes
+**Previous Task (AdminDashboard.jsx) Completed ✅**
+
+**New Task: TourismManagement.jsx**
+- [ ] 1. Analyze TourismManagement.jsx issues
+- [ ] 2. Create detailed fix plan
+- [ ] 3. Get user approval on plan
+- [ ] 4. Fix the component
+- [ ] 5. Test and complete
+
+The code looks well-structured with proper search, table layout, image handling, and CRUD operations. Ready for analysis when instructed.
 

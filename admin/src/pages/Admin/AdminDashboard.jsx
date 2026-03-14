@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaUserEdit, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -55,13 +55,12 @@ const AdminDashboard = () => {
           api.get('/tourism')
         ]);
 
-        // Client-side sort by createdAt desc, take top 5
-        const sortRecent = (items) => (items || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+        const sortRecent = (items) => (items || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
 
         setRecentClients(sortRecent(clientsRes.data.data));
         setRecentHotels(sortRecent(hotelsRes.data.hotels || hotelsRes.data.data || []));
-        setRecentEvents(sortRecent(eventsRes.data.events || eventsRes.data.data || []));
-        setRecentTourism(sortRecent(tourismRes.data.tourism || tourismRes.data.data || []));
+        setRecentEvents(sortRecent(eventsRes.data.events || eventsRes.data.data || eventsRes.data || []));
+        setRecentTourism(sortRecent(tourismRes.data.tourism || tourismRes.data.tourismPlaces || tourismRes.data.data || []));
       } catch (error) {
         console.error('Failed to fetch recent data:', error);
         toast.error('Failed to load recent additions - check backend endpoints');
@@ -88,9 +87,6 @@ const AdminDashboard = () => {
   const RecentList = ({ title, items, icon: Icon, color }) => (
     <div>
       <div className="flex items-center mb-4">
-        <div className={`p-2 rounded-lg ${color} mr-3`}>
-          <Icon className="h-5 w-5 text-white" />
-        </div>
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
       </div>
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
@@ -104,21 +100,118 @@ const AdminDashboard = () => {
           <div className="p-8 text-center text-gray-500">
             No recent {title.toLowerCase()}
           </div>
+        ) : title === "Recent Clients" ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {items.map((item) => (
+                  <tr key={item._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.phone || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(item.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <Link to={`/admin/clients/${item._id}`} className="text-blue-600 hover:text-blue-900">
+                        <FaEye className="h-4 w-4 inline" />
+                      </Link>
+                      <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaUserEdit className="h-4 w-4 inline" />
+                      </Link>
+                      <button 
+                        onClick={async () => {
+                          if (window.confirm('Delete this client?')) {
+                            try {
+                              await api.delete(`/admin/clients/${item._id}`);
+                              toast.success('Client deleted');
+                              window.location.reload();
+                            } catch (error) {
+                              toast.error('Delete failed');
+                            }
+                          }
+                        }} 
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FaTrash className="h-4 w-4 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : title === "Recent Hotels" ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rooms</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {items.map((item) => (
+                  <tr key={item._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{item.pricePerNight || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <Link to={`/hotels/${item._id}`} className="text-blue-600 hover:text-blue-900">
+                        <FaEye className="h-4 w-4 inline" />
+                      </Link>
+                      <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaUserEdit className="h-4 w-4 inline" />
+                      </Link>
+                      <button 
+                        onClick={async () => {
+                          if (window.confirm('Delete this hotel?')) {
+                            try {
+                              await api.delete(`/admin/hotels/${item._id}`);
+                              toast.success('Hotel deleted');
+                              // Refresh data
+                              window.location.reload();
+                            } catch (error) {
+                              toast.error('Delete failed');
+                            }
+                          }
+                        }} 
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FaTrash className="h-4 w-4 inline" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           items.map((item) => (
             <div key={item._id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{item.name || item.title || 'N/A'}</p>
-{(item.email || item.phone || item.location) && (
-                    <p className="text-xs text-gray-500 truncate mt-1">
-                      {item.email && `${item.email}`}
-                      {item.phone && (item.email ? ' | ' : '') + item.phone}
-                      {item.location && !item.email && !item.phone ? item.location : ''}
-                    </p>
-                  )}
+                <div className="flex-1 min-w-0 flex items-center">
+                  <p className="text-sm text-gray-500 truncate flex-1">
+                    {item.name || 'N/A'}
+                  </p>
                 </div>
-                <span className="text-sm text-gray-500 ml-2 whitespace-nowrap">{formatDate(item.createdAt)}</span>
               </div>
             </div>
           ))
@@ -224,7 +317,7 @@ const AdminDashboard = () => {
         {/* Recent Additions Section */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Recent Additions</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             <RecentList 
               title="Recent Clients" 
               items={recentClients} 

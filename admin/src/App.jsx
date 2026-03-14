@@ -10,7 +10,8 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
 import ManageHotels from "./pages/Admin/ManageHotels.jsx";
 import ViewProfile from "./pages/Client/ViewProfile.jsx";
-
+import EventDashboard from "./pages/Admin/EventDashboard.jsx";
+import TourismManagement from "./pages/Admin/TourismManagement.jsx";
 
 const App = () => {
   return (
@@ -24,24 +25,23 @@ const App = () => {
           <Route
             path="/admin-dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
               </ProtectedRoute>
             }
           />
-            <Route
+          <Route
             path="/client-dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['client']}>
                 <ClientDashboard />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin/clients"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <ManageClients />
               </ProtectedRoute>
             }
@@ -49,20 +49,35 @@ const App = () => {
           <Route
             path="/admin/hotels"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <ManageHotels />
               </ProtectedRoute>
             }
           />
-<Route
+          <Route
             path="/client/view-profile"
             element={
-              <ProtectedRoute>
-                <ViewProfile />
+              <ProtectedRoute allowedRoles={['client']}>
+            <ViewProfile />
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EventDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/tourism"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <TourismManagement />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </AuthProvider>
