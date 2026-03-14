@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { useAuth } from '../context/AuthContext.jsx';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Register = () => {
@@ -13,6 +14,7 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,21 +32,13 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password, role: 'client' }),
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        toast.success('Registration successful! Welcome to CityPortal!');
-        navigate('/login');
-      } else {
-        toast.error(data.message || 'Registration failed');
+      const success = await register({ name, email, password, role: 'client' });
+      if (success) {
+        toast.success('Registration successful! Welcome to your Client Dashboard!');
+        navigate('/client-dashboard');
       }
     } catch (err) {
-      toast.error('Registration failed. Please try again.');
+      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
