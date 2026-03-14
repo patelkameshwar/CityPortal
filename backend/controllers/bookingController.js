@@ -188,6 +188,15 @@ if (itemType === "Event") {
       status: "Confirmed",
     });
 
+    // Update hotel bookings array after creation (Hotel only)
+    if (itemType === "Hotel") {
+      const hotel = await Hotel.findById(itemId);
+      if (hotel) {
+        hotel.bookings.push(booking._id);
+        await hotel.save();
+      }
+    }
+
     res.status(201).json({
       message: "Booking created successfully",
       booking,

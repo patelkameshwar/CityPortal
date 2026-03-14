@@ -84,6 +84,10 @@ bookingToDate: {
       ref: "User",
       required: true,
     },
+    bookings: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Booking'
+    }],
   },
   { timestamps: true }
 );

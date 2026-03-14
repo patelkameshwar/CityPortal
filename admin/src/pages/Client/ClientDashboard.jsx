@@ -119,7 +119,7 @@ React.useEffect(() => {
                   <FaUsers className="h-5 w-5 text-blue-600 mr-3" />
                   View Profile
                 </Link>
-                <Link to="/my-hotels" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                <Link to="/client/my-hotels" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
                   <FaHotel className="h-5 w-5 text-emerald-600 mr-3" />
                   My Hotels
                 </Link>

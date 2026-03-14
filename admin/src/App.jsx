@@ -13,6 +13,7 @@ import ViewProfile from "./pages/Client/ViewProfile.jsx";
 import EventDashboard from "./pages/Admin/EventDashboard.jsx";
 import TourismManagement from "./pages/Admin/TourismManagement.jsx";
 import ManageBooking from "./pages/Client/ManageBooking.jsx";
+import MyHotels from "./pages/Client/MyHotels.jsx";
 
 const App = () => {
   return (
@@ -68,6 +69,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={['client']}>
                 <ManageBooking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client/my-hotels"
+            element={
+              <ProtectedRoute allowedRoles={['client']}>
+                <MyHotels />
               </ProtectedRoute>
             }
           />

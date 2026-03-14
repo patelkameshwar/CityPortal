@@ -1,10 +1,10 @@
-# Task: Add item type filter to Booking table in ManageBooking.jsx
+# Task: Replace "Add New Hotel" button with client profile pic/name in MyHotels.jsx
 
 ## Steps:
-- [x] 1. Create TODO.md ✅
-- [x] 2. Add filter state and logic to ManageBooking.jsx ✅
-- [x] 3. Update table header with dropdown filter ✅
-- [x] 4. Implement filteredBookings and stats recalculation ✅
-- [x] 5. Test filter functionality ✅ (All edits applied successfully)
-- [x] 6. Update TODO.md with completion ✅
-- [x] 7. Attempt completion ✅
+- [ ] Step 1: Create TODO.md (current)
+- [x] Step 2: Update useAuth destructuring and replace button with profile display
+- [x] Step 3: Test functionality (toggle form, image fallback)
+- [ ] Step 4: Mark complete and attempt_completion
+
+Progress: 0/4 complete
+

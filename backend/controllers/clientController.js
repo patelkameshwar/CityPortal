@@ -5,6 +5,25 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 
 
+exports.getClientHotels = async (req, res) => {
+  try {
+    const hotels = await Hotel.find({ owner: req.user.id })
+.populate('bookings', 'status totalPrice createdAt bookingToDate')
+      .sort({ createdAt: -1 });
+    
+    // Add bookings count
+    const hotelsWithCount = hotels.map(hotel => ({
+      ...hotel._doc,
+      bookingsCount: hotel.bookings ? hotel.bookings.filter(b => b.status === 'Confirmed' && new Date(b.bookingToDate) >= new Date()).length : 0
+    })); 
+
+    res.json({ success: true, hotels: hotelsWithCount });
+  } catch (error) {
+    console.error('Get Client Hotels Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getClientStats = async (req, res) => {
   try {
     const now = new Date();
@@ -15,7 +34,8 @@ exports.getClientStats = async (req, res) => {
       Event.countDocuments({ owner: req.user.id }),
       Booking.countDocuments({ 
         'itemId.owner': req.user.id, 
-        status: 'Confirmed'
+        status: 'Confirmed',
+        bookingToDate: { $gte: new Date() }
       }),
       Booking.aggregate([
         {
