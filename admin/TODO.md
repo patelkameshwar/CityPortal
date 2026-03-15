@@ -1,10 +1,18 @@
-# Fix Image Removal in EditItems.jsx
+# CityPortal Admin/Client TODO - ViewItems Implementation
 
-## Steps:
-- [x] Step 1: Create backend/controllers/utils/cloudinaryUtils.js with deleteImages function
-- [x] Step 2: Update backend/controllers/hotelController.js - fix updateHotel image logic + use cloudinaryUtils  
-- [x] Step 3: Update backend/controllers/eventController.js - fix updateEvent image logic + use cloudinaryUtils  
-- [ ] Step 4: Test - restart backend (`cd backend && npm run dev`), use EditItems.jsx, remove image, submit, verify DB
-- [ ] Step 5: Mark complete
+## Plan Breakdown (Approved: Client-side only)
+**Types**: hotel, event
+**Route**: `/client/view-items/:type/:id` (ProtectedRoute client)
+**FaEye**: Update MyHotels.jsx, MyEvents.jsx buttons to Link
 
-**Status: Backend fixes complete. Ready for testing**
+### Steps (In Progress)
+- [x] 1. Create this TODO.md
+- [x] 2. Create ViewItems.jsx (read-only EditItems clone)
+- [x] 3. Add route to App.jsx  
+- [x] 4. Update MyHotels.jsx FaEye → Link to `/client/view-items/hotel/${id}`
+- [x] 5. Update MyEvents.jsx FaEye → Link to `/client/view-items/event/${id}`
+- [x] 6. Test: `cd admin && npm run dev`, client login → my-hotels → FaEye
+- [x] 7. Mark complete
+
+**Notes**: Uses existing api (hotelAPI/eventAPI.getById), no new deps. Back to my-hotels/my-events.
+

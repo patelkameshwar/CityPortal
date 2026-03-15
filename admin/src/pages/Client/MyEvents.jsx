@@ -248,9 +248,9 @@ const MyEvents = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <button className="text-blue-600 hover:text-blue-900">
+                            <Link to={`/client/view-items/event/${event._id}`} className="text-blue-600 hover:text-blue-900">
                               <FaEye className="h-4 w-4 inline" />
-                            </button>
+                            </Link>
                             <button 
                               className="text-yellow-600 hover:text-yellow-900"
                               onClick={() => navigate(`/client/edit/event/${event._id}`)}
