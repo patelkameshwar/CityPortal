@@ -111,7 +111,7 @@ exports.getHotelById = async (req, res) => {
  */
 exports.updateHotel = async (req, res) => {
   try {
-    console.log('Update files received:', req.files?.length || 0);
+    console.log('Update files received:', req.files?.length || 0, 'imagesToRemove:', req.body.imagesToRemove);
     
     if (req.files && req.files.length > 100) {
       return res.status(400).json({
@@ -133,7 +133,20 @@ exports.updateHotel = async (req, res) => {
         .json({ success: false, message: "Not authorized" });
     }
 
-    const images = req.files?.length ? req.files.map((file) => file.path) : hotel.images;
+    // Handle image removal
+    const imagesToRemove = req.body.imagesToRemove ? req.body.imagesToRemove.split(',').map(url => url.trim()).filter(Boolean) : [];
+    const remainingImages = hotel.images.filter(img => !imagesToRemove.includes(img));
+    
+    // Delete removed images from Cloudinary
+    if (imagesToRemove.length > 0) {
+      const { deleteCloudinaryImages } = require('./utils/cloudinaryUtils');
+      const deleteResult = await deleteCloudinaryImages(imagesToRemove);
+      console.log('Cloudinary delete result:', deleteResult);
+    }
+
+    // Handle new images (append to remaining)
+    const newImages = req.files ? req.files.map((file) => file.path) : [];
+    hotel.images = newImages.length ? [...remainingImages, ...newImages] : remainingImages;
 
     hotel.name = req.body.name || hotel.name;
     hotel.location = req.body.location || hotel.location;
@@ -142,7 +155,6 @@ exports.updateHotel = async (req, res) => {
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
     hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
     hotel.defaultCheckOutTime = req.body.defaultCheckOutTime || hotel.defaultCheckOutTime;
-    hotel.images = images;
 
     // Update booking availability dates
     hotel.bookingFromDate = req.body.bookingFromDate
@@ -164,6 +176,7 @@ exports.updateHotel = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 /*
  * DELETE HOTEL

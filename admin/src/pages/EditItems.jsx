@@ -60,6 +60,7 @@ const EditItems = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [imagesToRemove, setImagesToRemove] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
@@ -200,16 +201,23 @@ const EditItems = () => {
     }));
   };
 
-  const handleRemoveImage = (index) => {
-    if (index < existingImages.length) {
-      // Mark existing image for deletion (or ignore in update)
-      return;
+  const handleRemoveImage = (index, isExisting = false) => {
+    if (isExisting) {
+      const imageUrl = existingImages[index];
+      const newSet = new Set(imagesToRemove);
+      newSet.add(imageUrl);
+      setImagesToRemove(newSet);
+      // Update previews to remove it
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+      toast.success('Image marked for removal');
+    } else {
+      const fileIndex = index;
+      const preview = imagePreviews[existingImages.length + index];
+      if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
+      setImagePreviews(prev => prev.filter((_, i) => i < existingImages.length || i !== existingImages.length + index));
+      setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+      toast.info('New image removed');
     }
-    const fileIndex = index - existingImages.length;
-    const preview = imagePreviews[index];
-    URL.revokeObjectURL(preview);
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
   };
 
   const validateForm = () => {
@@ -254,6 +262,11 @@ const EditItems = () => {
       imageFiles.forEach(file => {
         submitData.append('images', file);
       });
+
+      // Append images to remove
+      if (imagesToRemove.size > 0) {
+        submitData.append('imagesToRemove', Array.from(imagesToRemove).join(','));
+      }
 
       await apiService.update(itemId, submitData);
       toast.success(`${isHotel ? 'Hotel' : 'Event'} updated successfully!`);
@@ -553,27 +566,44 @@ const EditItems = () => {
               {existingImages.length > 0 && (
                 <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
                   <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                    Current Images ({existingImages.length})
+                    Current Images ({existingImages.length - imagesToRemove.size})
+                    {imagesToRemove.size > 0 && (
+                      <span className="ml-2 text-red-600 text-sm font-medium">({imagesToRemove.size} to remove)</span>
+                    )}
                   </h4>
                   <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                    {existingImages.slice(0, 10).map((imgSrc, idx) => (
-                      <div key={`existing-${idx}`} className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all">
-                        <img src={imgSrc} alt={`Current ${idx + 1}`} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded-full">
-                            Current
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                    {existingImages
+                      .filter(img => !imagesToRemove.has(img))
+                      .slice(0, 10)
+                      .map((imgSrc, idx) => {
+                        const actualIdx = existingImages.indexOf(imgSrc);
+                        return (
+                          <div key={`existing-${imgSrc}`} className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all">
+                            <img src={imgSrc} alt={`Current ${actualIdx + 1}`} className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(actualIdx, true)}
+                              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-2xl flex items-center justify-center text-lg font-bold shadow-2xl opacity-0 group-hover:opacity-100 transition-all z-20"
+                              title="Remove this image"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        );
+                      })}
                     {existingImages.length > 10 && (
                       <div className="col-span-1 md:col-span-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center shadow-lg font-semibold text-gray-600">
-                        +{existingImages.length - 10}
+                        +{Math.max(0, existingImages.length - imagesToRemove.size - 10)}
                       </div>
                     )}
                   </div>
+                  {imagesToRemove.size > 0 && (
+                    <p className="text-sm text-red-700 mt-3 font-medium bg-red-50 p-3 rounded-xl">
+                      {imagesToRemove.size} image(s) will be removed on save
+                    </p>
+                  )}
                   <p className="text-sm text-blue-700 mt-3 font-medium">
-                    Add new images below (existing images preserved)
+                    Add new images below
                   </p>
                 </div>
               )}
@@ -616,7 +646,7 @@ const EditItems = () => {
                         <img src={preview} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
                         <button
                           type="button"
-                          onClick={() => handleRemoveImage(existingImages.length + idx)}
+                          onClick={() => handleRemoveImage(idx, false)}
                           className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-2xl flex items-center justify-center text-lg font-bold shadow-2xl opacity-0 group-hover:opacity-100 transition-all z-20"
                           title="Remove"
                         >

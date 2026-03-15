@@ -129,7 +129,7 @@ exports.getEventById = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const updateImagesArray = req.files || (req.file ? [req.file] : []);
-    console.log('Update event files received:', updateImagesArray.length);
+    console.log('Update event files received:', updateImagesArray.length, 'imagesToRemove:', req.body.imagesToRemove);
     
     if (updateImagesArray.length > 50) {
       return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
@@ -141,7 +141,20 @@ exports.updateEvent = async (req, res) => {
     if (req.user.role !== "admin" && event.owner.toString() !== req.user.id)
       return res.status(403).json({ success: false, message: "Not authorized" });
 
-    const images = req.files ? req.files.map(file => file.path) : (req.file ? [req.file.path] : event.images);
+    // Handle image removal (same logic as hotel)
+    const imagesToRemove = req.body.imagesToRemove ? req.body.imagesToRemove.split(',').map(url => url.trim()).filter(Boolean) : [];
+    const remainingImages = event.images.filter(img => !imagesToRemove.includes(img));
+    
+    // Delete removed images from Cloudinary
+    if (imagesToRemove.length > 0) {
+      const { deleteCloudinaryImages } = require('./utils/cloudinaryUtils');
+      const deleteResult = await deleteCloudinaryImages(imagesToRemove);
+      console.log('Cloudinary delete result:', deleteResult);
+    }
+
+    // Handle new images (append to remaining)
+    const newImages = req.files ? req.files.map(file => file.path) : (req.file ? [req.file.path] : []);
+    event.images = newImages.length ? [...remainingImages, ...newImages] : remainingImages;
 
     // Update fields safely
     event.title = req.body.title || event.title;
@@ -149,7 +162,6 @@ exports.updateEvent = async (req, res) => {
     event.description = req.body.description || event.description;
     event.eventTime = req.body.eventTime || event.eventTime;
     event.price = req.body.price || event.price;
-    event.images = images;
 
     // Update totalSeats safely
     if (req.body.totalSeats) {
@@ -176,6 +188,7 @@ exports.updateEvent = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 /*
  * DELETE EVENT
