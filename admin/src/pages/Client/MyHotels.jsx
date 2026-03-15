@@ -16,6 +16,7 @@ import {
   FaEye,
   FaUser,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const MyHotels = () => {
@@ -23,6 +24,7 @@ const MyHotels = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -239,7 +241,10 @@ const MyHotels = () => {
                           <button className="text-blue-600 hover:text-blue-900">
                             <FaEye className="h-4 w-4" />
                           </button>
-                          <button className="text-yellow-600 hover:text-yellow-900">
+                          <button 
+onClick={() => navigate(`/client/edit/hotel/${hotel._id}`)}
+                            className="text-yellow-600 hover:text-yellow-900"
+                          >
                             <FaEdit className="h-4 w-4" />
                           </button>
                           <button

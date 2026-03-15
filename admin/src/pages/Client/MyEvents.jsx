@@ -253,7 +253,7 @@ const MyEvents = () => {
                             </button>
                             <button 
                               className="text-yellow-600 hover:text-yellow-900"
-                              onClick={() => navigate(`/client/edit-event/${event._id}`)}
+                              onClick={() => navigate(`/client/edit/event/${event._id}`)}
                             >
                               <FaEdit className="h-4 w-4 inline" />
                             </button>

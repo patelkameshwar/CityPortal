@@ -109,6 +109,14 @@ const App = () => {
             }
           />
           <Route
+            path="/client/edit/:type/:id"
+            element={
+              <ProtectedRoute allowedRoles={['client']}>
+                <EditItems />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/client/edit-event/:id"
             element={
               <ProtectedRoute allowedRoles={['client']}>
