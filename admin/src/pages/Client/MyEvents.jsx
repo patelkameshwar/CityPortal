@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
@@ -22,6 +22,7 @@ const MyEvents = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -250,7 +251,10 @@ const MyEvents = () => {
                             <button className="text-blue-600 hover:text-blue-900">
                               <FaEye className="h-4 w-4 inline" />
                             </button>
-                            <button className="text-yellow-600 hover:text-yellow-900">
+                            <button 
+                              className="text-yellow-600 hover:text-yellow-900"
+                              onClick={() => navigate(`/client/edit-event/${event._id}`)}
+                            >
                               <FaEdit className="h-4 w-4 inline" />
                             </button>
                             <button

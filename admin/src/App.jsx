@@ -17,6 +17,7 @@ import MyHotels from "./pages/Client/MyHotels.jsx";
 import AddHotel from "./pages/Client/AddHotel.jsx";
 import MyEvents from "./pages/Client/MyEvents.jsx";
 import AddEvent from "./pages/Client/AddEvent.jsx";
+import EditItems from "./pages/EditItems.jsx";
 
 const App = () => {
   return (
@@ -106,7 +107,15 @@ const App = () => {
                 <AddEvent />
               </ProtectedRoute>
             }
-          /> 
+          />
+          <Route
+            path="/client/edit-event/:id"
+            element={
+              <ProtectedRoute allowedRoles={['client']}>
+                <EditItems />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin/events"
             element={
