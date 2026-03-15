@@ -47,37 +47,50 @@ exports.getClientStats = async (req, res) => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     
-    const [hotelsCount, eventsCount, bookingsCountResult, revenueResult] = await Promise.all([
-      Hotel.countDocuments({ owner: req.user.id }),
-      Event.countDocuments({ owner: req.user.id }),
-      Booking.countDocuments({ 
-        'itemId.owner': req.user.id, 
-        status: 'Confirmed',
-        bookingToDate: { $gte: new Date() }
-      }),
-      Booking.aggregate([
-        {
-          $match: {
-            'itemId.owner': new mongoose.Types.ObjectId(req.user.id),
-            status: 'Confirmed',
-            createdAt: { $gte: startOfMonth }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: '$totalPrice' }
-          }
+    // Hotel & Event counts
+    const hotelsCount = await Hotel.countDocuments({ owner: req.user.id });
+    const eventsCount = await Event.countDocuments({ owner: req.user.id });
+
+    // Active Bookings: Hotel Booking docs + Event embedded bookings (future dates)
+    const bookingCountHotel = await Booking.countDocuments({ 
+      'itemId.owner': req.user.id, 
+      status: 'Confirmed',
+      bookingToDate: { $gte: new Date(Date.now() - 24*60*60*1000) } // bookings ending from last 24h
+    });
+
+    const events = await Event.find({ owner: req.user.id });
+    const bookingCountEvent = events.reduce((sum, event) => {
+      return sum + event.bookings.filter(b => new Date(b.bookingDate) > new Date(Date.now() - 24*60*60*1000)).length; // bookings from last 24h considered active if future
+    }, 0);
+
+
+    // Revenue: Hotel Booking + Event (price * seats for recent bookings)
+    const revenueHotel = await Booking.aggregate([
+      {
+        $match: {
+          'itemId.owner': new mongoose.Types.ObjectId(req.user.id),
+          status: 'Confirmed',
+          createdAt: { $gte: startOfMonth }
         }
-      ])
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' }
+        }
+      }
     ]);
+    const revenueEvent = events.reduce((sum, event) => {
+      return sum + event.bookings.filter(b => b.bookedAt >= startOfMonth).reduce((total, b) => total + (event.price * b.seats || 0), 0);
+    }, 0);
 
     const stats = {
       hotels: hotelsCount,
-      bookings: bookingsCountResult,
+      bookings: bookingCountHotel + bookingCountEvent,
       events: eventsCount,
-      revenue: revenueResult[0]?.totalRevenue || 0
+      revenue: (revenueHotel[0]?.totalRevenue || 0) + revenueEvent
     };
+
     
     res.json({ success: true, data: stats });
   } catch (error) {

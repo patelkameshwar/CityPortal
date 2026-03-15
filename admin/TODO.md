@@ -1,12 +1,12 @@
-# CityPortal Admin Task: Implement booking display in MyEvents.jsx like MyHotels.jsx
+# Fix ClientDashboard Active Bookings & Monthly Revenue
 
 ## Steps:
-- [x] Analyze files (MyHotels.jsx, MyEvents.jsx, api.js, backend controllers/models/routes) - Issue identified: backend populate/filter mismatch
-- [x] Get plan approval from user
-- [ ] 1. Create TODO.md ✅
-- [x] 2. Edit backend/controllers/clientController.js to fix getClientEvents() populate and bookingsCount logic ✅
-- [x] 3. Backend fix implemented and ready for testing ✅
+- [x] Plan approved
+- [ ] 1. Create this TODO ✅
+- [x] 2. Edit backend/controllers/clientController.js getClientStats to include Event bookings (count + revenue) ✅
+- [ ] 3. Backend restart
+- [ ] 4. Test ClientDashboard stats
+- [ ] 5. Complete
 
-**Updated:** Simplified bookingsCount to total bookings.length (Event schema lacks status field).
+Note: Event bookings embedded (no Booking doc). Calculate from Event.bookings array.
 
-- [x] 4. Task completed ✅
