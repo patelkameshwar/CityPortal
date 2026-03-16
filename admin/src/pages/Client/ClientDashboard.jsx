@@ -4,6 +4,17 @@ import api from '../../services/api.js';
 import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext.jsx';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+
 
 const ClientDashboard = () => {
   const [stats, setStats] = React.useState([
@@ -12,7 +23,12 @@ const ClientDashboard = () => {
     { name: 'Events Hosted', value: '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
     { name: 'Monthly Revenue', value: '$0', icon: FaChartBar, color: 'bg-blue-500' },
   ]);
+  const [chartData, setChartData] = React.useState([]);
+  const [chartLoading, setChartLoading] = React.useState(true);
+  const [currentPeriod, setCurrentPeriod] = React.useState('day'); // day, month, year
   const [loading, setLoading] = React.useState(true);
+
+
 
 React.useEffect(() => {
     const fetchStats = async () => {
@@ -36,6 +52,27 @@ React.useEffect(() => {
     };
     fetchStats();
   }, []);
+
+  React.useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setChartLoading(true);
+        const response = await api.get(`/client/analytics?period=${currentPeriod}`);
+        console.log('Client analytics response:', response.data);
+        if (response.data.success) {
+          setChartData(response.data.data || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+        toast.error('Failed to load analytics data');
+      } finally {
+        setChartLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, [currentPeriod]);
+
+
 
   const { logout: contextLogout } = useAuth();
   const handleLogout = () => {
@@ -97,18 +134,75 @@ React.useEffect(() => {
 
         {/* Charts & Main Content */}
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Chart Placeholder */}
+          {/* Analytics Chart */}
           <div className="lg:col-span-2 bg-white shadow rounded-lg">
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Your Recent Bookings</h3>
-              <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <FaChartBar className="h-12 w-12 mx-auto mb-4" />
-                  <p>Analytics chart will appear here</p>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-medium text-gray-900">Active Bookings & Revenue</h3>
+                <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                  {['day', 'month', 'year'].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setCurrentPeriod(period)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                        currentPeriod === period
+                          ? 'bg-white shadow-sm text-gray-900'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      {period.charAt(0).toUpperCase() + period.slice(1)}
+                    </button>
+                  ))}
                 </div>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                {currentPeriod === 'day' ? 'Last 30 days' : currentPeriod === 'month' ? 'Last 12 months' : 'Last 5 years'}
+              </p>
+
+              <div style={{ width: '100%', height: 300 }}>
+                {chartLoading ? (
+                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                    <div className="text-gray-500">Loading chart...</div>
+                  </div>
+                ) : chartData.length === 0 ? (
+                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                    <div className="text-center text-gray-500">
+                      <FaChartBar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No analytics data available</p>
+                    </div>
+                  </div>
+                ) : (
+                  <ResponsiveContainer>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="left" orientation="left" stroke="#2563eb" />
+                      <YAxis yAxisId="right" orientation="right" stroke="#059669" />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        yAxisId="left" 
+                        type="monotone" 
+                        dataKey="activeBookings" 
+                        stroke="#2563eb" 
+                        name="Active Bookings"
+                        strokeWidth={3}
+                      />
+                      <Line 
+                        yAxisId="right" 
+                        type="monotone" 
+                        dataKey="revenue" 
+                        stroke="#059669" 
+                        name="Revenue ($)"
+                        strokeWidth={3}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
           </div>
+
 
           {/* Quick Actions */}
           <div className="bg-white shadow rounded-lg">
