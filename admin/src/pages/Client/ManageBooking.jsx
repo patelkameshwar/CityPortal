@@ -56,11 +56,11 @@ const ManageBooking = () => {
     if (cancelLoading === bookingId) return;
     setCancelLoading(bookingId);
     try {
-      await bookingAPI.cancel(bookingId);
+      // For clients, use status update endpoint which allows item owners
+      await api.put(`/bookings/${bookingId}/status`, { status: 'Cancelled' });
       setBookings(prev => prev.map(b => 
         b._id === bookingId ? { ...b, status: 'Cancelled' } : b
       ));
-      calculateStats(bookings.map(b => b._id === bookingId ? { ...b, status: 'Cancelled' } : b));
       toast.success('Booking cancelled successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to cancel booking');
