@@ -1,12 +1,11 @@
-# CityPortal Fix TODO
+# CityPortal Task: Fix ClientDashboard Active Bookings & Monthly Revenue to include Hotels
 
-## Current Task: Fix Vite Parse Error in Admin MyHotels.jsx
+## TODO Steps:
+- [x] Step 1: Edit backend/controllers/clientController.js - Fix getClientStats logic for Active Bookings (combine Hotel + Event confirmed/future bookings) and Monthly Revenue (sum Hotel Bookings totalPrice + Event price*seats for this month).
+- [ ] Step 2: Test the endpoint by restarting backend and checking /client/stats response.
+- [ ] Step 3: Verify in ClientDashboard UI that numbers now include Hotels.
+- [ ] Step 4: Mark complete.
 
-### Steps:
-- [ ] Step 1: Edit admin/src/pages/Client/MyHotels.jsx to fix invalid escape sequences in template literal.
-- [ ] Step 2: Verify `npm run dev` in admin/ starts without parse errors.
-- [ ] Step 3: Test Edit button navigation (create edit page if needed).
-- [ ] Complete: Task done.
+Current: Step 1 complete. Proceed to test.
 
-Updated as progress made.
 
