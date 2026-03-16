@@ -23,8 +23,12 @@ router.get('/analytics', authMiddleware, require('../controllers/clientControlle
 // Client events - NEW ENDPOINT (Fixes MyEvents 404)
 router.get('/events', authMiddleware, getClientEvents);
 
+// Test sample data - TEMP for dashboard fix
+// router.post('/test-sample-data', authMiddleware, require('../controllers/testDataController').createSampleData);  // REMOVED: Test sample data
+
 // Admin get all clients
 router.get('/', authMiddleware, roleMiddleware('admin'), getAllClients);
+
 
 
 module.exports = router;

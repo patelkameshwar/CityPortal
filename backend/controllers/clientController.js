@@ -85,11 +85,15 @@ exports.getClientStats = async (req, res) => {
       bookingToDate: { $gte: now }
     });
 
-    // Events: embedded bookings where bookingDate >= now (no status field)
-    const eventsWithBookings = await Event.find({ owner: req.user.id }).select('bookings price');
-    const activeEventBookings = eventsWithBookings.reduce((sum, event) => {
-      return sum + event.bookings.filter(b => b.bookingDate && isValidDate(b.bookingDate) && new Date(b.bookingDate) >= now).length;
-    }, 0);
+    // Events: Confirmed bookings from Booking model where bookingDate >= now
+    const eventQueryEvents = await Event.find({ owner: req.user.id }).select('_id');
+    const eventQueryIds = eventQueryEvents.map(e => e._id);
+    const activeEventBookings = await Booking.countDocuments({
+      itemType: 'Event',
+      itemId: { $in: eventQueryIds },
+      status: 'Confirmed',
+      bookingDate: { $gte: now }
+    });
 
     // Monthly Revenue
     // Hotels: aggregate totalPrice for matching bookings created this month
@@ -110,18 +114,30 @@ exports.getClientStats = async (req, res) => {
       }
     ]);
 
-    // Events: sum price * seats for bookings created this month
-    const revenueEvent = eventsWithBookings.reduce((sum, event) => {
-      return sum + event.bookings
-        .filter(b => b.bookedAt && isValidDate(b.bookedAt) && new Date(b.bookedAt) >= startOfMonth)
-        .reduce((total, b) => total + (event.price * b.seats || 0), 0);
-    }, 0);
+    // Events: Confirmed revenue from Booking model created this month
+    const revenueEvent = await Booking.aggregate([
+      {
+        $match: {
+          itemType: 'Event',
+          itemId: { $in: eventIds },
+          status: 'Confirmed',
+          createdAt: { $gte: startOfMonth }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' }
+        }
+      }
+    ]);
+    const revenueEventTotal = revenueEvent[0]?.totalRevenue || 0;
 
     const stats = {
       hotels: hotelsCount,
       bookings: activeHotelBookings + activeEventBookings,
       events: eventsCount,
-      revenue: Math.round((revenueHotel[0]?.totalRevenue || 0) + revenueEvent)
+      revenue: Math.round((revenueHotel[0]?.totalRevenue || 0) + revenueEventTotal)
     };
 
     res.json({ success: true, data: stats });
@@ -144,6 +160,8 @@ exports.getClientAnalytics = async (req, res) => {
   try {
     const { period = 'day' } = req.query; // day, month, year - default day
     const now = new Date();
+    
+    // FIXED: Use PAST 12 months for monthly (Apr2024 - Mar2025)
     let periodStart, generatePeriods, formatKey, formatLabel;
 
     if (period === 'day') {
@@ -160,23 +178,31 @@ exports.getClientAnalytics = async (req, res) => {
         }
         return days;
       };
-      formatKey = (date) => safeFormatKey(date, 'day');
+      formatKey = (date) => {
+        if (!isValidDate(date)) return null;
+        const d = new Date(date);
+        return d.toISOString().slice(0,10);
+      };
       formatLabel = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } else if (period === 'month') {
-      periodStart = new Date(now.getFullYear() - 1, now.getMonth(), 1); // last 12 months
+      // FIXED: Start 12 months BACK from now
+      periodStart = new Date(now.getFullYear() - 1, now.getMonth(), 1); 
       generatePeriods = () => {
         const months = [];
         for (let i = 11; i >= 0; i--) {
           const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
           months.push({
             key: date.toISOString().slice(0,7), // YYYY-MM
-            label: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+            label: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
           });
         }
         return months;
       };
       formatKey = (date) => safeFormatKey(date, 'month');
-      formatLabel = (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      formatLabel = (date) => {
+        const d = new Date(date + '-01');
+        return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      };
     } else { // year
       periodStart = new Date(now.getFullYear() - 5, 0, 1); // last 5 years
       generatePeriods = () => {
@@ -194,6 +220,8 @@ exports.getClientAnalytics = async (req, res) => {
       formatLabel = (date) => new Date(date).getFullYear().toString();
     }
 
+    console.log(`Analytics period=${period}, start=${periodStart.toISOString().slice(0,10)}`);
+
     // Get client's hotel and event IDs
     const clientHotels = await Hotel.find({ owner: req.user.id }).select('_id');
     const clientEvents = await Event.find({ owner: req.user.id }).select('_id');
@@ -202,7 +230,7 @@ exports.getClientAnalytics = async (req, res) => {
 
     const periods = generatePeriods();
 
-    // Hotel analytics from Booking collection
+    // Hotel analytics from Booking collection - FIXED aggregation format
     const hotelAnalytics = await Booking.aggregate([
       {
         $match: {
@@ -214,16 +242,22 @@ exports.getClientAnalytics = async (req, res) => {
       },
       {
         $addFields: {
-          periodKey: formatKey('$createdAt')
+          periodKey: {
+            $dateToString: {
+              format: period === 'month' ? '%Y-%m' : period === 'year' ? '%Y' : '%Y-%m-%d',
+              date: '$createdAt'
+            }
+          }
         }
       },
       {
         $group: {
           _id: '$periodKey',
+          count: { $sum: 1 },
           activeBookings: {
             $sum: {
               $cond: [
-                { $gte: ['$bookingToDate', now] },
+                { $and: [{ $gte: ['$bookingToDate', now ] }, { $ne: ['$bookingToDate', null] }] },
                 1,
                 0
               ]
@@ -235,32 +269,65 @@ exports.getClientAnalytics = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
+    console.log('Hotel analytics:', JSON.stringify(hotelAnalytics, null, 2));
+
     const hotelData = {};
     hotelAnalytics.forEach(item => {
       hotelData[item._id] = item;
     });
 
-    // Event analytics (embedded bookings)
-    const eventsWithBookings = await Event.find({ _id: { $in: eventIds } });
-    const eventAnalytics = {};
-    eventsWithBookings.forEach(event => {
-      event.bookings.forEach(booking => {
-        if (booking.bookedAt && isValidDate(booking.bookedAt)) {
-          const periodKey = formatKey(booking.bookedAt);
-          if (periodKey && !eventAnalytics[periodKey]) {
-            eventAnalytics[periodKey] = { activeBookings: 0, revenue: 0 };
-          }
-          if (booking.bookingDate && isValidDate(booking.bookingDate) && new Date(booking.bookingDate) >= now) {
-            eventAnalytics[periodKey].activeBookings += 1;
-          }
-          eventAnalytics[periodKey].revenue += event.price * booking.seats || 0;
+    // Event analytics from Booking model (confirmed only)
+    const eventAnalyticsRaw = await Booking.aggregate([
+      {
+        $match: {
+          itemType: 'Event',
+          itemId: { $in: eventIds },
+          status: 'Confirmed',
+          createdAt: { $gte: periodStart }
         }
-      });
+      },
+      {
+        $addFields: {
+          periodKey: {
+            $dateToString: {
+              format: period === 'month' ? '%Y-%m' : period === 'year' ? '%Y' : '%Y-%m-%d',
+              date: '$createdAt'
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$periodKey',
+          count: { $sum: 1 },
+          activeBookings: {
+            $sum: {
+              $cond: [
+                { $and: [{ $gte: ['$bookingDate', now ] }, { $ne: ['$bookingDate', null] }] },
+                1,
+                0
+              ]
+            }
+          },
+          revenue: { $sum: '$totalPrice' }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const eventAnalytics = {};
+    eventAnalyticsRaw.forEach(item => {
+      eventAnalytics[item._id] = {
+        activeBookings: item.activeBookings || 0,
+        revenue: item.revenue || 0
+      };
     });
+
+    console.log('Event analytics keys:', Object.keys(eventAnalytics));
 
     // Combine data
     const chartData = periods.map(p => {
-      const hotel = hotelData[p.key] || { activeBookings: 0, revenue: 0 };
+      const hotel = hotelData[p.key] || { activeBookings: 0, revenue: 0, count: 0 };
       const event = eventAnalytics[p.key] || { activeBookings: 0, revenue: 0 };
       return {
         month: p.label,
@@ -269,13 +336,12 @@ exports.getClientAnalytics = async (req, res) => {
       };
     });
 
+    console.log('Final chartData sample:', JSON.stringify(chartData.slice(-3), null, 2));
+
     res.json({ success: true, data: chartData, period });
   } catch (error) {
     console.error('getClientAnalytics error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
 
