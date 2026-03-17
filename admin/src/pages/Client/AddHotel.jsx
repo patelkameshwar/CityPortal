@@ -2,17 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { hotelAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {
-  FaHotel,
-  FaArrowLeft,
-  FaSpinner,
-  FaImage,
-  FaMapMarkerAlt,
-  FaDollarSign,
-  FaCalendarAlt,
-  FaUser,
-  FaPlus
-} from "react-icons/fa";
+import {  FaHotel,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaCalendarAlt,  FaUser,  FaPlus} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const AddHotel = () => {

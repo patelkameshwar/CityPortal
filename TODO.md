@@ -1,17 +1,10 @@
-# Revenue Y-Axis Formatting Task
+# CityPortal React Fix: FaArrowTrendUp Import Error
 
-## Plan Implementation Steps
+## TODO Steps:
+- [x] Step 1: Fix ClientDashboard.jsx - Replace FaArrowTrendUp with FaDollarSign and remove unused import
+- [x] Step 2: Update vite.config.js - Add optimizeDeps.exclude for react-icons
+- [x] Step 3: Clean up broken react-icons imports in other files (EventDashboard.jsx, AddHotel.jsx, MyEvents.jsx, MyHotels.jsx)
+- [x] Step 4: Instruct user to restart dev server (delete node_modules/.vite if needed)
+- [ ] Step 5: Verify fix and complete task
 
-- [x] Step 1: Add formatRevenue formatter function ✅
-- [x] Step 2: Update right YAxis with tickFormatter={formatRevenue} ✅
-- [x] Step 3: Update Tooltip formatter for revenue ✅
-- [x] Step 4: Fix Legend name & test chart ✅
-
-**Task complete!** The right Y-axis now formats revenue as "12k" instead of "12000". Changes applied to `admin/src/pages/Client/ClientDashboard.jsx`:
-
-- Added `formatRevenue()` function
-- Added `tickFormatter={formatRevenue}` to right YAxis
-- Enhanced Tooltip for revenue
-- Cleaned Legend name
-
-View the updated Client Dashboard to verify the chart formatting.
+**Current Progress: Completed Step 3. Next: Step 4**

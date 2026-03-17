@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaUserEdit, FaTrash } from 'react-icons/fa';
+import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaUserEdit, FaTrash, FaTheaterMasks } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -10,7 +10,7 @@ const AdminDashboard = () => {
     { name: 'Total Clients', value: '0', icon: FaUsers, color: 'bg-blue-500' },
     { name: 'Hotels', value: '0', icon: FaHotel, color: 'bg-emerald-500' },
     { name: 'Tourism Spots', value: '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-    { name: 'Events', value: '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
+    { name: 'Events', value: '0', icon: FaTheaterMasks, color: 'bg-orange-500' },
   ]);
   const [loading, setLoading] = React.useState(true);
 

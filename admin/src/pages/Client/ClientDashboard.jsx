@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaUsers, FaHotel, FaCalendarAlt, FaDollarSign, FaGlassCheers, FaSignOutAlt, FaTheaterMasks } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext.jsx';
 import {
@@ -18,10 +18,10 @@ import {
 
 const ClientDashboard = () => {
   const [stats, setStats] = React.useState([
-    { name: 'Your Hotels', value: '0', icon: FaHotel, color: 'bg-emerald-500' },
-    { name: 'Active Bookings', value: '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
-    { name: 'Events Hosted', value: '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-    { name: 'Monthly Revenue', value: '₹0', icon: FaChartBar, color: 'bg-blue-500' },
+    { name: 'Your Hotels', value: '0', renderIcon: () => <FaHotel />, color: 'bg-emerald-500 ' },
+    { name: 'Active Bookings', value: '0', renderIcon: () => <FaCalendarAlt />, color: 'bg-orange-500' },
+    { name: 'Events Hosted', value: '0', renderIcon: () => <FaGlassCheers />, color: 'bg-purple-500' },
+    { name: 'Monthly Revenue', value: '₹0', renderIcon: () => <FaDollarSign />, color: 'bg-blue-500' },
   ]);
   const [chartData, setChartData] = React.useState([]);
   const [chartLoading, setChartLoading] = React.useState(true);
@@ -31,17 +31,20 @@ const ClientDashboard = () => {
 
 
 React.useEffect(() => {
-    const fetchStats = async () => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
       try {
         const response = await api.get('/client/stats');
         console.log('Client stats response:', response.data);
         if (response.data.success) {
           const statsData = response.data.data || response.data.stats || {};
           setStats([
-    { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
-            { name: 'Active Bookings', value: statsData.bookings?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
-            { name: 'Events Hosted', value: statsData.events?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-            { name: 'Monthly Revenue', value: `₹${statsData.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
+            { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', renderIcon: () => <FaHotel />, color: 'bg-emerald-500' },
+            { name: 'Active Bookings', value: statsData.bookings?.toLocaleString() || '0', renderIcon: () => <FaCalendarAlt />, color: 'bg-orange-500' },
+            { name: 'Events Hosted', value: statsData.events?.toLocaleString() || '0', renderIcon: () => <FaTheaterMasks />, color: 'bg-purple-500' },
+            { name: 'Monthly Revenue', value: `₹${statsData.revenue?.toLocaleString() || '0'}`, renderIcon: () => <FaDollarSign />, color: 'bg-blue-500' },
           ]);
         }
       } catch (error) {
@@ -49,9 +52,7 @@ React.useEffect(() => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchStats();
-  }, []);
+  };
 
   React.useEffect(() => {
     const fetchAnalytics = async () => {
@@ -166,13 +167,12 @@ React.useEffect(() => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
-            const Icon = stat.icon;
             return (
               <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
                 <div className="p-6">
                   <div className="flex items-center">
                     <div className={`p-3 rounded-lg ${stat.color}`}>
-                      <Icon className="h-6 w-6 text-white" />
+                      {stat.renderIcon && stat.renderIcon()}
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
@@ -231,7 +231,7 @@ React.useEffect(() => {
                       <XAxis className='text-xs font-medium' dataKey="month" tickFormatter={currentPeriod === 'day' ? formatDayMonth : formatMonthYear} />
                       <YAxis yAxisId="left" orientation="left" stroke="#2563eb" />
                       <YAxis yAxisId="right" orientation="right" stroke="#059669" tickFormatter={formatRevenue} />
-                      <Tooltip formatter={(value, name) => name === 'Revenue' ? [formatRevenue(value), name] : [value, name]} />
+                      <Tooltip />
                       <Legend />
                       <Line 
                         yAxisId="left" 
@@ -246,7 +246,7 @@ React.useEffect(() => {
                         type="monotone" 
                         dataKey="revenue" 
                         stroke="#059669" 
-                        name="Revenue"
+                        name="Revenue (₹)"
                         strokeWidth={3}
                       />
                     </LineChart>
@@ -273,7 +273,7 @@ React.useEffect(() => {
                   Manage Bookings
                 </Link>
                 <Link to="/client/my-events" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaCalendarAlt className="h-5 w-5 text-purple-600 mr-3" />
+                  <FaTheaterMasks className="h-5 w-5 text-purple-600 mr-3" />
                   My Events
                 </Link>
               </div>

@@ -2,20 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api, { hotelAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {
-  FaHotel,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaArrowLeft,
-  FaSpinner,
-  FaImage,
-  FaMapMarkerAlt,
-  FaDollarSign,
-  FaCalendarAlt,
-  FaEye,
-  FaUser,
-} from "react-icons/fa";
+import {  FaHotel,  FaPlus,  FaEdit,  FaTrash,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaCalendarAlt,  FaEye,  FaUser,} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 

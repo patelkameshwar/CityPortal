@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api.js";
-import {
-  FaCalendarAlt,
-  FaEdit,
-  FaTrash,
-  FaSearch,
-  FaEye,
-} from "react-icons/fa";
+import {  FaCalendarAlt,  FaEdit,  FaTrash,  FaSearch,  FaEye,} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const EventDashboard = () => {

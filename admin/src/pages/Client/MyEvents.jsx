@@ -2,19 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {
-  FaCalendarAlt,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaArrowLeft,
-  FaSpinner,
-  FaImage,
-  FaMapMarkerAlt,
-  FaDollarSign,
-  FaEye,
-  FaUser,
-} from "react-icons/fa";
+import {  FaCalendarAlt,  FaPlus,  FaEdit,  FaTrash,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaEye,  FaUser,} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const MyEvents = () => {
