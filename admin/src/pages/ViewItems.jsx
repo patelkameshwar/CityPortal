@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 
 const ViewItems = () => {
   const { type, id } = useParams();
-  const itemType = type || 'event'; // Default to event for legacy
+  const itemType = type || 'event'; 
   const isHotel = itemType === 'hotel';
   const apiService = isHotel ? hotelAPI : eventAPI;
   const backPath = isHotel ? '/client/my-hotels' : '/client/my-events';
@@ -33,7 +33,6 @@ const ViewItems = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Field mapping same as EditItems
   const fieldMap = {
     hotel: {
       title: 'name',
@@ -174,7 +173,6 @@ const ViewItems = () => {
           </div>
 
           <div className="p-8 space-y-8">
-            {/* Basic Info */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
@@ -185,7 +183,7 @@ const ViewItems = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaRupeeSign className="mr-2 text-emerald-600" />
                   Price {isHotel ? 'per Night' : 'per Pass'}
                 </label>
@@ -195,10 +193,9 @@ const ViewItems = () => {
               </div>
             </div>
 
-            {/* Location & Capacity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-blue-600" />
                   Location
                 </label>
@@ -207,7 +204,7 @@ const ViewItems = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaUsers className="mr-2 text-purple-600" />
                   {capacityLabel}
                 </label>
@@ -217,7 +214,6 @@ const ViewItems = () => {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-base font-semibold text-gray-800 mb-4">
                 Description
@@ -227,11 +223,9 @@ const ViewItems = () => {
               </div>
             </div>
 
-            {/* Type-specific sections */}
             {isHotel ? (
-              /* Hotel Amenities */
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
                   Amenities
                 </label>
                 <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base">
@@ -240,7 +234,6 @@ const ViewItems = () => {
               </div>
             ) : (
               <>
-                {/* Event Type */}
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-3">
                     Event Type
@@ -254,11 +247,10 @@ const ViewItems = () => {
                   </div>
                 </div>
 
-                {/* Event Dates/Time */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {itemData.eventType === 'one-day' ? (
                     <div>
-                      <label className="block font-semibold text-gray-800 mb-3 flex items-center">
+                      <label className="font-semibold text-gray-800 mb-3 flex items-center">
                         <FaCalendarAlt className="mr-2 text-orange-500" />
                         Event Date
                       </label>
@@ -287,7 +279,7 @@ const ViewItems = () => {
                     </>
                   )}
                   <div>
-                    <label className="block font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
                       <FaClock className="mr-2 text-indigo-500" />
                       Event Time
                     </label>
@@ -299,10 +291,9 @@ const ViewItems = () => {
               </>
             )}
 
-            {/* Images Gallery */}
             {imagePreviews.length > 0 && (
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-5 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-5 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
                   {isHotel ? 'Hotel Images' : 'Event Images'} ({imagePreviews.length})
                 </label>
@@ -316,7 +307,6 @@ const ViewItems = () => {
               </div>
             )}
 
-            {/* Action Buttons - only back */}
             <div className="flex justify-center pt-8 border-t border-gray-200">
               <Link
                 to={backPath}

@@ -38,7 +38,7 @@ React.useEffect(() => {
         if (response.data.success) {
           const statsData = response.data.data || response.data.stats || {};
           setStats([
-            { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
+    { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
             { name: 'Active Bookings', value: statsData.bookings?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
             { name: 'Events Hosted', value: statsData.events?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
             { name: 'Monthly Revenue', value: `$${statsData.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
@@ -75,6 +75,28 @@ React.useEffect(() => {
 
 
   const { logout: contextLogout } = useAuth();
+  const formatMonthYear = (value) => {
+    let date;
+    if (typeof value === 'string') {
+      if (value.includes('-')) {
+        date = new Date(value + (value.length === 7 ? '-01' : ''));
+      } else if (/\d{4}/.test(value)) {
+        date = new Date(value);
+      } else {
+        return value;
+      }
+    } else if (value instanceof Date) {
+      date = value;
+    }
+    
+    if (!date || isNaN(date.getTime())) return value;
+    
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      year: '2-digit' 
+    });
+  };
+
   const handleLogout = () => {
     contextLogout();
   };
@@ -85,7 +107,6 @@ React.useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -108,7 +129,6 @@ React.useEffect(() => {
       </header>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -132,9 +152,7 @@ React.useEffect(() => {
           })}
         </div>
 
-        {/* Charts & Main Content */}
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Analytics Chart */}
           <div className="lg:col-span-2 bg-white shadow rounded-lg">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -175,7 +193,7 @@ React.useEffect(() => {
                   <ResponsiveContainer>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="month" />
+                      <XAxis dataKey="month" tickFormatter={formatMonthYear} />
                       <YAxis yAxisId="left" orientation="left" stroke="#2563eb" />
                       <YAxis yAxisId="right" orientation="right" stroke="#059669" />
                       <Tooltip />
@@ -203,8 +221,6 @@ React.useEffect(() => {
             </div>
           </div>
 
-
-          {/* Quick Actions */}
           <div className="bg-white shadow rounded-lg">
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Quick Actions</h3>

@@ -1,15 +1,10 @@
-# Fix: Cancelled bookings still showing in ClientDashboard stats
+# Fix ClientDashboard Event Active Booking Count
 
-## Steps:
-- [x] 1. Analyze files and create plan (done)
-- [x] 2. Edit backend/controllers/clientController.js - Update getClientStats to filter Event active bookings by status='Confirmed' using Booking model
-- [ ] 3. Test the fix (restart backend, cancel booking, check stats)
-- [x] 4. Complete task
+## Plan Steps
+- [x] 1. Update backend/controllers/clientController.js to expose `activeEventBookings` in `/client/stats`
+- [ ] 2. Update admin/src/pages/Client/ClientDashboard.jsx to add 'Event Active Bookings' stat card using `statsData.activeEventBookings`
+- [ ] 3. Test changes: Restart backend, refresh client dashboard
+- [ ] 4. Verify count matches Confirmed future event bookings
 
-**Fixed:** Updated `getClientStats` to consistently query Booking model for both hotel and event active bookings/revenue, filtering `status: 'Confirmed'`. Now cancelled bookings (status='Cancelled') are excluded from "Active Bookings" count and revenue in ClientDashboard.
+**Status:** Starting implementation...
 
-To test:
-1. Restart backend: Ctrl+C then `npm run dev` in backend/
-2. Login as client, create Event booking, check dashboard "Active Bookings".
-3. Cancel booking (via MyBookings), refresh ClientDashboard - count should decrease.
-4. Check TODO.md progress.
