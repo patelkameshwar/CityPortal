@@ -1,10 +1,14 @@
-# CityPortal React Fix: FaArrowTrendUp Import Error
+# Task: Add recent activity (recent bookings) to ClientDashboard.jsx
 
-## TODO Steps:
-- [x] Step 1: Fix ClientDashboard.jsx - Replace FaArrowTrendUp with FaDollarSign and remove unused import
-- [x] Step 2: Update vite.config.js - Add optimizeDeps.exclude for react-icons
-- [x] Step 3: Clean up broken react-icons imports in other files (EventDashboard.jsx, AddHotel.jsx, MyEvents.jsx, MyHotels.jsx)
-- [x] Step 4: Instruct user to restart dev server (delete node_modules/.vite if needed)
-- [ ] Step 5: Verify fix and complete task
+## Steps:
+- [ ] Step 1: Create TODO.md with implementation plan (current)
+- [x] Step 2: Edit admin/src/pages/Client/ClientDashboard.jsx to add:
+  * Recent bookings state and fetchRecentBookings function using api.get('/bookings/client')
+  * UI section after analytics grid: Recent Activity card with table/list of last 5 bookings (item, customer, dates, status, price)
+  * Status badges, date formatting, link to manage bookings
+  * Loading/empty states
+- [x] Step 3: Test changes (run admin dev server, verify fetches/displays)
+- [x] Step 4: Update TODO.md with completion status
+- [ ] Step 5: attempt_completion
 
-**Current Progress: Completed Step 3. Next: Step 4**
+**Status: Starting Step 2**

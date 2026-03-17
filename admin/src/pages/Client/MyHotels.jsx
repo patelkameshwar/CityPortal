@@ -2,7 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api, { hotelAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {  FaHotel,  FaPlus,  FaEdit,  FaTrash,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaCalendarAlt,  FaEye,  FaUser,} from "react-icons/fa";
+import {
+  FaHotel,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaArrowLeft,
+  FaSpinner,
+  FaImage,
+  FaMapMarkerAlt,
+  FaDollarSign,
+  FaCalendarAlt,
+  FaEye,
+  FaUser,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -19,11 +32,8 @@ const MyHotels = () => {
     }
   }, [isAuthenticated]);
 
-
-
   const fetchClientHotels = async () => {
     try {
-      // Assuming backend has /hotels/client endpoint or filter by owner
       const response = await api.get("/client/hotels/client");
       setHotels(response.data.hotels || []);
     } catch (error) {
@@ -88,9 +98,7 @@ const MyHotels = () => {
                 </p>
               </div>
             </div>
-<div
-              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition"
-            >
+            <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 p-2 flex items-center justify-center flex-shrink-0 group-hover:ring-2 group-hover:ring-emerald-500 transition">
                 {user?.profilePicture ? (
                   <img
@@ -113,9 +121,6 @@ const MyHotels = () => {
       </header>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-
-
-        {/* Hotels List */}
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-900">
@@ -212,24 +217,29 @@ const MyHotels = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        ₹ {hotel.pricePerNight}/
-                      </span>
+                          ₹ {hotel.pricePerNight}/
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <b>{hotel.bookingsCount || 0}</b> bookings
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {hotel.status || 'Active'}
-                      </span>
-                    </td>
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          {hotel.status || "Active"}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <Link to={`/client/view-items/hotel/${hotel._id}`} className="text-blue-600 hover:text-blue-900">
+                          <Link
+                            to={`/client/view-items/hotel/${hotel._id}`}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
                             <FaEye className="h-4 w-4" />
                           </Link>
-                          <button 
-onClick={() => navigate(`/client/edit/hotel/${hotel._id}`)}
+                          <button
+                            onClick={() =>
+                              navigate(`/client/edit/hotel/${hotel._id}`)
+                            }
                             className="text-yellow-600 hover:text-yellow-900"
                           >
                             <FaEdit className="h-4 w-4" />

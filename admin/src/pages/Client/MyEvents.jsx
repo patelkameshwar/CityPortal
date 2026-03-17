@@ -2,7 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {  FaCalendarAlt,  FaPlus,  FaEdit,  FaTrash,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaEye,  FaUser,} from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaArrowLeft,
+  FaSpinner,
+  FaImage,
+  FaMapMarkerAlt,
+  FaDollarSign,
+  FaEye,
+  FaUser,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const MyEvents = () => {
@@ -179,7 +191,6 @@ const MyEvents = () => {
                     const isOneDay = event.eventDate;
                     return (
                       <tr key={event._id} className="hover:bg-gray-50">
-                        
                         <td className="px-2 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
@@ -201,11 +212,13 @@ const MyEvents = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            isOneDay
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-purple-100 text-purple-800"
-                          }`}>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              isOneDay
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-purple-100 text-purple-800"
+                            }`}
+                          >
                             {isOneDay ? "One day" : "Multi-day"}
                           </span>
                         </td>
@@ -220,10 +233,12 @@ const MyEvents = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {event.eventDate 
-                            ? new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.eventDate))
-                            : `${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingToDate))}`
-                          }
+                          {event.eventDate
+                            ? new Intl.DateTimeFormat("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                              }).format(new Date(event.eventDate))
+                            : `${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingToDate))}`}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {event.eventTime}
@@ -236,12 +251,17 @@ const MyEvents = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <Link to={`/client/view-items/event/${event._id}`} className="text-blue-600 hover:text-blue-900">
+                            <Link
+                              to={`/client/view-items/event/${event._id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
                               <FaEye className="h-4 w-4 inline" />
                             </Link>
-                            <button 
+                            <button
                               className="text-yellow-600 hover:text-yellow-900"
-                              onClick={() => navigate(`/client/edit/event/${event._id}`)}
+                              onClick={() =>
+                                navigate(`/client/edit/event/${event._id}`)
+                              }
                             >
                               <FaEdit className="h-4 w-4 inline" />
                             </button>
@@ -272,4 +292,3 @@ const MyEvents = () => {
 };
 
 export default MyEvents;
-

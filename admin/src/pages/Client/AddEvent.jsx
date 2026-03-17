@@ -3,13 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api, { eventAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaImage, FaRupeeSign, FaClock, FaUsers, FaUpload, FaSpinner, FaPlus } from "react-icons/fa";
- // Removed react-datepicker imports
+import {
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaImage,
+  FaRupeeSign,
+  FaClock,
+  FaUsers,
+  FaUpload,
+  FaSpinner,
+  FaPlus,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const AddEvent = () => {
   const [formData, setFormData] = useState({
@@ -30,59 +40,61 @@ const AddEvent = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-const handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'images') {
+    if (name === "images") {
       const newFiles = Array.from(files);
-      setImageFiles(prev => [...prev, ...newFiles]);
-      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews]);
-      setFormData(prev => ({ ...prev, images: [...prev.images || [], ...newFiles] }));
+      setImageFiles((prev) => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
+      setFormData((prev) => ({
+        ...prev,
+        images: [...(prev.images || []), ...newFiles],
+      }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleEventTypeChange = (type) => {
-    setFormData(prev => ({ ...prev, eventType: type }));
-    if (type === 'one-day' && formData.bookingFromDate) {
-      setFormData(prev => ({ ...prev, bookingToDate: prev.bookingFromDate }));
+    setFormData((prev) => ({ ...prev, eventType: type }));
+    if (type === "one-day" && formData.bookingFromDate) {
+      setFormData((prev) => ({ ...prev, bookingToDate: prev.bookingFromDate }));
     }
   };
 
   const handleEventDateChange = (e) => {
     const date = e.target.value;
-    setFormData(prev => ({
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       eventDate: date,
       bookingFromDate: date,
-      bookingToDate: date
+      bookingToDate: date,
     }));
   };
-
-
 
   const handleRemoveImage = (index) => {
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
     const newFiles = imageFiles.filter((_, i) => i !== index);
     setImagePreviews(newPreviews);
     setImageFiles(newFiles);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images ? prev.images.filter((_, i) => i !== index) : []
+      images: prev.images ? prev.images.filter((_, i) => i !== index) : [],
     }));
-    // Cleanup URL objects
     URL.revokeObjectURL(imagePreviews[index]);
   };
 
   const handleAddMoreImages = (e) => {
     const newFiles = Array.from(e.target.files);
-    setImageFiles(prev => [...prev, ...newFiles]);
-    const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews]);
-    setFormData(prev => ({ ...prev, images: [...(prev.images || []), ...newFiles] }));
-    // Reset input
-    e.target.value = '';
+    setImageFiles((prev) => [...prev, ...newFiles]);
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    setFormData((prev) => ({
+      ...prev,
+      images: [...(prev.images || []), ...newFiles],
+    }));
+    e.target.value = "";
   };
 
   const [loading, setLoading] = useState(false);
@@ -91,8 +103,7 @@ const handleChange = (e) => {
     e.preventDefault();
     if (loading) return;
 
-    // Client-side validation
-    if (formData.eventType === 'one-day') {
+    if (formData.eventType === "one-day") {
       if (!formData.eventDate) {
         toast.error("Please select event date");
         return;
@@ -113,21 +124,19 @@ const handleChange = (e) => {
     setLoading(true);
     try {
       const submitData = new FormData();
-      // Append text fields
-      Object.keys(formData).forEach(key => {
-        if (key !== 'images' && formData[key]) {
+      Object.keys(formData).forEach((key) => {
+        if (key !== "images" && formData[key]) {
           submitData.append(key, formData[key]);
         }
       });
-      // Append multiple images
       if (formData.images) {
-        formData.images.forEach(image => {
-          submitData.append('images', image);
+        formData.images.forEach((image) => {
+          submitData.append("images", image);
         });
       }
 
       await eventAPI.create(submitData);
-      
+
       toast.success("Event created successfully!");
       navigate("/client/my-events");
     } catch (error) {
@@ -139,8 +148,16 @@ const handleChange = (e) => {
   };
 
   useEffect(() => {
-    if (formData.eventType === 'one-day' && formData.eventDate && formData.bookingFromDate !== formData.eventDate) {
-      setFormData(prev => ({ ...prev, bookingFromDate: prev.eventDate, bookingToDate: prev.eventDate }));
+    if (
+      formData.eventType === "one-day" &&
+      formData.eventDate &&
+      formData.bookingFromDate !== formData.eventDate
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        bookingFromDate: prev.eventDate,
+        bookingToDate: prev.eventDate,
+      }));
     }
   }, [formData.eventType, formData.eventDate]);
 
@@ -159,7 +176,11 @@ const handleChange = (e) => {
             <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100">
               <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img
+                    src={user.profilePicture}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 ) : (
                   <div className="text-xs font-medium">C</div>
                 )}
@@ -177,14 +198,17 @@ const handleChange = (e) => {
               <FaCalendarAlt className="mr-3 text-emerald-600 h-10 w-10" />
               Add New Event
             </h1>
-            <p className="text-gray-600 mt-2">Create a new event listing for CityPortal</p>
+            <p className="text-gray-600 mt-2">
+              Create a new event listing for CityPortal
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            {/* Title & Description */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Event Title *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Title *
+                </label>
                 <input
                   type="text"
                   name="title"
@@ -196,7 +220,9 @@ const handleChange = (e) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price per Seat (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price per Seat (₹) *
+                </label>
                 <div className="relative">
                   <FaRupeeSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
@@ -215,7 +241,9 @@ const handleChange = (e) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Event Description *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Event Description *
+              </label>
               <textarea
                 name="description"
                 rows="4"
@@ -227,10 +255,9 @@ const handleChange = (e) => {
               />
             </div>
 
-            {/* Location & Event Time */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-gray-500" />
                   Location *
                 </label>
@@ -245,55 +272,63 @@ const handleChange = (e) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaClock className="mr-2 text-gray-500" />
                   Event Time *
                 </label>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <TimePicker
                     ampm
-                    views={['hours', 'minutes']}
-                    value={formData.eventTime ? dayjs(`1970-01-01 ${formData.eventTime}`, 'YYYY-MM-DD h:mm A') : null}
+                    views={["hours", "minutes"]}
+                    value={
+                      formData.eventTime
+                        ? dayjs(
+                            `1970-01-01 ${formData.eventTime}`,
+                            "YYYY-MM-DD h:mm A",
+                          )
+                        : null
+                    }
                     onChange={(newValue) => {
-                      const timeStr = newValue ? newValue.format('h:mm A') : '';
-                      setFormData(prev => ({ ...prev, eventTime: timeStr }));
+                      const timeStr = newValue ? newValue.format("h:mm A") : "";
+                      setFormData((prev) => ({ ...prev, eventTime: timeStr }));
                     }}
                     slotProps={{
                       textField: {
-                        className: "w-full px-4 py-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 shadow-sm text-sm hover:bg-gray-50 transition-all",
+                        className:
+                          "w-full px-4 py-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 shadow-sm text-sm hover:bg-gray-50 transition-all",
                         placeholder: "Select time (e.g., 2:30 PM)",
-                        required: true
-                      }
+                        required: true,
+                      },
                     }}
                   />
                 </LocalizationProvider>
               </div>
             </div>
 
-            {/* Event Type & Dates & Seats */}
             <div className="space-y-6">
-              {/* Event Type Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Event Duration *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Event Duration *
+                </label>
                 <div className="flex bg-gray-100 p-1 rounded-xl">
                   <button
                     type="button"
-                    onClick={() => handleEventTypeChange('one-day')}
+                    onClick={() => handleEventTypeChange("one-day")}
                     className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      formData.eventType === 'one-day'
-                        ? 'bg-white shadow-sm border-2 border-emerald-500 text-emerald-700'
-                        : 'text-gray-600 hover:text-gray-900'
+                      formData.eventType === "one-day"
+                        ? "bg-white shadow-sm border-2 border-emerald-500 text-emerald-700"
+                        : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     One Day Event
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleEventTypeChange('multi-day')}
+                    onClick={() => handleEventTypeChange("multi-day")}
                     className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      formData.eventType === 'multi-day'
-                        ? 'bg-white shadow-sm border-2 border-emerald-500 text-emerald-700'
-                        : 'text-gray-600 hover:text-gray-900'
+                      formData.eventType === "multi-day"
+                        ? "bg-white shadow-sm border-2 border-emerald-500 text-emerald-700"
+                        : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     Multi-Day Event
@@ -301,11 +336,10 @@ const handleChange = (e) => {
                 </div>
               </div>
 
-              {/* Conditional Date Inputs */}
-              {formData.eventType === 'one-day' ? (
+              {formData.eventType === "one-day" ? (
                 <div className="lg:grid-cols-2 grid grid-cols-1 gap-6 lg:grid">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                       <FaCalendarAlt className="mr-2 text-gray-500" />
                       Event Date *
                     </label>
@@ -319,7 +353,7 @@ const handleChange = (e) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                       <FaUsers className="mr-2 text-gray-500" />
                       Total Seats *
                     </label>
@@ -338,7 +372,9 @@ const handleChange = (e) => {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Booking From *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Booking From *
+                    </label>
                     <input
                       type="date"
                       name="bookingFromDate"
@@ -349,7 +385,9 @@ const handleChange = (e) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Booking To *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Booking To *
+                    </label>
                     <input
                       type="date"
                       name="bookingToDate"
@@ -361,7 +399,7 @@ const handleChange = (e) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                    <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                       <FaUsers className="mr-2 text-gray-500" />
                       Total Seats *
                     </label>
@@ -380,9 +418,8 @@ const handleChange = (e) => {
               )}
             </div>
 
-            {/* Images */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-4 flex items-center">
                 <FaImage className="mr-2 text-gray-500" />
                 Event Images
               </label>
@@ -396,10 +433,17 @@ const handleChange = (e) => {
                   className="hidden"
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center">
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
                   <FaUpload className="h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-lg font-medium text-gray-900 mb-1">Click to upload</p>
-                  <p className="text-sm text-gray-500">PNG, JPG (max 50 images, 10MB each)</p>
+                  <p className="text-lg font-medium text-gray-900 mb-1">
+                    Click to upload
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    PNG, JPG (max 50 images, 10MB each)
+                  </p>
                 </label>
               </div>
               {imagePreviews.length > 0 && (
@@ -408,8 +452,8 @@ const handleChange = (e) => {
                     <h4 className="text-sm font-medium text-gray-900">
                       Selected Images ({imagePreviews.length})
                     </h4>
-                    <label 
-                      htmlFor="add-more-images" 
+                    <label
+                      htmlFor="add-more-images"
                       className="flex items-center text-emerald-600 hover:text-emerald-700 text-sm font-medium cursor-pointer transition-colors"
                     >
                       <FaPlus className="w-4 h-4 mr-1" />
@@ -418,11 +462,14 @@ const handleChange = (e) => {
                   </div>
                   <div className="flex gap-3 pb-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-full">
                     {imagePreviews.slice(0, 3).map((preview, index) => (
-                      <div key={index} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`} 
-                          className="w-full h-full object-cover" 
+                      <div
+                        key={index}
+                        className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow"
+                      >
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
                         />
                         <button
                           type="button"
@@ -482,4 +529,3 @@ const handleChange = (e) => {
 };
 
 export default AddEvent;
-

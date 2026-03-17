@@ -2,7 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { hotelAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import {  FaHotel,  FaArrowLeft,  FaSpinner,  FaImage,  FaMapMarkerAlt,  FaDollarSign,  FaCalendarAlt,  FaUser,  FaPlus} from "react-icons/fa";
+import {
+  FaHotel,
+  FaArrowLeft,
+  FaSpinner,
+  FaImage,
+  FaMapMarkerAlt,
+  FaDollarSign,
+  FaCalendarAlt,
+  FaUser,
+  FaPlus,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const AddHotel = () => {
@@ -54,13 +64,18 @@ const AddHotel = () => {
   const removeImage = (index) => {
     setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.description || !formData.location || !formData.pricePerNight) {
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.location ||
+      !formData.pricePerNight
+    ) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -93,8 +108,13 @@ const AddHotel = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center p-8">
           <FaHotel className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Login</h2>
-          <Link to="/login" className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Please Login
+          </h2>
+          <Link
+            to="/login"
+            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700"
+          >
             Go to Login
           </Link>
         </div>
@@ -105,7 +125,6 @@ const AddHotel = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center space-x-4">
@@ -116,14 +135,17 @@ const AddHotel = () => {
                 <FaArrowLeft />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Add New Hotel</h1>
-                <p className="text-gray-600 mt-1">List your property on CityPortal</p>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Add New Hotel
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  List your property on CityPortal
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Form */}
         <div className="bg-white shadow-xl rounded-xl border border-gray-200 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             <div>
@@ -198,21 +220,21 @@ const AddHotel = () => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Total Rooms *
-            </label>
-            <input
-              type="number"
-              name="totalRooms"
-              value={formData.totalRooms}
-              onChange={handleInputChange}
-              min="1"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="50"
-              required
-            />
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Amenities (optional)
-            </label>
+                Total Rooms *
+              </label>
+              <input
+                type="number"
+                name="totalRooms"
+                value={formData.totalRooms}
+                onChange={handleInputChange}
+                min="1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="50"
+                required
+              />
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Amenities (optional)
+              </label>
               <textarea
                 name="amenities"
                 value={formData.amenities}
@@ -236,18 +258,19 @@ const AddHotel = () => {
                 onChange={handleImageChange}
                 className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
               />
-              <p className="mt-1 text-sm text-gray-500">Upload up to 50 high-quality images of your hotel (max 5MB each)</p>
+              <p className="mt-1 text-sm text-gray-500">
+                Upload up to 50 high-quality images of your hotel (max 5MB each)
+              </p>
             </div>
 
-            {/* Image Preview */}
             {formData.images.length > 0 && (
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-medium text-gray-900">
                     Selected Images ({formData.images.length}/50)
                   </h4>
-                  <label 
-                    htmlFor="add-more-images" 
+                  <label
+                    htmlFor="add-more-images"
                     className="flex items-center text-emerald-600 hover:text-emerald-700 text-sm font-medium cursor-pointer transition-colors"
                   >
                     <FaPlus className="w-4 h-4 mr-1" />
@@ -256,11 +279,14 @@ const AddHotel = () => {
                 </div>
                 <div className="flex gap-3 pb-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-full">
                   {formData.images.slice(0, 3).map((image, index) => (
-                    <div key={index} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow">
-                      <img 
-                        src={URL.createObjectURL(image)} 
-                        alt={`Preview ${index + 1}`} 
-                        className="w-full h-full object-cover" 
+                    <div
+                      key={index}
+                      className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative bg-gray-100 group hover:shadow-md transition-shadow"
+                    >
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
                       />
                       <button
                         type="button"
@@ -314,7 +340,6 @@ const AddHotel = () => {
           </form>
         </div>
 
-        {/* User Info Footer */}
         <div className="mt-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6 text-center">
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
             <div className="flex items-center space-x-3">
@@ -330,7 +355,9 @@ const AddHotel = () => {
                 )}
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{user?.name || "Client"}</p>
+                <p className="font-semibold text-gray-900">
+                  {user?.name || "Client"}
+                </p>
                 <p className="text-sm text-gray-500">{user?.email}</p>
               </div>
             </div>
@@ -348,4 +375,3 @@ const AddHotel = () => {
 };
 
 export default AddHotel;
-
