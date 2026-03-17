@@ -1,10 +1,19 @@
-# Fix ClientDashboard Event Active Booking Count
+# ClientDashboard Chart Date Format Update
 
-## Plan Steps
-- [x] 1. Update backend/controllers/clientController.js to expose `activeEventBookings` in `/client/stats`
-- [ ] 2. Update admin/src/pages/Client/ClientDashboard.jsx to add 'Event Active Bookings' stat card using `statsData.activeEventBookings`
-- [ ] 3. Test changes: Restart backend, refresh client dashboard
-- [ ] 4. Verify count matches Confirmed future event bookings
+## Plan Breakdown & Progress
 
-**Status:** Starting implementation...
+### 1. [x] Create TODO.md with task steps
+   - Track progress for date format changes in ClientDashboard.jsx
 
+### 2. [ ] Add formatDayMonth function
+   - New helper after formatMonthYear for 'day' period: {day: 'numeric', month: 'short'} e.g. "17 Mar"
+
+### 3. [ ] Update XAxis tickFormatter
+   - Dynamic: currentPeriod === 'day' ? formatDayMonth : formatMonthYear
+
+### 4. [ ] Test changes
+   - Run dev server, switch periods, verify formats (day: "17 Mar", month/year: "Mar 25")
+   - Check console/errors
+
+### 5. [ ] attempt_completion
+   - Confirm task done

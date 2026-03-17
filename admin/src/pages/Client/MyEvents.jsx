@@ -228,7 +228,7 @@ const MyEvents = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                            ₹ {event.price}/
+                            ₹{event.price}/
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

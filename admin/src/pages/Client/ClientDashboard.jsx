@@ -21,11 +21,11 @@ const ClientDashboard = () => {
     { name: 'Your Hotels', value: '0', icon: FaHotel, color: 'bg-emerald-500' },
     { name: 'Active Bookings', value: '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
     { name: 'Events Hosted', value: '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-    { name: 'Monthly Revenue', value: '$0', icon: FaChartBar, color: 'bg-blue-500' },
+    { name: 'Monthly Revenue', value: '₹0', icon: FaChartBar, color: 'bg-blue-500' },
   ]);
   const [chartData, setChartData] = React.useState([]);
   const [chartLoading, setChartLoading] = React.useState(true);
-  const [currentPeriod, setCurrentPeriod] = React.useState('day'); // day, month, year
+  const [currentPeriod, setCurrentPeriod] = React.useState('day'); 
   const [loading, setLoading] = React.useState(true);
 
 
@@ -41,7 +41,7 @@ React.useEffect(() => {
     { name: 'Your Hotels', value: statsData.hotels?.toLocaleString() || '0', icon: FaHotel, color: 'bg-emerald-500' },
             { name: 'Active Bookings', value: statsData.bookings?.toLocaleString() || '0', icon: FaCalendarAlt, color: 'bg-orange-500' },
             { name: 'Events Hosted', value: statsData.events?.toLocaleString() || '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-            { name: 'Monthly Revenue', value: `$${statsData.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
+            { name: 'Monthly Revenue', value: `₹${statsData.revenue?.toLocaleString() || '0'}`, icon: FaChartBar, color: 'bg-blue-500' },
           ]);
         }
       } catch (error) {
@@ -79,7 +79,7 @@ React.useEffect(() => {
     let date;
     if (typeof value === 'string') {
       if (value.includes('-')) {
-        date = new Date(value + (value.length === 7 ? '-01' : ''));
+        date = new Date(value.length === 10 ? value : value + '-01');
       } else if (/\d{4}/.test(value)) {
         date = new Date(value);
       } else {
@@ -91,10 +91,32 @@ React.useEffect(() => {
     
     if (!date || isNaN(date.getTime())) return value;
     
-    return date.toLocaleDateString('en-US', { 
+    return new Intl.DateTimeFormat('en-GB', { 
       month: 'short', 
       year: '2-digit' 
-    });
+    }).format(date);
+  };
+
+  const formatDayMonth = (value) => {
+    let date;
+    if (typeof value === 'string') {
+      if (value.includes('-')) {
+        date = new Date(value.length === 10 ? value : value + '-01');
+      } else if (/\d{4}/.test(value)) {
+        date = new Date(value);
+      } else {
+        return value;
+      }
+    } else if (value instanceof Date) {
+      date = value;
+    }
+    
+    if (!date || isNaN(date.getTime())) return value;
+    
+    return new Intl.DateTimeFormat('en-GB', { 
+      day: 'numeric', 
+      month: 'short' 
+    }).format(date);
   };
 
   const handleLogout = () => {
@@ -193,7 +215,7 @@ React.useEffect(() => {
                   <ResponsiveContainer>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="month" tickFormatter={formatMonthYear} />
+                      <XAxis className='text-xs font-medium' dataKey="month" tickFormatter={currentPeriod === 'day' ? formatDayMonth : formatMonthYear} />
                       <YAxis yAxisId="left" orientation="left" stroke="#2563eb" />
                       <YAxis yAxisId="right" orientation="right" stroke="#059669" />
                       <Tooltip />

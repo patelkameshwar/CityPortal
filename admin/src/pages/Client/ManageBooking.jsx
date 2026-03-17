@@ -274,7 +274,7 @@ const ManageBooking = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
                           <div>{booking.totalQuantity || 1} {booking.itemType === 'Hotel' ? 'room(s)' : 'ticket(s)'}</div>
-                          <div className="font-medium text-orange-600">${booking.totalPrice || 0}</div>
+                          <div className="font-medium text-orange-600">₹{booking.totalPrice || 0}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(booking.status)}

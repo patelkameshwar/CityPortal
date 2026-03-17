@@ -166,47 +166,63 @@ exports.getClientAnalytics = async (req, res) => {
     
     let periodStart, generatePeriods;
 
-    // ✅ DAY
+    // ✅ DAY (Last 30 days)
     if (period === 'day') {
-      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30); 
+      periodStart = new Date(now);
+      periodStart.setDate(now.getDate() - 30);
 
       generatePeriods = () => {
         const days = [];
         for (let i = 29; i >= 0; i--) {
-          const date = new Date(now);
-          date.setDate(date.getDate() - i);
+          const date = new Date();
+          date.setDate(now.getDate() - i);
+
+          const key = date.toLocaleDateString('en-CA', {
+            timeZone: 'Asia/Kolkata'
+          });
 
           days.push({
-            key: date.toISOString().slice(0,10),
-            label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            key,
+            label: date.toLocaleDateString('en-US', {
+              timeZone: 'Asia/Kolkata',
+              month: 'short',
+              day: 'numeric'
+            })
           });
         }
         return days;
       };
 
-    // ✅ MONTH
+    // ✅ MONTH (Last 12 months)
     } else if (period === 'month') {
-      periodStart = new Date(now.getFullYear() - 1, now.getMonth(), 1); 
+      periodStart = new Date(now.getFullYear() - 1, now.getMonth(), 1);
 
       generatePeriods = () => {
         const months = [];
         for (let i = 11; i >= 0; i--) {
           const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
-          // ✅ FIXED (no timezone issue)
-          const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          const key = date.toLocaleDateString('en-CA', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: '2-digit'
+          }).slice(0, 7);
 
           months.push({
             key,
-            label: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            label: date.toLocaleDateString('en-US', {
+              timeZone: 'Asia/Kolkata',
+              month: 'long',
+              year: 'numeric'
+            })
           });
         }
         return months;
       };
 
-    // ✅ YEAR
+    // ✅ YEAR (Last 5 years)
     } else {
-      periodStart = new Date(now.getFullYear() - 5, 0, 1); 
+      periodStart = new Date(now.getFullYear() - 5, 0, 1);
 
       generatePeriods = () => {
         const years = [];
@@ -230,7 +246,7 @@ exports.getClientAnalytics = async (req, res) => {
 
     const periods = generatePeriods();
 
-    // ✅ HOTEL ANALYTICS
+    // ✅ HOTEL ANALYTICS (FIXED TIMEZONE)
     const hotelAnalytics = await Booking.aggregate([
       {
         $match: {
@@ -245,7 +261,8 @@ exports.getClientAnalytics = async (req, res) => {
           periodKey: {
             $dateToString: {
               format: period === 'month' ? '%Y-%m' : period === 'year' ? '%Y' : '%Y-%m-%d',
-              date: '$createdAt'
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata' // ✅ FIX
             }
           }
         }
@@ -272,7 +289,7 @@ exports.getClientAnalytics = async (req, res) => {
       hotelData[item._id] = item;
     });
 
-    // ✅ EVENT ANALYTICS
+    // ✅ EVENT ANALYTICS (FIXED TIMEZONE)
     const eventAnalyticsRaw = await Booking.aggregate([
       {
         $match: {
@@ -287,7 +304,8 @@ exports.getClientAnalytics = async (req, res) => {
           periodKey: {
             $dateToString: {
               format: period === 'month' ? '%Y-%m' : period === 'year' ? '%Y' : '%Y-%m-%d',
-              date: '$createdAt'
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata' // ✅ FIX
             }
           }
         }
@@ -314,14 +332,14 @@ exports.getClientAnalytics = async (req, res) => {
       eventData[item._id] = item;
     });
 
-    // ✅ FINAL CHART DATA (🔥 FIX APPLIED HERE)
+    // ✅ FINAL CHART DATA
     const chartData = periods.map(p => {
       const hotel = hotelData[p.key] || { activeBookings: 0, revenue: 0 };
       const event = eventData[p.key] || { activeBookings: 0, revenue: 0 };
 
       return {
-        month: p.key,        // ✅ FIX (was p.label ❌)
-        label: p.label,      // optional (for UI)
+        month: p.key,
+        label: p.label,
         activeBookings: (hotel.activeBookings || 0) + (event.activeBookings || 0),
         revenue: Math.round((hotel.revenue || 0) + (event.revenue || 0))
       };
