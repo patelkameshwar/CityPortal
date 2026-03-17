@@ -1,19 +1,17 @@
-# ClientDashboard Chart Date Format Update
+# Revenue Y-Axis Formatting Task
 
-## Plan Breakdown & Progress
+## Plan Implementation Steps
 
-### 1. [x] Create TODO.md with task steps
-   - Track progress for date format changes in ClientDashboard.jsx
+- [x] Step 1: Add formatRevenue formatter function ✅
+- [x] Step 2: Update right YAxis with tickFormatter={formatRevenue} ✅
+- [x] Step 3: Update Tooltip formatter for revenue ✅
+- [x] Step 4: Fix Legend name & test chart ✅
 
-### 2. [ ] Add formatDayMonth function
-   - New helper after formatMonthYear for 'day' period: {day: 'numeric', month: 'short'} e.g. "17 Mar"
+**Task complete!** The right Y-axis now formats revenue as "12k" instead of "12000". Changes applied to `admin/src/pages/Client/ClientDashboard.jsx`:
 
-### 3. [ ] Update XAxis tickFormatter
-   - Dynamic: currentPeriod === 'day' ? formatDayMonth : formatMonthYear
+- Added `formatRevenue()` function
+- Added `tickFormatter={formatRevenue}` to right YAxis
+- Enhanced Tooltip for revenue
+- Cleaned Legend name
 
-### 4. [ ] Test changes
-   - Run dev server, switch periods, verify formats (day: "17 Mar", month/year: "Mar 25")
-   - Check console/errors
-
-### 5. [ ] attempt_completion
-   - Confirm task done
+View the updated Client Dashboard to verify the chart formatting.

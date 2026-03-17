@@ -119,6 +119,19 @@ React.useEffect(() => {
     }).format(date);
   };
 
+  const formatRevenue = (value) => {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+    
+    if (numValue >= 1000000) {
+      return (numValue / 1000000).toFixed(1) + 'M';
+    }
+    if (numValue >= 1000) {
+      return Math.round(numValue / 1000) + 'k';
+    }
+    return numValue.toLocaleString();
+  };
+
   const handleLogout = () => {
     contextLogout();
   };
@@ -217,8 +230,8 @@ React.useEffect(() => {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis className='text-xs font-medium' dataKey="month" tickFormatter={currentPeriod === 'day' ? formatDayMonth : formatMonthYear} />
                       <YAxis yAxisId="left" orientation="left" stroke="#2563eb" />
-                      <YAxis yAxisId="right" orientation="right" stroke="#059669" />
-                      <Tooltip />
+                      <YAxis yAxisId="right" orientation="right" stroke="#059669" tickFormatter={formatRevenue} />
+                      <Tooltip formatter={(value, name) => name === 'Revenue' ? [formatRevenue(value), name] : [value, name]} />
                       <Legend />
                       <Line 
                         yAxisId="left" 
@@ -233,7 +246,7 @@ React.useEffect(() => {
                         type="monotone" 
                         dataKey="revenue" 
                         stroke="#059669" 
-                        name="Revenue ($)"
+                        name="Revenue"
                         strokeWidth={3}
                       />
                     </LineChart>
