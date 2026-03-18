@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAdminStats, getRecentClients, getRecentHotels, getRecentEvents, getRecentTourism } = require('../controllers/adminController');
+const { getAdminStats, getRecentClients, getRecentHotels, getRecentEvents, getRecentTourism, getAdminAnalytics } = require('../controllers/adminController');
 const { getAllClients } = require('../controllers/clientController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
@@ -12,5 +12,7 @@ router.get('/recent-hotels', authMiddleware, roleMiddleware('admin'), getRecentH
 router.get('/recent-events', authMiddleware, roleMiddleware('admin'), getRecentEvents);
 router.get('/recent-tourism', authMiddleware, roleMiddleware('admin'), getRecentTourism);
 router.get('/clients', authMiddleware, roleMiddleware('admin'), getAllClients);
+router.get('/analytics', authMiddleware, roleMiddleware('admin'), getAdminAnalytics);
 
 module.exports = router;
+

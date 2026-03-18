@@ -2,6 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
 import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaUserEdit, FaTrash, FaTheaterMasks } from 'react-icons/fa';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -20,6 +30,9 @@ const AdminDashboard = () => {
   const [recentEvents, setRecentEvents] = React.useState([]);
   const [recentTourism, setRecentTourism] = React.useState([]);
   const [recentLoading, setRecentLoading] = React.useState(true);
+  const [chartData, setChartData] = React.useState([]);
+  const [chartLoading, setChartLoading] = React.useState(true);
+  const [currentPeriod, setCurrentPeriod] = React.useState("day");
 
   React.useEffect(() => {
     const fetchStats = async () => {
@@ -71,6 +84,26 @@ const AdminDashboard = () => {
     fetchRecent();
   }, []);
 
+  const fetchAnalytics = async () => {
+    try {
+      setChartLoading(true);
+      const response = await api.get(`/admin/analytics?period=${currentPeriod}`);
+      console.log("Admin analytics response:", response.data);
+      if (response.data.success) {
+        setChartData(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch admin analytics:", error);
+      toast.error("Failed to load analytics data");
+    } finally {
+      setChartLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchAnalytics();
+  }, [currentPeriod]);
+
   const { logout: contextLogout } = useAuth();
   const handleLogout = () => {
     contextLogout();
@@ -82,6 +115,51 @@ const AdminDashboard = () => {
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  const formatMonthYear = (value) => {
+    let date;
+    if (typeof value === "string") {
+      if (value.includes("-")) {
+        date = new Date(value.length === 10 ? value : value + "-01");
+      } else if (/\\d{4}/.test(value)) {
+        date = new Date(value);
+      } else {
+        return value;
+      }
+    } else if (value instanceof Date) {
+      date = value;
+    }
+
+    if (!date || isNaN(date.getTime())) return value;
+
+    return new Intl.DateTimeFormat("en-GB", {
+      month: "short",
+      year: "2-digit",
+    }).format(date);
+  };
+
+  const formatDayMonth = (value) => {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return value;
+
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "short",
+    }).format(date);
+  };
+
+  const formatRevenue = (value) => {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+
+    if (numValue >= 1000000) {
+      return (numValue / 1000000).toFixed(1) + "M";
+    }
+    if (numValue >= 1000) {
+      return Math.round(numValue / 1000) + "k";
+    }
+    return numValue.toLocaleString();
   };
 
   const RecentList = ({ title, items, icon: Icon, color }) => (
@@ -440,15 +518,119 @@ const AdminDashboard = () => {
 
         {/* Charts & Main Content */}
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Chart Placeholder */}
+          {/* Analytics Chart */}
           <div className="lg:col-span-2 bg-white shadow rounded-lg">
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-              <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <FaChartBar className="h-12 w-12 mx-auto mb-4" />
-                  <p>Analytics chart will appear here</p>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Platform Analytics
+                </h3>
+                <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                  {["day", "month", "year"].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setCurrentPeriod(period)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                        currentPeriod === period
+                          ? "bg-white shadow-sm text-gray-900"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      {period.charAt(0).toUpperCase() + period.slice(1)}
+                    </button>
+                  ))}
                 </div>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                {currentPeriod === "day"
+                  ? "Last 30 days"
+                  : currentPeriod === "month"
+                  ? "Last 12 months"
+                  : "Last 5 years"}
+              </p>
+
+              <div style={{ width: "100%", height: 300 }}>
+                {chartLoading ? (
+                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                    <div className="text-gray-500">Loading chart...</div>
+                  </div>
+                ) : chartData.length === 0 ? (
+                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                    <div className="text-center text-gray-500">
+                      <FaChartBar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No analytics data available</p>
+                    </div>
+                  </div>
+                ) : (
+                  <ResponsiveContainer>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        className="text-xs font-medium"
+                        dataKey="month"
+                        tickFormatter={
+                          currentPeriod === "day"
+                            ? formatDayMonth
+                            : formatMonthYear
+                        }
+                      />
+                      <YAxis
+                        yAxisId="left"
+                        orientation="left"
+                        stroke="#2563eb"
+                      />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#059669"
+                        tickFormatter={formatRevenue}
+                      />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="newClients"
+                        stroke="#3B82F6"
+                        name="New Clients"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="hotelsBookings"
+                        stroke="#10B981"
+                        name="Hotel Bookings"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="eventsBookings"
+                        stroke="#F59E0B"
+                        name="Event Bookings"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="tourismBookings"
+                        stroke="#8B5CF6"
+                        name="Tourism Bookings"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#059669"
+                        name="Revenue (₹)"
+                        strokeWidth={3}
+                      />
+
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
           </div>
