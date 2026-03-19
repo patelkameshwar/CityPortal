@@ -210,7 +210,7 @@ const AdminDashboard = () => {
                       }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/admin/clients/${item._id}`} className="text-blue-600 hover:text-blue-900">
+<Link to={`/admin/view/client/${item._id}`} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
                       <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
@@ -287,7 +287,7 @@ const AdminDashboard = () => {
                       {formatDate(event.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/admin/events/${event._id}`} className="text-blue-600 hover:text-blue-900">
+<Link to={`/admin/view/event/${event._id}`} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
                       <Link to={`/admin/events/${event._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
@@ -351,7 +351,7 @@ const AdminDashboard = () => {
                       {formatDate(spot.createdAt)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-                      <Link to={`/admin/tourism/${spot._id}`} className="text-blue-600 hover:text-blue-900">
+<Link to={`/admin/view/tourism/${spot._id}`} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
                       <Link to={`/admin/tourism/${spot._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
@@ -413,7 +413,7 @@ const AdminDashboard = () => {
                       }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/hotels/${item._id}`} className="text-blue-600 hover:text-blue-900">
+<Link to={`/admin/view/hotel/${item._id}`} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
                       <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">

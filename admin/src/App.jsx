@@ -20,6 +20,7 @@ import AddEvent from "./pages/Client/AddEvent.jsx";
 import EditItems from "./pages/EditItems.jsx";
 import ViewItems from "./pages/ViewItems.jsx";
 import AddTourism from "./pages/Admin/AddTourism.jsx";
+import AdminView from "./pages/Admin/AdminView.jsx";
 
 const App = () => {
   return (
@@ -155,6 +156,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AddTourism />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/view/:type/:id"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminView />
               </ProtectedRoute>
             }
           />
