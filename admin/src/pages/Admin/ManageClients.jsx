@@ -105,7 +105,7 @@ const ManageClients = () => {
                       {new Date(client.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link to={`/admin/view/client/${client._id}`} className="text-blue-600 hover:text-blue-900 mr-2">
+                      <Link to={`/admin/view/client/${client._id}`} state={{from: '/admin/clients', fromLabel: 'Clients'}} className="text-blue-600 hover:text-blue-900 mr-2">
 
                         <FaEye className="h-4 w-4 inline" />
                       </Link>

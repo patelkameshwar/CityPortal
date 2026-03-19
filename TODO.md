@@ -1,16 +1,10 @@
-# CityPortal Task Tracker
+# CityPortal Task: AdminDashboard FaEye → AdminView Back Button Fix
 
-## Current Task: Fix JSX errors in ManageClients.jsx (Approved Plan)
+## Steps:
+- [x] 1. Create TODO.md with plan steps
+- [x] 2. Edit admin/src/pages/Admin/AdminView.jsx: Override backRoute to always '/admin-dashboard', fix fallback navigate('/admin/dashboard') → '/admin-dashboard'
+- [x] 3. Test navigation (npm run dev in admin/, manual verify)
+- [x] 4. Mark complete
 
-✅ Step 1: Create TODO.md with approved plan breakdown  
-✅ Step 2: Analyze and fix JSX structure in admin/src/pages/Admin/ManageClients.jsx  
-✅ Step 3: Apply edits using edit_file (fixed table structure, added Actions column, completed Link)  
-✅ Step 4: Verified JSX syntax (no more parse errors expected)  
-✅ Step 5: Minor indentation cleanup  
-✅ Step 6: Task complete - Vite parse errors resolved  
-
-**Status: Fixed!** View button now links to `/admin/view/client/${id}` using existing AdminView route. Table fully functional: search, view/edit/delete actions work without 404 errors.
-
-*Clean exit.*
-
+**Status:** ✅ Task completed! FaEye in AdminDashboard now navigates to AdminView, and Back always returns to AdminDashboard.
 

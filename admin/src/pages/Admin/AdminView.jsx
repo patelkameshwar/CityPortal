@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import api from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { 
@@ -82,13 +82,16 @@ const AdminView = () => {
 
   const config = typeConfig[type] || typeConfig.client;
 
+  const location = useLocation();
   const backRoutes = {
     client: { path: '/admin/clients', label: 'Clients' },
     hotel: { path: '/admin/hotels', label: 'Hotels' },
     event: { path: '/admin/events', label: 'Events' },
     tourism: { path: '/admin/tourism', label: 'Tourism' }
   };
-  const backRoute = backRoutes[type] || { path: '/admin/dashboard', label: 'Dashboard' };
+  const defaultBack = backRoutes[type] || { path: '/admin-dashboard', label: 'Dashboard' };
+  const backPath = location.state?.from || defaultBack.path;
+  const backLabel = location.state?.fromLabel || defaultBack.label;
 
   const mapApiDataToView = (apiData) => {
     const mapped = {
@@ -128,7 +131,7 @@ const AdminView = () => {
   useEffect(() => {
     if (!id || !config) {
       toast.error("Invalid type or ID");
-      navigate('/admin/dashboard');
+      navigate('/admin-dashboard');
       return;
     }
 
@@ -145,7 +148,7 @@ const AdminView = () => {
       } catch (error) {
         console.error(`Failed to load ${type}:`, error);
         toast.error(`Failed to load ${type} data`);
-        navigate('/admin/dashboard');
+        navigate('/admin-dashboard');
       } finally {
         setLoading(false);
       }
@@ -168,8 +171,8 @@ const AdminView = () => {
         <div className="text-center p-8">
           <config.icon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Item not found</h2>
-          <Link to="/admin/dashboard" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-            Back to Dashboard
+          <Link to={backPath} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+            Back to {backLabel}
           </Link>
         </div>
       </div>
@@ -182,11 +185,11 @@ const AdminView = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <Link
-              to={backRoute.path}
+              to={backPath}
               className="flex items-center text-gray-600 hover:text-gray-900 p-3 rounded-xl hover:bg-gray-100 transition-all"
             >
               <FaArrowLeft className="mr-2 h-5 w-5" />
-              Back to {backRoute.label}
+              Back to {backLabel}
             </Link>
             <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-emerald-100 border-2 border-emerald-200">
@@ -431,11 +434,11 @@ const AdminView = () => {
 
             <div className="flex justify-center pt-8 border-t border-gray-200">
               <Link
-                to={backRoute.path}
+                to={backPath}
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-4 px-12 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl hover:-translate-y-0.5 transition-all flex items-center space-x-3"
               >
                 <FaArrowLeft className="h-5 w-5" />
-                Back to {backRoute.label}
+                Back to {backLabel}
               </Link>
             </div>
           </div>
