@@ -58,6 +58,7 @@ export const hotelAPI = {
       'Content-Type': 'multipart/form-data',
     },
   }),
+  // Note: let axios auto-set Content-Type for FormData
   delete: (id) => api.delete(`/hotels/${id}`),
 };
 
@@ -79,8 +80,16 @@ export const eventAPI = {
 export const tourismAPI = {
   getAll: () => api.get('/tourism'),
   getById: (id) => api.get(`/tourism/${id}`),
-  create: (data) => api.post('/tourism', data),
-  update: (id, data) => api.put(`/tourism/${id}`, data),
+  create: (data) => api.post('/tourism', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
+  update: (id, data) => api.put(`/tourism/${id}`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
   delete: (id) => api.delete(`/tourism/${id}`),
   book: (id, data) => api.post(`/tourism/${id}/book`, data),
 };

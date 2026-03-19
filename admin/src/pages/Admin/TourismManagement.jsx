@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaMapMarkedAlt, FaEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaEdit, FaTrash, FaSearch, FaEye, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const TourismManagement = () => {
@@ -63,15 +63,21 @@ const TourismManagement = () => {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex items-center mb-6">
-            <FaSearch className="h-5 w-5 text-gray-400 mr-2" />
-            <input
-              type="text"
-              placeholder="Search tourism by name or location..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            />
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center">
+              <FaSearch className="h-5 w-5 text-gray-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search tourism by name or location..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-[1000px]"
+              />
+            </div>
+            <Link to="/admin/add-tourism" className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium shadow-sm">
+              <FaPlus className="mr-2 h-4 w-4" />
+              Add Tourism
+            </Link>
           </div>
 
           <div className="overflow-x-auto">
@@ -81,8 +87,8 @@ const TourismManagement = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entry Fee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Working Hours</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">V/D</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>

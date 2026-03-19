@@ -19,6 +19,7 @@ import MyEvents from "./pages/Client/MyEvents.jsx";
 import AddEvent from "./pages/Client/AddEvent.jsx";
 import EditItems from "./pages/EditItems.jsx";
 import ViewItems from "./pages/ViewItems.jsx";
+import AddTourism from "./pages/Admin/AddTourism.jsx";
 
 const App = () => {
   return (
@@ -149,6 +150,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/add-tourism"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AddTourism />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </AuthProvider>
@@ -156,3 +165,4 @@ const App = () => {
 };
 
 export default App;
+
