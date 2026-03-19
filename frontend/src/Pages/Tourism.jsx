@@ -71,6 +71,7 @@ const Tourism = () => {
         itemType: 'Tourism',
         itemId: selectedSpot._id,
         bookingDate: bookingData.date,
+        bookingTime: '10:00 AM', 
         totalQuantity: bookingData.visitors,
         totalPrice,
       });
