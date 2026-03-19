@@ -113,6 +113,12 @@ const AdminView = () => {
         bookingFromDate: formatDate(apiData.bookingFromDate),
         bookingToDate: formatDate(apiData.bookingToDate),
       }),
+      ...(type === 'tourism' && {
+        bookingFromDate: apiData.bookingFromDate,
+        bookingToDate: apiData.bookingToDate,
+        openTime: apiData.openTime || "",
+        closeTime: apiData.closeTime || ""
+      }),
       images: apiData.images || [],
       profilePicture: apiData.profilePicture
     };
@@ -262,7 +268,7 @@ const AdminView = () => {
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaUsers className="mr-2 text-purple-600" />
-                    {type === 'hotel' ? 'Total Rooms' : type === 'event' ? 'Total Seats' : 'Total Visitors'}
+                    {type === 'hotel' ? 'Total Rooms' : type === 'event' ? 'Total Seats' : 'Total Visitors per day'}
                   </label>
                   <div className="px-5 py-4 bg-purple-50 border-2 border-purple-200 rounded-2xl text-base font-semibold text-purple-900">
                     {itemData.capacity}
@@ -308,13 +314,17 @@ const AdminView = () => {
             )}
 
             {/* Hotel Amenities */}
-            {type === 'hotel' && itemData.amenities && (
+{type === 'hotel' && (
               <div>
                 <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
                   Amenities
+                  <FaUtensils className="ml-2 text-indigo-600" />
                 </label>
                 <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base">
-                  {itemData.amenities}
+                  {itemData.amenities || 'No amenities listed'}
+                  {(!itemData.amenities || itemData.amenities.length === 0) && (
+                    <p className="text-indigo-600 italic mt-2 text-sm">No amenities available</p>
+                  )}
                 </div>
               </div>
             )}
@@ -374,25 +384,47 @@ const AdminView = () => {
               </>
             )}
 
-            {/* Tourism Timings */}
-            {type === 'tourism' && (itemData.openTime || itemData.closeTime) && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label className="font-semibold text-gray-800 mb-3 flex items-center">
-                    <FaClock className="mr-2 text-indigo-500" />
-                    Open Time
-                  </label>
-                  <div className="px-4 py-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl font-medium text-indigo-800">
-                    {itemData.openTime}
+            {/* Tourism Dates & Timings */}
+            {type === 'tourism' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                      <FaCalendarAlt className="mr-2 text-blue-500" />
+                      Booking From Date
+                    </label>
+                    <div className="px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-2xl font-medium text-blue-800">
+                      {formatDate(itemData.bookingFromDate) || 'Not set'}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                      <FaCalendarAlt className="mr-2 text-purple-500" />
+                      Booking To Date
+                    </label>
+                    <div className="px-4 py-3 bg-purple-50 border-2 border-purple-200 rounded-2xl font-medium text-purple-800">
+                      {formatDate(itemData.bookingToDate) || 'Not set'}
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label className="font-semibold text-gray-800 mb-3 flex items-center">
-                    <FaClock className="mr-2 text-orange-500" />
-                    Close Time
-                  </label>
-                  <div className="px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-2xl font-medium text-orange-800">
-                    {itemData.closeTime}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                      <FaClock className="mr-2 text-indigo-500" />
+                      Open Time
+                    </label>
+                    <div className="px-4 py-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl font-medium text-indigo-800">
+                      {itemData.openTime || 'Not set'}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                      <FaClock className="mr-2 text-orange-500" />
+                      Close Time
+                    </label>
+                    <div className="px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-2xl font-medium text-orange-800">
+                      {itemData.closeTime || 'Not set'}
+                    </div>
                   </div>
                 </div>
               </div>
