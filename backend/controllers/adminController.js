@@ -70,6 +70,19 @@ exports.getRecentTourism = async (req, res) => {
   }
 };
 
+exports.getClientById = async (req, res) => {
+  try {
+    const client = await User.findById(req.params.id).select('-password');
+    if (!client || client.role !== 'client') {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+    res.json({ success: true, client });
+  } catch (error) {
+    console.error('getClientById error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getAdminAnalytics = async (req, res) => {
   try {
     const { period = 'day' } = req.query; 

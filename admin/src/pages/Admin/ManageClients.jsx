@@ -104,11 +104,12 @@ const ManageClients = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(client.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/admin/clients/${client._id}`} className="text-blue-600 hover:text-blue-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link to={`/admin/view/client/${client._id}`} className="text-blue-600 hover:text-blue-900 mr-2">
+
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <button onClick={() => setEditingClient(client)} className="text-yellow-600 hover:text-yellow-900">
+                      <button onClick={() => setEditingClient(client)} className="text-yellow-600 hover:text-yellow-900 mr-2">
                         <FaUserEdit className="h-4 w-4 inline" />
                       </button>
                       <button onClick={() => handleDelete(client._id)} className="text-red-600 hover:text-red-900">
@@ -117,6 +118,7 @@ const ManageClients = () => {
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
