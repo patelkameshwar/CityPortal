@@ -182,7 +182,7 @@ const EventDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <Link
-                        to={`/admin/events/${event._id}`}
+                        to={`/admin/view/event/${event._id}`}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         <FaEye className="h-4 w-4 inline" />
