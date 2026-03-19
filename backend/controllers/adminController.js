@@ -113,16 +113,16 @@ exports.getAdminAnalytics = async (req, res) => {
           }).slice(0, 7);
           months.push({
             key,
-            label: date.toLocaleDateString('en-US', {
+label: date.toLocaleDateString('en-US', {
               timeZone: 'Asia/Kolkata',
-              month: 'long',
-              year: 'numeric'
+              month: 'short',
+              year: '2-digit'
             })
           });
         }
         return months;
       };
-
+      
     // YEAR (Last 5 years)
     } else {
       periodStart = new Date(now.getFullYear() - 5, 0, 1);
