@@ -157,28 +157,71 @@ exports.updateEvent = async (req, res) => {
     event.images = newImages.length ? [...remainingImages, ...newImages] : remainingImages;
 
     // Update fields safely
-    event.title = req.body.title || event.title;
-    event.location = req.body.location || event.location;
-    event.description = req.body.description || event.description;
-    event.eventTime = req.body.eventTime || event.eventTime;
-    event.price = req.body.price || event.price;
+    if (req.body.title !== undefined) event.title = req.body.title;
+if (req.body.location !== undefined) event.location = req.body.location;
+if (req.body.description !== undefined) event.description = req.body.description;
+if (req.body.eventTime !== undefined) event.eventTime = req.body.eventTime;
+if (req.body.price !== undefined) event.price = Number(req.body.price);
 
     // Update totalSeats safely
-    if (req.body.totalSeats) {
-      const bookedSeats = event.bookings.reduce((sum, b) => sum + b.seats, 0);
-      if (req.body.totalSeats < bookedSeats) {
-        return res.status(400).json({ success: false, message: "Total seats cannot be less than already booked seats" });
-      }
-      event.totalSeats = req.body.totalSeats;
-    }
+      // ✅ FIX totalSeats update
+if (req.body.totalSeats !== undefined) {
+  const newSeats = Number(req.body.totalSeats);
 
-    // Update booking dates
-    if (req.body.bookingFromDate) event.bookingFromDate = new Date(req.body.bookingFromDate);
-    if (req.body.bookingToDate) event.bookingToDate = new Date(req.body.bookingToDate);
+  const bookedSeats = event.bookings.reduce((sum, b) => sum + b.seats, 0);
 
-    if (event.bookingFromDate > event.bookingToDate) {
-      return res.status(400).json({ success: false, message: "End date must be after start date" });
-    }
+  if (newSeats < bookedSeats) {
+    return res.status(400).json({
+      success: false,
+      message: "Total seats cannot be less than already booked seats"
+    });
+  }
+
+  event.totalSeats = newSeats;
+}
+  
+
+    // 🔥 HANDLE EVENT TYPE PROPERLY
+const { eventType, eventDate, bookingFromDate, bookingToDate } = req.body;
+
+if (eventType === "one-day") {
+  if (!eventDate) {
+    return res.status(400).json({ success: false, message: "eventDate is required for one-day event" });
+  }
+
+  const eventDateObj = new Date(eventDate);
+  if (isNaN(eventDateObj.getTime())) {
+    return res.status(400).json({ success: false, message: "Invalid eventDate" });
+  }
+
+  // ✅ SET one-day event
+  event.eventDate = eventDateObj;
+  event.bookingFromDate = eventDateObj;
+  event.bookingToDate = eventDateObj;
+
+} else if (eventType === "multi-day") {
+  if (!bookingFromDate || !bookingToDate) {
+    return res.status(400).json({ success: false, message: "bookingFromDate & bookingToDate required" });
+  }
+
+  const from = new Date(bookingFromDate);
+  const to = new Date(bookingToDate);
+
+  if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+    return res.status(400).json({ success: false, message: "Invalid dates" });
+  }
+
+  if (from > to) {
+    return res.status(400).json({ success: false, message: "End date must be after start date" });
+  }
+
+  // ✅ SET multi-day event
+  event.bookingFromDate = from;
+  event.bookingToDate = to;
+
+  // ❌ IMPORTANT: remove one-day field
+  event.eventDate = null;
+}
 
     await event.save();
 

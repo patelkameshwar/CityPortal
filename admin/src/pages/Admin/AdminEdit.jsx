@@ -169,16 +169,25 @@ const AdminEdit = () => {
   };
 
   const handleEventTypeChange = (newType) => {
-    setEventType(newType);
-    setFormData(prev => ({
-      ...prev,
-      eventType: newType,
-      ...(newType === 'one-day' && prev.eventDate && {
-        bookingFromDate: prev.eventDate,
-        bookingToDate: prev.eventDate
-      })
-    }));
-  };
+  setEventType(newType);
+
+  setFormData(prev => ({
+    ...prev,
+    eventType: newType,
+
+    ...(newType === 'one-day'
+      ? {
+          eventDate: prev.eventDate || "",
+          bookingFromDate: "",
+          bookingToDate: ""
+        }
+      : {
+          eventDate: "",
+          bookingFromDate: prev.bookingFromDate || "",
+          bookingToDate: prev.bookingToDate || ""
+        })
+  }));
+};
 
   const handleImageUpload = (files) => {
     const newFiles = Array.from(files);
@@ -217,16 +226,39 @@ const AdminEdit = () => {
     setSaving(true);
     try {
       const submitData = new FormData();
-      
-      // Map form fields according to config
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value && config.fieldMap[key]) {
-          submitData.append(config.fieldMap[key], value);
-        } else if (value && key !== 'eventType' && key !== 'eventDate') {
-          submitData.append(key, value);
-        }
-      });
+      Object.keys(formData).forEach((key) => {
+  if (
+    key !== 'images' &&
+    key !== 'profilePicture' &&
+    key !== 'capacity' &&          // ❌ prevent wrong key
+    key !== 'eventDate' &&
+    key !== 'bookingFromDate' &&
+    key !== 'bookingToDate' &&
+    key !== 'eventType'
+  ) {
+    submitData.append(key, formData[key] || '');
+  }
+});
 
+// ✅ 🔥 ADD THIS (MISSING)
+submitData.set("eventType", eventType);
+      // Map form fields according to config
+      if (type === 'event') {
+  submitData.set('totalSeats', formData.capacity || '');
+}
+      // BEFORE loop
+if (type === 'event') {
+submitData.set("eventType", eventType);
+  if (eventType === 'one-day') {
+    submitData.set('eventDate', formData.eventDate || '');
+    submitData.set('bookingFromDate', '');
+    submitData.set('bookingToDate', '');
+  } else {
+    submitData.set('bookingFromDate', formData.bookingFromDate || '');
+    submitData.set('bookingToDate', formData.bookingToDate || '');
+    submitData.set('eventDate', '');
+  }
+}
       if (imagesToRemove.size > 0) {
         submitData.append('imagesToRemove', Array.from(imagesToRemove).join(','));
       }
