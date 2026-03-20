@@ -1,28 +1,13 @@
-# Hotel Edit Labels Update in AdminEdit.jsx
+# CityPortal Admin Hotel Edit Fix TODO
 
-## Status: ✅ COMPLETE
+**Completed:**
+- [x] Diagnose issue: Frontend form keys (title, price, capacity) not mapped to backend keys (name, pricePerNight, totalRooms) in AdminEdit.jsx handleSubmit.
+- [x] Create edit plan with hotel-specific FormData.set().
+- [x] User approved plan.
+- [x] Edit admin/src/pages/Admin/AdminEdit.jsx: Added hotel if-block with submitData.set('name', formData.title), ('pricePerNight', formData.price), ('totalRooms', formData.capacity); removed capacity exclusion; cleaned event code.
 
-### Steps:
-- [ ] 1. Create this TODO.md file ✅
-- [x] 2. Update title label for hotel: 'Hotel Name' ✅
-- [x] 3. Update price label for hotel: 'Price per Night' ✅
-- [x] 4. Update capacity label for hotel: 'Total Rooms' ✅
-- [x] 5. Update images label for hotel: 'Hotel Images' ✅
-- [x] 6. Verify changes and test ✅
-- [ ] 6. Verify changes and test
-- [x] 7. Mark complete ✅
+**Remaining:**
+- [ ] Test: Edit a hotel in admin panel, update name/price/rooms, verify success & backend data changed.
+- [ ] Run `cd admin && npm run dev` if server not active.
 
-**All steps completed! 🎉**
 
-## Verification
-All 4 labels updated in AdminEdit.jsx for hotel edits:
-- Hotel Name (title)
-- Price per Night (price)  
-- Total Rooms (capacity)
-- Hotel Images (images)
-
-Test: Navigate to hotel edit page - labels should show correctly while preserving other types (event/client/tourism).
-
-**Bonus:** Updated subtitle to "{config.title} Details" (e.g., "Edit Hotel Details")
-
-**File edited:** admin/src/pages/Admin/AdminEdit.jsx ✅

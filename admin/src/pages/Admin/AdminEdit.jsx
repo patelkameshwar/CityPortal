@@ -230,7 +230,6 @@ const AdminEdit = () => {
   if (
     key !== 'images' &&
     key !== 'profilePicture' &&
-    key !== 'capacity' &&          // ❌ prevent wrong key
     key !== 'eventDate' &&
     key !== 'bookingFromDate' &&
     key !== 'bookingToDate' &&
@@ -240,25 +239,29 @@ const AdminEdit = () => {
   }
 });
 
-// ✅ 🔥 ADD THIS (MISSING)
-submitData.set("eventType", eventType);
-      // Map form fields according to config
+      // Hotel-specific field mapping
+      if (type === 'hotel') {
+        submitData.set('name', formData.title || '');
+        submitData.set('pricePerNight', formData.price || '');
+        submitData.set('totalRooms', formData.capacity || '');
+        submitData.set('location', formData.location || '');
+        submitData.set('description', formData.description || '');
+      }
+
+      // Event-specific mapping (fixed/cleaned)
       if (type === 'event') {
-  submitData.set('totalSeats', formData.capacity || '');
-}
-      // BEFORE loop
-if (type === 'event') {
-submitData.set("eventType", eventType);
-  if (eventType === 'one-day') {
-    submitData.set('eventDate', formData.eventDate || '');
-    submitData.set('bookingFromDate', '');
-    submitData.set('bookingToDate', '');
-  } else {
-    submitData.set('bookingFromDate', formData.bookingFromDate || '');
-    submitData.set('bookingToDate', formData.bookingToDate || '');
-    submitData.set('eventDate', '');
-  }
-}
+        submitData.set('totalSeats', formData.capacity || '');
+        submitData.set('eventType', eventType);
+        if (eventType === 'one-day') {
+          submitData.set('eventDate', formData.eventDate || '');
+          submitData.set('bookingFromDate', '');
+          submitData.set('bookingToDate', '');
+        } else {
+          submitData.set('bookingFromDate', formData.bookingFromDate || '');
+          submitData.set('bookingToDate', formData.bookingToDate || '');
+          submitData.set('eventDate', '');
+        }
+      }
       if (imagesToRemove.size > 0) {
         submitData.append('imagesToRemove', Array.from(imagesToRemove).join(','));
       }
