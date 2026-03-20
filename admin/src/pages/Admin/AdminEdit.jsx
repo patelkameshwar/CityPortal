@@ -137,8 +137,10 @@ const formatTime = (timeStr) => {
         bookingToDate: apiData.bookingToDate ? new Date(apiData.bookingToDate).toISOString().split('T')[0] : ""
       }),
       ...(type === 'tourism' && {
-        openTime: formatTime(apiData.openTime),
-        closeTime: formatTime(apiData.closeTime)
+        openTime: apiData.openTime || '',
+        closeTime: apiData.closeTime || '',
+        openTime24hr: formatTime(apiData.openTime),
+        closeTime24hr: formatTime(apiData.closeTime)
       }),
       images: apiData.images || [],
       profilePicture: apiData.profilePicture || ""
@@ -608,10 +610,11 @@ Update your {config.title.replace(/^Edit /, '')} listing
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <TimePicker
                       ampm
-                      value={formData.openTime ? dayjs(`1970-01-01 ${formData.openTime}`) : null}
+                      value={formData.openTime24hr ? dayjs(`1970-01-01T${formData.openTime24hr}`) : null}
                       onChange={(newValue) => {
-                        const timeStr = newValue ? newValue.format('h:mm A') : '';
-                        setFormData(prev => ({ ...prev, openTime: timeStr }));
+                        const time12hr = newValue ? newValue.format('h:mm A') : '';
+                        const time24hr = newValue ? newValue.format('HH:mm') : '';
+                        setFormData(prev => ({ ...prev, openTime: time12hr, openTime24hr: time24hr }));
                       }}
                       slotProps={{
                         textField: {
@@ -629,10 +632,11 @@ Update your {config.title.replace(/^Edit /, '')} listing
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <TimePicker
                       ampm
-                      value={formData.closeTime ? dayjs(`1970-01-01 ${formData.closeTime}`) : null}
+                      value={formData.closeTime24hr ? dayjs(`1970-01-01T${formData.closeTime24hr}`) : null}
                       onChange={(newValue) => {
-                        const timeStr = newValue ? newValue.format('h:mm A') : '';
-                        setFormData(prev => ({ ...prev, closeTime: timeStr }));
+                        const time12hr = newValue ? newValue.format('h:mm A') : '';
+                        const time24hr = newValue ? newValue.format('HH:mm') : '';
+                        setFormData(prev => ({ ...prev, closeTime: time12hr, closeTime24hr: time24hr }));
                       }}
                       slotProps={{
                         textField: {
