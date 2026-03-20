@@ -334,7 +334,7 @@ const AdminEdit = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      toast.success(`${config.title} updated successfully!`);
+      toast.success(`${config.title.replace(/^Edit /, "")} updated successfully!`);
       navigate(backPath, {
         state: { from: location.pathname, fromLabel: config.title },
       });
