@@ -36,11 +36,7 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   updateProfile: (data) => api.put('/auth/profile', data),
-  uploadProfilePicture: (formData) => api.post('/auth/profile-picture', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  uploadProfilePicture: (formData) => api.post('/auth/profile-picture', formData),
 };
 
 // Hotel APIs
@@ -48,16 +44,8 @@ export const hotelAPI = {
   getAll: () => api.get('/hotels'),
   getById: (id) => api.get(`/hotels/${id}`),
   getSimilar: (id) => api.get(`/hotels/${id}/similar`),
-  create: (data) => api.post('/hotels', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
-  update: (id, data) => api.put(`/hotels/${id}`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  create: (data) => api.post('/hotels', data),
+  update: (id, data) => api.put(`/hotels/${id}`, data),
   // Note: let axios auto-set Content-Type for FormData
   delete: (id) => api.delete(`/hotels/${id}`),
 };
@@ -66,11 +54,7 @@ export const hotelAPI = {
 export const eventAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
-  create: (data) => api.post('/events', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  create: (data) => api.post('/events', data),
   update: (id, data) => api.put(`/events/${id}`, data),
   delete: (id) => api.delete(`/events/${id}`),
   book: (id, data) => api.post(`/events/${id}/book`, data),
@@ -80,16 +64,8 @@ export const eventAPI = {
 export const tourismAPI = {
   getAll: () => api.get('/tourism'),
   getById: (id) => api.get(`/tourism/${id}`),
-  create: (data) => api.post('/tourism', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
-  update: (id, data) => api.put(`/tourism/${id}`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  create: (data) => api.post('/tourism', data),
+  update: (id, data) => api.put(`/tourism/${id}`, data),
   delete: (id) => api.delete(`/tourism/${id}`),
   book: (id, data) => api.post(`/tourism/${id}/book`, data),
 };

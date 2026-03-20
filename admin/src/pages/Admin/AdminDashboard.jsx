@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaUserEdit, FaTrash, FaTheaterMasks } from 'react-icons/fa';
+import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaEdit, FaUserEdit, FaTrash, FaTheaterMasks } from 'react-icons/fa';
 import {
   LineChart,
   Line,
@@ -57,32 +57,41 @@ const AdminDashboard = () => {
   }, []);
 
   // Fetch recent data using general endpoints + client-side sorting
+  const location = useLocation();
+
+  const fetchRecent = async () => {
+    setRecentLoading(true);
+    try {
+      const [clientsRes, hotelsRes, eventsRes, tourismRes] = await Promise.all([
+        api.get('/admin/clients'),
+        api.get('/hotels'),
+        api.get('/events'),
+        api.get('/tourism')
+      ]);
+
+      const sortRecent = (items) => (items || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
+
+      setRecentClients(sortRecent(clientsRes.data.data));
+      setRecentHotels(sortRecent(hotelsRes.data.hotels || hotelsRes.data.data || []));
+      setRecentEvents(sortRecent(eventsRes.data.events || eventsRes.data.data || eventsRes.data || []));
+      setRecentTourism(sortRecent(tourismRes.data.tourism || tourismRes.data.tourismPlaces || tourismRes.data.data || []));
+    } catch (error) {
+      console.error('Failed to fetch recent data:', error);
+      toast.error('Failed to load recent additions - check backend endpoints');
+    } finally {
+      setRecentLoading(false);
+    }
+  };
+
   React.useEffect(() => {
-    const fetchRecent = async () => {
-      setRecentLoading(true);
-      try {
-        const [clientsRes, hotelsRes, eventsRes, tourismRes] = await Promise.all([
-          api.get('/admin/clients'),
-          api.get('/hotels'),
-          api.get('/events'),
-          api.get('/tourism')
-        ]);
-
-        const sortRecent = (items) => (items || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
-
-        setRecentClients(sortRecent(clientsRes.data.data));
-        setRecentHotels(sortRecent(hotelsRes.data.hotels || hotelsRes.data.data || []));
-        setRecentEvents(sortRecent(eventsRes.data.events || eventsRes.data.data || eventsRes.data || []));
-        setRecentTourism(sortRecent(tourismRes.data.tourism || tourismRes.data.tourismPlaces || tourismRes.data.data || []));
-      } catch (error) {
-        console.error('Failed to fetch recent data:', error);
-        toast.error('Failed to load recent additions - check backend endpoints');
-      } finally {
-        setRecentLoading(false);
-      }
-    };
     fetchRecent();
   }, []);
+
+  React.useEffect(() => {
+    if (location.state?.refresh) {
+      fetchRecent();
+    }
+  }, [location.state?.refresh]);
 
   const fetchAnalytics = async () => {
     try {
@@ -195,9 +204,7 @@ const AdminDashboard = () => {
                 {items.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                      </div>
+                      <div>{item.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.address || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
@@ -210,11 +217,11 @@ const AdminDashboard = () => {
                       }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-<Link to={`/admin/view/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
+                      <Link to={`/admin/view/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
-                        <FaUserEdit className="h-4 w-4 inline" />
+                      <Link to={`/admin/edit/client/${item._id}`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
                         onClick={async () => {
@@ -290,8 +297,8 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/event/${event._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/events/${event._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
-                        <FaUserEdit className="h-4 w-4 inline" />
+                      <Link to={`/admin/edit/event/${event._id}`} className="text-yellow-600 hover:text-yellow-900">
+                        <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
                         onClick={async () => {
@@ -354,7 +361,7 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/tourism/${spot._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/tourism/${spot._id}`} className="text-yellow-600 hover:text-yellow-900">
                         <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
@@ -416,7 +423,7 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/hotels/${item._id}/edit`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/hotel/${item._id}`} className="text-yellow-600 hover:text-yellow-900">
                         <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 

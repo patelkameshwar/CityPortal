@@ -159,6 +159,41 @@ exports.getAllClients = async (req, res) => {
   }
 };
 
+exports.getClientById = async (req, res) => {
+  try {
+    const client = await User.findById(req.params.id).select('-password');
+    if (!client || client.role !== 'client') {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+    res.json({ success: true, client });
+  } catch (error) {
+    console.error('Get client by ID error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateClientById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = {};
+    if (req.body.title !== undefined) updates.name = req.body.title;
+    if (req.body.email !== undefined) updates.email = req.body.email;
+    if (req.body.phone !== undefined) updates.phone = req.body.phone;
+    if (req.body.address !== undefined) updates.address = req.body.address;
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'No updates provided' });
+    }
+    const client = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).select('-password');
+    if (!client || client.role !== 'client') {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+    res.json({ success: true, client });
+  } catch (error) {
+    console.error('Update client by ID error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getClientAnalytics = async (req, res) => {
   try {
     const { period = 'day' } = req.query; 

@@ -5,7 +5,9 @@ const {
   getClientStats,
   getAllClients,
   getClientHotels,
-  getClientEvents
+  getClientEvents,
+  getClientById,
+  updateClientById
 } = require("../controllers/clientController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -28,6 +30,13 @@ router.get('/events', authMiddleware, getClientEvents);
 
 // Admin get all clients
 router.get('/', authMiddleware, roleMiddleware('admin'), getAllClients);
+
+// Admin get single client by ID
+router.get('/:id', authMiddleware, roleMiddleware('admin'), getClientById);
+
+// Admin update single client by ID
+const upload = require('../middleware/uploadMiddleware')('profiles');
+router.put('/:id', upload.none(), authMiddleware, roleMiddleware('admin'), updateClientById);
 
 
 

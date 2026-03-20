@@ -21,6 +21,7 @@ import EditItems from "./pages/EditItems.jsx";
 import ViewItems from "./pages/ViewItems.jsx";
 import AddTourism from "./pages/Admin/AddTourism.jsx";
 import AdminView from "./pages/Admin/AdminView.jsx";
+import AdminEdit from "./pages/Admin/AdminEdit.jsx";
 
 const App = () => {
   return (
@@ -164,6 +165,14 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/edit/:type/:id"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminEdit />
               </ProtectedRoute>
             }
           />
