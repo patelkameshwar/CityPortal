@@ -1,10 +1,15 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-  let token = req.headers.authorization || req.cookies.token;
+let token = req.headers.authorization || req.cookies.token;
 
   if (!token) {
     return res.status(401).json({ message: "Not authorized, no token" });
+  }
+
+  // Handle case where token is undefined or null
+  if (!token || typeof token !== 'string') {
+    return res.status(401).json({ message: "Invalid token format" });
   }
 
   if (token.startsWith('Bearer ')) {

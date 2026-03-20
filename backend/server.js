@@ -13,9 +13,11 @@ require("./models/Event");
 require("./models/Tourism");
 require("./models/Booking");
 
+const cookieParser = require('cookie-parser');
 const app = express();
 
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));

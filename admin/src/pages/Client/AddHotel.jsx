@@ -44,7 +44,7 @@ const AddHotel = () => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 50) {
-      toast.warning("Maximum 10 images allowed");
+      toast.warning("Maximum 50 images allowed");
       return;
     }
     setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
@@ -54,7 +54,7 @@ const AddHotel = () => {
   const handleAddMoreImages = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 50) {
-      toast.warning("Maximum 10 images allowed");
+      toast.warning("Maximum 50 images allowed");
       return;
     }
     setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
