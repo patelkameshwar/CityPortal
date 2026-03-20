@@ -255,15 +255,17 @@ const AdminView = () => {
 
             {/* Location/Capacity Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                  <FaMapPin className="mr-2 text-blue-600" />
-                  Location
-                </label>
-                <div className="px-5 py-4 bg-blue-50 border-2 border-blue-200 rounded-2xl text-base text-gray-900">
-                  {itemData.location}
+              {type !== 'client' && (
+                <div>
+                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                    <FaMapPin className="mr-2 text-blue-600" />
+                    Location
+                  </label>
+                  <div className="px-5 py-4 bg-blue-50 border-2 border-blue-200 rounded-2xl text-base text-gray-900">
+                    {itemData.location}
+                  </div>
                 </div>
-              </div>
+              )}
               {(itemData.capacity !== undefined) && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">

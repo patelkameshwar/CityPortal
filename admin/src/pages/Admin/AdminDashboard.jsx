@@ -430,7 +430,7 @@ const AdminDashboard = () => {
                         onClick={async () => {
                           if (window.confirm('Delete this hotel?')) {
                             try {
-                              await api.delete(`/admin/hotels/${item._id}`);
+                              await api.delete(`/hotels/${item._id}`);
                               toast.success('Hotel deleted');
                               // Refresh data
                               window.location.reload();

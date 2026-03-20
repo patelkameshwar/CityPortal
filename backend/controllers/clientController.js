@@ -387,3 +387,46 @@ exports.getClientAnalytics = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * DELETE CLIENT
+ * Access: Admin only
+ */
+exports.deleteClient = async (req, res) => {
+  try {
+    const client = await User.findById(req.params.id).select('-password');
+    if (!client || client.role !== 'client') {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access only' });
+    }
+
+    // Cancel all related bookings (client-owned hotels/events)
+    await Booking.updateMany(
+      { 
+        $or: [
+          { 'owner': client._id },
+          { 'itemType': { $in: ['Hotel', 'Event'] }, 'owner': client._id }
+        ]
+      },
+      { status: 'Cancelled' }
+    );
+
+    // Delete client-owned hotels and events first
+    await Hotel.deleteMany({ owner: client._id });
+    await Event.deleteMany({ owner: client._id });
+
+    // Finally delete user
+    await client.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Client and related data deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Client Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

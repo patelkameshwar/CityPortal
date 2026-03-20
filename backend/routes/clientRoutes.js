@@ -38,7 +38,8 @@ router.get('/:id', authMiddleware, roleMiddleware('admin'), getClientById);
 const upload = require('../middleware/uploadMiddleware')('profiles');
 router.put('/:id', upload.none(), authMiddleware, roleMiddleware('admin'), updateClientById);
 
-
+// Admin delete single client by ID
+router.delete('/:id', authMiddleware, roleMiddleware('admin'), require('../controllers/clientController').deleteClient);
 
 module.exports = router;
 
