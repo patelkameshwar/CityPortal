@@ -9,7 +9,7 @@ const ManageHotels = () => {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingHotel, setEditingHotel] = useState(null);
+
 
   useEffect(() => {
     fetchHotels();
@@ -126,9 +126,9 @@ const response = await api.delete(`/hotels/${id}`);
                       <Link to={`/admin/view/hotel/${hotel._id}`} state={{from: '/admin/hotels', fromLabel: 'Hotels'}} className="text-blue-600 hover:text-blue-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <button onClick={() => setEditingHotel(hotel)} className="text-yellow-600 hover:text-yellow-900">
+                      <Link to={`/admin/edit/hotel/${hotel._id}`} className="text-yellow-600 hover:text-yellow-900">
                         <FaEdit className="h-4 w-4 inline" />
-                      </button>
+                      </Link>
                       <button onClick={() => handleDelete(hotel._id)} className="text-red-600 hover:text-red-900">
                         <FaTrash className="h-4 w-4 inline" />
                       </button>

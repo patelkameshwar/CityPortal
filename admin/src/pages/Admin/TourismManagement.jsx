@@ -8,7 +8,7 @@ const TourismManagement = () => {
   const [tourism, setTourism] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingTourism, setEditingTourism] = useState(null);
+
 
   useEffect(() => {
     fetchTourism();
@@ -135,9 +135,9 @@ const TourismManagement = () => {
                       <Link to={`/admin/view/tourism/${spot._id}`} state={{from: '/admin/tourism', fromLabel: 'Tourism'}} className="text-blue-600 hover:text-blue-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <button onClick={() => setEditingTourism(spot)} className="text-yellow-600 hover:text-yellow-900">
+                      <Link to={`/admin/edit/tourism/${spot._id}`} state={{from: '/admin/tourism', fromLabel: 'Tourism'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaEdit className="h-4 w-4 inline" />
-                      </button>
+                      </Link>
                       <button onClick={() => handleDelete(spot._id)} className="text-red-600 hover:text-red-900">
                         <FaTrash className="h-4 w-4 inline" />
                       </button>

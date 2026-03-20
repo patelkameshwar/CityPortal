@@ -8,7 +8,7 @@ const EventDashboard = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [editingEvent, setEditingEvent] = useState(null);
+
 
   useEffect(() => {
     fetchEvents();
@@ -187,12 +187,9 @@ const EventDashboard = () => {
                       >
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <button
-                        onClick={() => setEditingEvent(event)}
-                        className="text-yellow-600 hover:text-yellow-900"
-                      >
+                      <Link to={`/admin/edit/event/${event._id}`} state={{from: '/admin/events', fromLabel: 'Events'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaEdit className="h-4 w-4 inline" />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => handleDelete(event._id)}
                         className="text-red-600 hover:text-red-900"

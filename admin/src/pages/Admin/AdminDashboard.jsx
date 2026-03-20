@@ -220,7 +220,7 @@ const AdminDashboard = () => {
                       <Link to={`/admin/view/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/edit/client/${item._id}`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
@@ -297,7 +297,7 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/event/${event._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <Link to={`/admin/edit/event/${event._id}`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/event/${event._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
@@ -361,7 +361,7 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/tourism/${spot._id}`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
@@ -423,7 +423,7 @@ const AdminDashboard = () => {
 <Link to={`/admin/view/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/hotel/${item._id}`} className="text-yellow-600 hover:text-yellow-900">
+<Link to={`/admin/edit/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
                         <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 

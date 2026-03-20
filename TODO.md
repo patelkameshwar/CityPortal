@@ -1,14 +1,10 @@
-# MUI TimePicker Implementation in AdminEdit.jsx
+# Dynamic Back Navigation Task
 
-## Completed: 0/6
+## Steps to Complete (Approved Plan):
+- [x] Step 1: Edit AdminDashboard.jsx - Add `state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}}` to all FaEdit Links for clients, hotels, events, tourism (4 locations).
+- [ ] Step 2: Verify AdminEdit.jsx back button uses location.state (already implemented).
+- [ ] Step 3: Test navigation flow.
+- [ ] Step 4: Attempt completion.
 
-- [x] 1. Add required MUI and dayjs imports to AdminEdit.jsx
-- [x] 2. Replace eventTime input (events section) with TimePicker component
-- [x] 3. Replace openTime input (tourism section) with TimePicker component  
-- [x] 4. Replace closeTime input (tourism section) with TimePicker component
-- [x] 5. Update mapApiDataToForm function if needed for format consistency (no changes required - formatTime handles it)
-- [x] 6. Test changes in dev server (tested: TimePickers render correctly for events/tourism, preserve styling/logic, compatible with existing formatTime/API)
+**Current Progress:** Step 1 complete. AdminEdit back button already dynamic. Testing recommended.
 
-**Next step:** Execute step 1 (add imports)
-
-**Status:** Ready for implementation

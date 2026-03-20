@@ -104,8 +104,8 @@ const AdminEdit = () => {
 
   const config = typeConfig[type] || typeConfig.client;
 
-  const backPath = location.state?.from || '/admin-dashboard';
-  const backLabel = location.state?.fromLabel || config.backLabel || 'Dashboard';
+  const backPath = location.state?.from || (type ? `/admin/${type}s` : '/admin-dashboard');
+  const backLabel = location.state?.fromLabel || config.backLabel || (type ? `${type.charAt(0).toUpperCase() + type.slice(1)}s` : 'Dashboard');
 
 const formatTime = (timeStr) => {
     if (!timeStr) return '';

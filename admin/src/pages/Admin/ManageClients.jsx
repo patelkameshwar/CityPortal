@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaUserEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
+import { FaUsers, FaEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const ManageClients = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingClient, setEditingClient] = useState(null);
+
 
   useEffect(() => {
     fetchClients();
@@ -109,9 +109,9 @@ const ManageClients = () => {
 
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-                      <button onClick={() => setEditingClient(client)} className="text-yellow-600 hover:text-yellow-900 mr-2">
-                        <FaUserEdit className="h-4 w-4 inline" />
-                      </button>
+                      <Link to={`/admin/edit/client/${client._id}`} className="text-yellow-600 hover:text-yellow-900 mr-2">
+                        <FaEdit className="h-4 w-4 inline" />
+                      </Link>
                       <button onClick={() => handleDelete(client._id)} className="text-red-600 hover:text-red-900">
                         <FaTrash className="h-4 w-4 inline" />
                       </button>
