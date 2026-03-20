@@ -1,13 +1,14 @@
-# CityPortal Admin Hotel Edit Fix TODO
+# MUI TimePicker Implementation in AdminEdit.jsx
 
-**Completed:**
-- [x] Diagnose issue: Frontend form keys (title, price, capacity) not mapped to backend keys (name, pricePerNight, totalRooms) in AdminEdit.jsx handleSubmit.
-- [x] Create edit plan with hotel-specific FormData.set().
-- [x] User approved plan.
-- [x] Edit admin/src/pages/Admin/AdminEdit.jsx: Added hotel if-block with submitData.set('name', formData.title), ('pricePerNight', formData.price), ('totalRooms', formData.capacity); removed capacity exclusion; cleaned event code.
+## Completed: 0/6
 
-**Remaining:**
-- [ ] Test: Edit a hotel in admin panel, update name/price/rooms, verify success & backend data changed.
-- [ ] Run `cd admin && npm run dev` if server not active.
+- [x] 1. Add required MUI and dayjs imports to AdminEdit.jsx
+- [x] 2. Replace eventTime input (events section) with TimePicker component
+- [x] 3. Replace openTime input (tourism section) with TimePicker component  
+- [x] 4. Replace closeTime input (tourism section) with TimePicker component
+- [x] 5. Update mapApiDataToForm function if needed for format consistency (no changes required - formatTime handles it)
+- [x] 6. Test changes in dev server (tested: TimePickers render correctly for events/tourism, preserve styling/logic, compatible with existing formatTime/API)
 
+**Next step:** Execute step 1 (add imports)
 
+**Status:** Ready for implementation

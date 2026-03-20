@@ -114,7 +114,7 @@ exports.getTourismById = async (req, res) => {
  */
 exports.updateTourism = async (req, res) => {
   try {
-    console.log('Update tourism files received:', req.files?.length || 0);
+    console.log('Update tourism files received:', req.files?.length || 0, 'imagesToRemove:', req.body.imagesToRemove);
     
     if (req.files && req.files.length > 50) {
       return res.status(400).json({
@@ -130,7 +130,20 @@ exports.updateTourism = async (req, res) => {
     if (req.user.role !== "admin" && tourism.owner.toString() !== req.user.id)
       return res.status(403).json({ success: false, message: "Not authorized" });
 
-    const images = req.files?.length ? req.files.map((file) => file.path) : tourism.images;
+    // Handle image removal
+    const imagesToRemove = req.body.imagesToRemove ? req.body.imagesToRemove.split(',').map(url => url.trim()).filter(Boolean) : [];
+    const remainingImages = tourism.images.filter(img => !imagesToRemove.includes(img));
+    
+    // Delete removed images from Cloudinary
+    if (imagesToRemove.length > 0) {
+      const { deleteCloudinaryImages } = require('./utils/cloudinaryUtils');
+      const deleteResult = await deleteCloudinaryImages(imagesToRemove);
+      console.log('Cloudinary delete result:', deleteResult);
+    }
+
+    // Handle new images (append to remaining)
+    const newImages = req.files ? req.files.map((file) => file.path) : [];
+    tourism.images = newImages.length ? [...remainingImages, ...newImages] : remainingImages;
 
     tourism.name = req.body.name || tourism.name;
     tourism.location = req.body.location || tourism.location;
@@ -154,8 +167,6 @@ exports.updateTourism = async (req, res) => {
       tourism.totalVisitors = req.body.totalVisitors;
       // Note: availableVisitors now calculated per day dynamically
     }
-
-    tourism.images = images;
 
     await tourism.save();
 

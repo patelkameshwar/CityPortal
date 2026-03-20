@@ -23,6 +23,10 @@ import {
   FaUsers as UsersIcon
 } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 const AdminEdit = () => {
   const { type, id } = useParams();
@@ -103,6 +107,17 @@ const AdminEdit = () => {
   const backPath = location.state?.from || '/admin-dashboard';
   const backLabel = location.state?.fromLabel || config.backLabel || 'Dashboard';
 
+const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    // Handle 12hr AM/PM format -> 24hr for <input type="time">
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!match) return timeStr; // fallback if format unexpected
+    let [hours, minutes, period] = [parseInt(match[1]), parseInt(match[2]), match[3].toUpperCase()];
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    return `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`;
+  };
+
   const mapApiDataToForm = (apiData) => {
     const mapped = {
       title: apiData[config.fieldMap.title] || "",
@@ -122,8 +137,8 @@ const AdminEdit = () => {
         bookingToDate: apiData.bookingToDate ? new Date(apiData.bookingToDate).toISOString().split('T')[0] : ""
       }),
       ...(type === 'tourism' && {
-        openTime: apiData.openTime || "",
-        closeTime: apiData.closeTime || ""
+        openTime: formatTime(apiData.openTime),
+        closeTime: formatTime(apiData.closeTime)
       }),
       images: apiData.images || [],
       profilePicture: apiData.profilePicture || ""
@@ -248,10 +263,25 @@ const AdminEdit = () => {
         submitData.set('description', formData.description || '');
       }
 
+      // Tourism-specific field mapping
+      if (type === 'tourism') {
+        submitData.set('name', formData.title || '');
+        submitData.set('entryFee', formData.price || '');
+        submitData.set('totalVisitors', formData.capacity || '');
+        submitData.set('location', formData.location || '');
+        submitData.set('description', formData.description || '');
+        submitData.set('openTime', formData.openTime || '');
+        submitData.set('closeTime', formData.closeTime || '');
+      }
+
       // Event-specific mapping (fixed/cleaned)
       if (type === 'event') {
+        submitData.set('title', formData.title || '');
+        submitData.set('price', formData.price || '');
         submitData.set('totalSeats', formData.capacity || '');
         submitData.set('eventType', eventType);
+        submitData.set('location', formData.location || '');
+        submitData.set('description', formData.description || '');
         if (eventType === 'one-day') {
           submitData.set('eventDate', formData.eventDate || '');
           submitData.set('bookingFromDate', '');
@@ -341,7 +371,7 @@ Update your {config.title.replace(/^Edit /, '')} listing
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
-{type === 'hotel' ? 'Hotel Name' : type === 'event' ? 'Event Title' : 'Name'} *
+{type === 'hotel' ? 'Hotel Name' : type === 'event' ? 'Event Title' : type === 'tourism' ? 'Tourism Name' : 'Name'} *
                 </label>
                 <input
                   type="text"
@@ -357,7 +387,7 @@ Update your {config.title.replace(/^Edit /, '')} listing
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <RupeeIcon className="mr-2 text-emerald-600" />
-{type === 'hotel' ? 'Price per Night' : type === 'event' ? 'Price per Seat' : 'Price'} *
+{type === 'hotel' ? 'Price per Night' : type === 'event' ? 'Price per Seat' : type === 'tourism' ? 'Entry Fee' : 'Price'} *
                   </label>
                   <input
                     type="number"
@@ -394,7 +424,7 @@ Update your {config.title.replace(/^Edit /, '')} listing
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <UsersIcon className="mr-2 text-purple-600" />
-{type === 'hotel' ? 'Total Rooms' : type === 'event' ? 'Total Seats' : 'Capacity'} *
+{type === 'hotel' ? 'Total Rooms' : type === 'event' ? 'Total Seats' : type === 'tourism' ? 'Total Visitors per day' : 'Capacity'} *
                   </label>
                   <input
                     type="number"
@@ -548,13 +578,21 @@ Update your {config.title.replace(/^Edit /, '')} listing
                       <FaClock className="mr-2 text-indigo-500" />
                       Event Time
                     </label>
-                    <input
-                      type="time"
-                      name="eventTime"
-                      value={formData.eventTime || ""}
-                      onChange={handleInputChange}
-                      className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <TimePicker
+                        ampm
+                        value={formData.eventTime ? dayjs(`1970-01-01 ${formData.eventTime}`) : null}
+                        onChange={(newValue) => {
+                          const timeStr = newValue ? newValue.format('h:mm A') : '';
+                          setFormData(prev => ({ ...prev, eventTime: timeStr }));
+                        }}
+                        slotProps={{
+                          textField: {
+                            className: 'w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500'
+                          }
+                        }}
+                      />
+                    </LocalizationProvider>
                   </div>
                 </div>
               </>
@@ -567,26 +605,42 @@ Update your {config.title.replace(/^Edit /, '')} listing
                     <FaClock className="mr-2 text-indigo-500" />
                     Open Time
                   </label>
-                  <input
-                    type="time"
-                    name="openTime"
-                    value={formData.openTime || ""}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker
+                      ampm
+                      value={formData.openTime ? dayjs(`1970-01-01 ${formData.openTime}`) : null}
+                      onChange={(newValue) => {
+                        const timeStr = newValue ? newValue.format('h:mm A') : '';
+                        setFormData(prev => ({ ...prev, openTime: timeStr }));
+                      }}
+                      slotProps={{
+                        textField: {
+                          className: 'w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500'
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
                 </div>
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaClock className="mr-2 text-orange-500" />
                     Close Time
                   </label>
-                  <input
-                    type="time"
-                    name="closeTime"
-                    value={formData.closeTime || ""}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-orange-500 focus:border-orange-500"
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TimePicker
+                      ampm
+                      value={formData.closeTime ? dayjs(`1970-01-01 ${formData.closeTime}`) : null}
+                      onChange={(newValue) => {
+                        const timeStr = newValue ? newValue.format('h:mm A') : '';
+                        setFormData(prev => ({ ...prev, closeTime: timeStr }));
+                      }}
+                      slotProps={{
+                        textField: {
+                          className: 'w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-orange-500 focus:border-orange-500'
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
                 </div>
               </div>
             )}
@@ -615,7 +669,7 @@ Update your {config.title.replace(/^Edit /, '')} listing
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-5 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
-{type === 'hotel' ? 'Hotel Images' : type === 'event' ? 'Event Images' : config.imageField === 'profilePicture' ? 'Profile Picture' : 'Images'}
+{type === 'hotel' ? 'Hotel Images' : type === 'event' ? 'Event Images' : type === 'tourism' ? 'Tourism Images' : config.imageField === 'profilePicture' ? 'Profile Picture' : 'Images'}
                 </label>
                 
                 {existingImages.length > 0 && (
