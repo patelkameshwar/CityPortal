@@ -221,7 +221,7 @@ const AdminDashboard = () => {
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
 <Link to={`/admin/edit/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
-                        <FaEdit className="h-4 w-4 inline" />
+                        <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
                         onClick={async () => {
@@ -362,7 +362,7 @@ const AdminDashboard = () => {
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
 <Link to={`/admin/edit/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
-                        <FaUserEdit className="h-4 w-4 inline" />
+                        <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
                         onClick={async () => {
@@ -424,7 +424,7 @@ const AdminDashboard = () => {
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
 <Link to={`/admin/edit/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
-                        <FaUserEdit className="h-4 w-4 inline" />
+                        <FaEdit className="h-4 w-4 inline" />
                       </Link>
                       <button 
                         onClick={async () => {
