@@ -26,6 +26,8 @@ const AddEvent = () => {
     title: "",
     description: "",
     location: "",
+    lat: "",
+    lng: "",
     eventType: "one-day",
     eventTime: "",
     eventDate: "",
@@ -99,47 +101,67 @@ const AddEvent = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (loading) return;
 
-    if (formData.eventType === "one-day") {
-      if (!formData.eventDate) {
-        toast.error("Please select event date");
-        return;
-      }
-    } else {
-      const fromDate = new Date(formData.bookingFromDate);
-      const toDate = new Date(formData.bookingToDate);
-      if (fromDate > toDate) {
-        toast.error("Booking To date must be after Booking From date");
-        return;
-      }
-      if (!formData.bookingFromDate || !formData.bookingToDate) {
-        toast.error("Please select valid booking dates");
-        return;
-      }
-    }
-
-    setLoading(true);
-    try {
-      const submitData = new FormData();
-      Object.keys(formData).forEach((key) => {
-        if (key !== "images" && formData[key]) {
-          submitData.append(key, formData[key]);
+      // Validate lat/lng if provided
+      if (formData.lat) {
+        const latNum = parseFloat(formData.lat);
+        if (isNaN(latNum) || latNum < -90 || latNum > 90) {
+          toast.error("Latitude must be between -90 and 90");
+          return;
         }
-      });
-      if (formData.images) {
-        formData.images.forEach((image) => {
-          submitData.append("images", image);
-        });
+      }
+      if (formData.lng) {
+        const lngNum = parseFloat(formData.lng);
+        if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
+          toast.error("Longitude must be between -180 and 180");
+          return;
+        }
       }
 
-      await eventAPI.create(submitData);
+      if (formData.eventType === "one-day") {
+        if (!formData.eventDate) {
+          toast.error("Please select event date");
+          return;
+        }
+      } else {
+        const fromDate = new Date(formData.bookingFromDate);
+        const toDate = new Date(formData.bookingToDate);
+        if (fromDate > toDate) {
+          toast.error("Booking To date must be after Booking From date");
+          return;
+        }
+        if (!formData.bookingFromDate || !formData.bookingToDate) {
+          toast.error("Please select valid booking dates");
+          return;
+        }
+      }
 
-      toast.success("Event created successfully!");
-      navigate("/client/my-events");
-    } catch (error) {
+      setLoading(true);
+      try {
+        const submitData = new FormData();
+        Object.keys(formData).forEach((key) => {
+          if (key !== "images" && formData[key]) {
+            submitData.append(key, formData[key]);
+          }
+        });
+        // Append coordinates
+        if (formData.lat || formData.lng) {
+          submitData.append("coordinates", JSON.stringify({ lat: parseFloat(formData.lat) || 0, lng: parseFloat(formData.lng) || 0 }));
+        }
+        if (formData.images) {
+          formData.images.forEach((image) => {
+            submitData.append("images", image);
+          });
+        }
+
+        await eventAPI.create(submitData);
+
+        toast.success("Event created successfully!");
+        navigate("/client/my-events");
+      } catch (error) {
       console.error("Failed to create event:", error);
       toast.error(error.response?.data?.message || "Failed to create event");
     } finally {
@@ -255,7 +277,7 @@ const AddEvent = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-gray-500" />
@@ -272,6 +294,44 @@ const AddEvent = () => {
                 />
               </div>
               <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <svg className="mr-2 text-gray-500 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  name="lat"
+                  value={formData.lat}
+                  onChange={handleChange}
+                  step="any"
+                  min="-90"
+                  max="90"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="e.g., 28.6139"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <svg className="mr-2 text-gray-500 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  name="lng"
+                  value={formData.lng}
+                  onChange={handleChange}
+                  step="any"
+                  min="-180"
+                  max="180"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500"
+                  placeholder="e.g., 77.2090"
+                />
+              </div>
+              <div className="lg:col-span-3">
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <FaClock className="mr-2 text-gray-500" />
                   Event Time *

@@ -19,6 +19,8 @@ exports.createTourism = async (req, res) => {
     const {
       name,
       location,
+      lat,
+      lng,
       description,
       entryFee,
       openTime,
@@ -47,7 +49,7 @@ exports.createTourism = async (req, res) => {
 
     const images = req.files ? req.files.map((file) => file.path) : [];
 
-    const tourism = await Tourism.create({
+    const tourismData = {
       name,
       location,
       description,
@@ -62,7 +64,17 @@ exports.createTourism = async (req, res) => {
       bookings: [], // Store per-day bookings
       images,
       owner: req.user.id,
-    });
+    };
+
+    // Add coordinates if provided
+    if (lat && lng) {
+      tourismData.coordinates = {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng)
+      };
+    }
+
+    const tourism = await Tourism.create(tourismData);
 
     res.status(201).json({ success: true, message: "Tourism place created successfully", tourism });
   } catch (error) {
@@ -156,6 +168,14 @@ exports.updateTourism = async (req, res) => {
     tourism.bookingFromTime = req.body.bookingFromTime || tourism.bookingFromTime;
     tourism.bookingToTime = req.body.bookingToTime || tourism.bookingToTime;
 
+    // Update coordinates if lat/lng provided
+    if (req.body.lat !== undefined && req.body.lng !== undefined) {
+      tourism.coordinates = {
+        lat: parseFloat(req.body.lat),
+        lng: parseFloat(req.body.lng)
+      };
+    }
+
     // Validate booking dates
     if (tourism.bookingFromDate >= tourism.bookingToDate) {
       return res.status(400).json({ success: false, message: "End date must be after start date" });
@@ -170,7 +190,11 @@ exports.updateTourism = async (req, res) => {
 
     await tourism.save();
 
-    res.status(200).json({ success: true, message: "Tourism place updated successfully", tourism });
+    const updatedTourism = await Tourism.findById(tourism._id)
+      .populate("owner", "name email")
+      .populate("bookings.user", "name email");
+
+    res.status(200).json({ success: true, message: "Tourism place updated successfully", tourism: updatedTourism });
   } catch (error) {
     console.error("Update Tourism Error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -257,3 +281,4 @@ exports.bookTourism = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

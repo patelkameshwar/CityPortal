@@ -15,6 +15,15 @@ const tourismSchema = new mongoose.Schema(
       trim: true,
     },
 
+    coordinates: {
+      lat: {
+        type: Number,
+      },
+      lng: {
+        type: Number,
+      },
+    },
+
     description: {
       type: String,
       trim: true,
@@ -107,3 +116,4 @@ const tourismSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Tourism", tourismSchema);
+

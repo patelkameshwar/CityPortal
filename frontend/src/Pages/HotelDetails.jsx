@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { GoogleMap, LoadScript, useLoadScript, Marker } from '@react-google-maps/api';
+import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -32,6 +34,7 @@ const HotelDetails = () => {
   const [similarHotels, setSimilarHotels] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [similarError, setSimilarError] = useState('');
+  const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -43,6 +46,25 @@ const HotelDetails = () => {
       fetchSimilarHotels();
     }
   }, [activeTab, hotel]);
+
+  useEffect(() => {
+    if (hotel?.coordinates?.lat && hotel?.coordinates?.lng) {
+      setMapCenter({
+        lat: hotel.coordinates.lat,
+        lng: hotel.coordinates.lng
+      });
+      console.log('Using precise hotel coordinates:', hotel.coordinates);
+    } else if (hotel?.location) {
+      // Fallback mock geocoding
+      let lat = 21.7679;
+      let lng = 72.1359;
+      const hash = hotel.location.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+      lat += (hash % 100) / 10000;
+      lng += ((hash * 31) % 100) / 10000;
+      setMapCenter({ lat, lng });
+      console.log(`Fallback geocoded "${hotel.location}" to [${lat.toFixed(4)}, ${lng.toFixed(4)}]`);
+    }
+  }, [hotel]);
 
   const fetchHotel = async () => {
     try {
@@ -154,6 +176,14 @@ const HotelDetails = () => {
   const closePhotoModal = () => {
     setShowPhotoModal(false);
   };
+
+  const mapContainerStyle = useMemo(
+    () => ({
+      height: "400px",
+      width: "100%",
+    }),
+    []
+  );
 
   if (loading) {
     return (
@@ -381,9 +411,30 @@ const HotelDetails = () => {
                       <p className="text-gray-800">{hotel.location}</p>
                     </div>
                   </div>
-                  <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-                    <p className="text-gray-600">Map View</p>
-                  </div>
+                  {mapCenter ? (
+                    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                      <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={mapCenter}
+                        zoom={14}
+                        options={{
+                          styles: [
+                            {
+                              featureType: "poi",
+                              elementType: "labels",
+                              stylers: [{ visibility: "off" }],
+                            },
+                          ],
+                        }}
+                      >
+                        <Marker position={mapCenter} />
+                      </GoogleMap>
+                    </LoadScript>
+                  ) : (
+                    <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                      <p className="text-gray-600">Loading map...</p>
+                    </div>
+                  )}
                 </div>
               )}
 

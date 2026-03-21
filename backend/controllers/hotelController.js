@@ -19,6 +19,8 @@ exports.createHotel = async (req, res) => {
     const {
       name,
       location,
+      lat,
+      lng,
       description,
       pricePerNight,
       totalRooms,
@@ -40,6 +42,7 @@ exports.createHotel = async (req, res) => {
     const hotel = await Hotel.create({
       name,
       location,
+      coordinates: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : undefined,
       description,
       pricePerNight,
       totalRooms,
@@ -150,6 +153,12 @@ exports.updateHotel = async (req, res) => {
 
     hotel.name = req.body.name || hotel.name;
     hotel.location = req.body.location || hotel.location;
+    if (req.body.lat && req.body.lng) {
+      hotel.coordinates = {
+        lat: parseFloat(req.body.lat),
+        lng: parseFloat(req.body.lng)
+      };
+    }
     hotel.description = req.body.description || hotel.description;
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;

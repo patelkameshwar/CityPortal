@@ -14,6 +14,18 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    coordinates: {
+      lat: {
+        type: Number,
+        min: -90,
+        max: 90,
+      },
+      lng: {
+        type: Number,
+        min: -180,
+        max: 180,
+      },
+    },
 
     description: {
       type: String,

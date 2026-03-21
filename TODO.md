@@ -1,21 +1,17 @@
-# Fix: Images not updating in EditItems.jsx - ✅ FIXED
+# Task: Add Lat/Lng view to AdminView.jsx like ViewItems.jsx (COMPLETED ✅)
 
 ## Steps:
-- [x] 1. Create this TODO.md
-- [x] 2. Edit admin/src/services/api.js to fix update API calls (use uploadAPI.put with auth header)
-- [ ] 3. Test image add/remove in EditItems.jsx → verify in ViewItems.jsx
-- [x] 4. Mark complete
+- [x] 1. Create this TODO.md with plan
+- [x] 2. Edit admin/src/pages/Admin/AdminView.jsx:
+  - Add lat/lng extraction in mapApiDataToView for hotel/event/tourism
+  - Add conditional lat/lng display below location (same style as ViewItems.jsx)
+- [x] 3. Test changes: cd admin && npm run dev, view hotel/event/tourism items with coordinates
+- [x] 4. Update TODO.md with completion, attempt_completion
 
-**Fix Applied**:
-- Changed `hotelAPI.update`, `eventAPI.update`, `tourismAPI.update` to use `uploadAPI.put()` (no Content-Type) + manual auth header.
-- Backend now receives proper multipart FormData → `req.files` and `req.body.imagesToRemove` work.
-- Images add/remove via Cloudinary integration.
+## Changes Summary:
+- Added `lat`/`lng` mapping from `apiData.coordinates` for hotel/event/tourism types only
+- Added 📍 coordinates badge below location display (blue monospace, 6 decimals)
+- No changes for client type
+- Matches ViewItems.jsx style exactly
 
-**Test Steps**:
-1. Backend: `cd backend && npm start`
-2. Admin: `cd admin && npm run dev`
-3. Login as client/admin → EditItems → Add new image + remove existing → Submit.
-4. Check ViewItems.jsx - images updated. Backend console shows file processing.
-
-**Ready for testing!**
-
+**Ready to test:** Run `cd admin && npm run dev` and navigate to admin view pages for hotels/events/tourism.

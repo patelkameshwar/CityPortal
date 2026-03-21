@@ -15,7 +15,7 @@ console.log('Event files received:', req.files, req.file);
       return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
     }
 
-    const { title, location, description, eventType, eventDate, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
+    const { title, location, lat, lng, description, eventType, eventDate, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
 
     if (!title || !location || !eventTime || !totalSeats || !price) {
       return res.status(400).json({ success: false, message: "All required fields must be provided" });
@@ -53,6 +53,7 @@ console.log('Event files received:', req.files, req.file);
     const event = await Event.create({
       title,
       location,
+      coordinates: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : undefined,
       description,
       eventDate: eventType === 'one-day' ? eventDateObj : undefined,
       bookingFromDate: fromDate,
@@ -162,6 +163,14 @@ if (req.body.location !== undefined) event.location = req.body.location;
 if (req.body.description !== undefined) event.description = req.body.description;
 if (req.body.eventTime !== undefined) event.eventTime = req.body.eventTime;
 if (req.body.price !== undefined) event.price = Number(req.body.price);
+
+    // Update coordinates if lat/lng provided
+    if (req.body.lat !== undefined && req.body.lng !== undefined) {
+      event.coordinates = {
+        lat: parseFloat(req.body.lat),
+        lng: parseFloat(req.body.lng)
+      };
+    }
 
     // Update totalSeats safely
       // ✅ FIX totalSeats update

@@ -41,6 +41,8 @@ const EditItems = () => {
     title: "",
     description: "",
     location: "",
+    lat: "",
+    lng: "",
     price: "",
     capacity: "",
     images: [],
@@ -88,6 +90,8 @@ const EditItems = () => {
       title: apiData[map.title] || "",
       description: apiData.description || "",
       location: apiData.location || "",
+      lat: apiData.coordinates?.lat ? apiData.coordinates.lat.toString() : "",
+      lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
       ...(isHotel && { amenities: apiData.amenities || "" }),
@@ -253,9 +257,15 @@ const EditItems = () => {
       const submitData = new FormData();
       const apiPayload = mapFormDataToApi(formData);
       
-      // Append non-file fields
+      // Append lat/lng directly
+      if (formData.lat) submitData.append('lat', formData.lat);
+      if (formData.lng) submitData.append('lng', formData.lng);
+      
+      // Append other fields
       Object.entries(apiPayload).forEach(([key, value]) => {
-        if (value) submitData.append(key, value);
+        if (value !== undefined && value !== null && key !== 'coordinates') {
+          submitData.append(key, value);
+        }
       });
 
       // Append new images
@@ -380,20 +390,48 @@ const EditItems = () => {
 
             {/* Location & Capacity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
+              <div className="lg:col-span-2">
                 <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-blue-600" />
                   Location *
                 </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleCommonChange}
-                  className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Downtown City Center, Main Street 123"
-                  required
-                />
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleCommonChange}
+                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="Downtown City Center, Main Street 123"
+                    required
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                      <input
+                        type="number"
+                        name="lat"
+                        value={formData.lat}
+                        onChange={handleCommonChange}
+                        step="any"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                        placeholder="21.1702"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                      <input
+                        type="number"
+                        name="lng"
+                        value={formData.lng}
+                        onChange={handleCommonChange}
+                        step="any"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                        placeholder="72.8311"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>

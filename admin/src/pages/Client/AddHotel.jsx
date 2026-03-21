@@ -20,11 +20,14 @@ const AddHotel = () => {
     name: "",
     description: "",
     location: "",
+    lat: "",
+    lng: "",
     pricePerNight: "",
     totalRooms: "",
     amenities: "",
     images: [],
   });
+  const [geocoding, setGeocoding] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { user, isAuthenticated } = useAuth();
@@ -68,6 +71,31 @@ const AddHotel = () => {
     }));
   };
 
+  const handleGeocode = async () => {
+    if (!formData.location) return;
+
+    setGeocoding(true);
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(formData.location)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+      );
+      const data = await response.json();
+
+      if (data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry.location;
+        setFormData(prev => ({ ...prev, lat: lat.toString(), lng: lng.toString() }));
+        toast.success("Coordinates fetched successfully!");
+      } else {
+        toast.error("No results found for this location");
+      }
+    } catch (error) {
+      toast.error("Geocoding failed");
+      console.error(error);
+    } finally {
+      setGeocoding(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -84,6 +112,10 @@ const AddHotel = () => {
     submitData.append("name", formData.name);
     submitData.append("description", formData.description);
     submitData.append("location", formData.location);
+    if (formData.lat && formData.lng) {
+      submitData.append("lat", formData.lat);
+      submitData.append("lng", formData.lng);
+    }
     submitData.append("pricePerNight", formData.pricePerNight);
     submitData.append("totalRooms", formData.totalRooms);
     submitData.append("amenities", formData.amenities);
@@ -179,24 +211,71 @@ const AddHotel = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Location *
                 </label>
-                <div className="relative">
-                  <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    placeholder="City, State, Country"
-                    required
-                  />
+                <div className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <FaMapMarkerAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="City, State, Country"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGeocode}
+                    disabled={geocoding || !formData.location}
+                    className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap shadow-lg transition-all"
+                  >
+                    {geocoding ? (
+                      <FaSpinner className="animate-spin h-4 w-4" />
+                    ) : (
+                      'Get Coords'
+                    )}
+                  </button>
                 </div>
+{formData.lat && formData.lng && (
+                  <p className="text-xs text-emerald-600 mt-1 ml-1">
+                    📍 {parseFloat(formData.lat).toFixed(4)}, {parseFloat(formData.lng).toFixed(4)}
+                  </p>
+                )}
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  name="lat"
+                  value={formData.lat}
+                  onChange={handleInputChange}
+                  step="any"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="21.1702"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  name="lng"
+                  value={formData.lng}
+                  onChange={handleInputChange}
+                  step="any"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  placeholder="72.8311"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Price per Night * (₹)

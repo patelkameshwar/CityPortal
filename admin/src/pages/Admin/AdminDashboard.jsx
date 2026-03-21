@@ -251,7 +251,7 @@ const AdminDashboard = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Dates</th>
@@ -393,9 +393,9 @@ const AdminDashboard = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rooms</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rooms</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -405,13 +405,13 @@ const AdminDashboard = () => {
                   <tr key={item._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">₹ {item.pricePerNight || 'N/A'}</span></td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                         {item.status || 'Active'}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Intl.DateTimeFormat('en-GB', { 
                         day: 'numeric', 
@@ -686,16 +686,16 @@ const AdminDashboard = () => {
                 color="bg-emerald-500" 
               />
               <RecentList 
-                title="Recent Events" 
-                items={recentEvents} 
-                icon={FaCalendarAlt} 
-                color="bg-orange-500" 
-              />
-              <RecentList 
                 title="Recent Tourism" 
                 items={recentTourism} 
                 icon={FaMapMarkedAlt} 
                 color="bg-purple-500" 
+              />
+              <RecentList 
+                title="Recent Events" 
+                items={recentEvents} 
+                icon={FaCalendarAlt} 
+                color="bg-orange-500" 
               />
             </div>
           </div>

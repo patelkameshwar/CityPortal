@@ -93,11 +93,13 @@ const AdminView = () => {
   const backPath = location.state?.from || defaultBack.path;
   const backLabel = location.state?.fromLabel || defaultBack.label;
 
-  const mapApiDataToView = (apiData) => {
+const mapApiDataToView = (apiData) => {
     const mapped = {
       title: apiData[config.fieldMap.title] || "",
       description: apiData.description || "",
       location: apiData.location || "",
+      lat: (['hotel', 'event', 'tourism'].includes(type) && apiData.coordinates?.lat) ? apiData.coordinates.lat.toString() : "",
+      lng: (['hotel', 'event', 'tourism'].includes(type) && apiData.coordinates?.lng) ? apiData.coordinates.lng.toString() : "",
       ...(config.fieldMap.price && { price: apiData[config.fieldMap.price] || "" }),
       ...(config.fieldMap.capacity && { capacity: apiData[config.fieldMap.capacity] || "" }),
       ...(config.fieldMap.extra && { amenities: apiData[config.fieldMap.extra] || "" }),
@@ -261,8 +263,15 @@ const AdminView = () => {
                     <FaMapPin className="mr-2 text-blue-600" />
                     Location
                   </label>
-                  <div className="px-5 py-4 bg-blue-50 border-2 border-blue-200 rounded-2xl text-base text-gray-900">
-                    {itemData.location}
+                  <div className="space-y-2">
+                    <div className="px-5 py-4 bg-blue-50 border-2 border-blue-200 rounded-2xl text-base text-gray-900">
+                      {itemData.location}
+                    </div>
+                    {itemData.lat && itemData.lng && (
+                      <div className="text-xs text-blue-700 font-mono bg-blue-100 px-3 py-1 rounded-lg border">
+                        📍 {parseFloat(itemData.lat).toFixed(6)}, {parseFloat(itemData.lng).toFixed(6)}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -34,7 +34,10 @@ const AdminEdit = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [itemData, setItemData] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    lat: "",
+    lng: "",
+  });
   const [imagePreviews, setImagePreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
@@ -129,7 +132,11 @@ const AdminEdit = () => {
     const mapped = {
       title: apiData[config.fieldMap.title] || "",
       ...(type !== "client" && { description: apiData.description || "" }),
-      ...(type !== "client" && { location: apiData.location || "" }),
+      ...(type !== "client" && { 
+        location: apiData.location || "",
+        lat: apiData.coordinates?.lat ? apiData.coordinates.lat.toString() : "",
+        lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
+      }),
       ...(config.fieldMap.price && {
         price: apiData[config.fieldMap.price] || "",
       }),
@@ -260,6 +267,21 @@ const AdminEdit = () => {
       toast.error("Title is required");
       return false;
     }
+
+    // Lat/Lng validation for location-based items
+    if (type !== "client") {
+      const latNum = parseFloat(formData.lat);
+      const lngNum = parseFloat(formData.lng);
+      if (formData.lat && (isNaN(latNum) || latNum < -90 || latNum > 90)) {
+        toast.error("Latitude must be between -90 and 90");
+        return false;
+      }
+      if (formData.lng && (isNaN(lngNum) || lngNum < -180 || lngNum > 180)) {
+        toast.error("Longitude must be between -180 and 180");
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -270,6 +292,13 @@ const AdminEdit = () => {
     setSaving(true);
     try {
       const submitData = new FormData();
+
+      // Append lat/lng for location-based items
+      if (type !== "client") {
+        if (formData.lat) submitData.append('lat', formData.lat);
+        if (formData.lng) submitData.append('lng', formData.lng);
+      }
+
       Object.keys(formData).forEach((key) => {
         if (
           key !== "images" &&
@@ -277,7 +306,9 @@ const AdminEdit = () => {
           key !== "eventDate" &&
           key !== "bookingFromDate" &&
           key !== "bookingToDate" &&
-          key !== "eventType"
+          key !== "eventType" &&
+          key !== "lat" &&
+          key !== "lng"
         ) {
           submitData.append(key, formData[key] || "");
         }
@@ -457,19 +488,48 @@ const AdminEdit = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {type !== "client" && (
-                <div>
+                <div className="lg:col-span-2">
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaMapMarkerAlt className="mr-2 text-blue-600" />
                     Location *
                   </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location || ""}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500"
-                    required
-                  />
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location || ""}
+                      onChange={handleInputChange}
+                      className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="Downtown City Center, Main Street 123"
+                      required
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                        <input
+                          type="number"
+                          name="lat"
+                          value={formData.lat || ""}
+                          onChange={handleInputChange}
+                          step="any"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                          placeholder="21.1702"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                        <input
+                          type="number"
+                          name="lng"
+                          value={formData.lng || ""}
+                          onChange={handleInputChange}
+                          step="any"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                          placeholder="72.8311"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

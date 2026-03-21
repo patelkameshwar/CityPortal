@@ -21,10 +21,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 
 const AddTourism = () => {
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(false);
+const [formData, setFormData] = useState({
     name: "",
     description: "",
     location: "",
+    lat: "",
+    lng: "",
     entryFee: "",
     openTime: "",
     closeTime: "",
@@ -35,7 +38,6 @@ const AddTourism = () => {
     totalVisitors: "",
     images: [],
   });
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -100,10 +102,24 @@ const AddTourism = () => {
       return;
     }
 
+    // Validate coordinates if provided
+    const latNum = parseFloat(formData.lat);
+    const lngNum = parseFloat(formData.lng);
+    if (formData.lat && (isNaN(latNum) || latNum < -90 || latNum > 90)) {
+      toast.error("Latitude must be between -90 and 90");
+      return;
+    }
+    if (formData.lng && (isNaN(lngNum) || lngNum < -180 || lngNum > 180)) {
+      toast.error("Longitude must be between -180 and 180");
+      return;
+    }
+
     const submitData = new FormData();
     submitData.append("name", formData.name);
     submitData.append("description", formData.description);
     submitData.append("location", formData.location);
+    if (formData.lat) submitData.append("lat", formData.lat);
+    if (formData.lng) submitData.append("lng", formData.lng);
     submitData.append("entryFee", formData.entryFee);
     submitData.append("openTime", formData.openTime);
     submitData.append("closeTime", formData.closeTime);
@@ -239,6 +255,47 @@ const AddTourism = () => {
                       className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                       placeholder="500"
                       required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <FaMapMarkerAlt className="mr-2 text-gray-400" />
+                    Latitude (optional)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="lat"
+                      value={formData.lat}
+                      onChange={handleInputChange}
+                      step="any"
+                      min="-90"
+                      max="90"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="28.6139"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <FaMapMarkerAlt className="mr-2 text-gray-400" />
+                    Longitude (optional)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="lng"
+                      value={formData.lng}
+                      onChange={handleInputChange}
+                      step="any"
+                      min="-180"
+                      max="180"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      placeholder="77.2090"
                     />
                   </div>
                 </div>
