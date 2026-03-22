@@ -61,6 +61,7 @@ const EditItems = () => {
 
   const [newAmenity, setNewAmenity] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const popularAmenities = [
     "WiFi", "Free WiFi", "AC", "Air Conditioning", "Parking", "Free Parking",
@@ -205,6 +206,7 @@ const EditItems = () => {
 
   const handleAmenitiesInput = (e) => {
     setNewAmenity(e.target.value);
+    setHighlightedIndex(-1);
     setShowSuggestions(e.target.value.length > 0);
   };
 
@@ -217,6 +219,7 @@ const EditItems = () => {
     setFormData(prev => ({ ...prev, amenities: [...prev.amenities, trimmed] }));
     setNewAmenity("");
     setShowSuggestions(false);
+    setHighlightedIndex(-1);
     toast.success("Amenity added!");
   };
 
@@ -408,7 +411,7 @@ const EditItems = () => {
               </div>
 
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaRupeeSign className="mr-2 text-emerald-600" />
                   Price {isHotel ? 'per Night' : 'per Seat'} *
                 </label>
@@ -429,7 +432,7 @@ const EditItems = () => {
             {/* Location & Capacity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="lg:col-span-2">
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-blue-600" />
                   Location *
                 </label>
@@ -473,7 +476,7 @@ const EditItems = () => {
               </div>
 
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaUsers className="mr-2 text-purple-600" />
                   {capacityLabel} *
                 </label>
@@ -544,7 +547,7 @@ const EditItems = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {formData.eventType === 'one-day' ? (
                     <div>
-                      <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                      <label className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                         <FaCalendarAlt className="mr-2 text-orange-500" />
                         Event Date *
                       </label>
@@ -589,7 +592,7 @@ const EditItems = () => {
                     </>
                   )}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                       <FaClock className="mr-2 text-indigo-500" />
                       Event Time *
                     </label>
@@ -625,12 +628,37 @@ const EditItems = () => {
                       value={newAmenity}
                       onChange={handleAmenitiesInput}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
+                        const filteredSuggestions = popularAmenities
+                          .filter((suggestion) =>
+                            suggestion.toLowerCase().includes(newAmenity.toLowerCase())
+                          )
+                          .slice(0, 8);
+                        const suggestionCount = filteredSuggestions.length;
+
+                        if (e.key === "ArrowDown") {
                           e.preventDefault();
-                          addAmenity(newAmenity);
+                          setHighlightedIndex((prev) => 
+                            prev < suggestionCount - 1 ? prev + 1 : 0
+                          );
+                        } else if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setHighlightedIndex((prev) => 
+                            prev <= 0 ? suggestionCount - 1 : prev - 1
+                          );
+                        } else if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (highlightedIndex >= 0 && highlightedIndex < suggestionCount) {
+                            addAmenity(filteredSuggestions[highlightedIndex]);
+                          } else {
+                            addAmenity(newAmenity);
+                          }
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          setShowSuggestions(false);
+                          setHighlightedIndex(-1);
                         }
                       }}
-                      placeholder="Type amenity and press Enter (e.g., WiFi)"
+                      placeholder="Type amenity and press Enter (e.g., WiFi). "
                       className="w-full px-5 py-4 pr-24 border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 text-base"
                     />
                     <button
@@ -643,19 +671,26 @@ const EditItems = () => {
                     </button>
                   </div>
 
-                  {showSuggestions && (
+{showSuggestions && (
                     <div className="border-2 border-gray-200 rounded-2xl bg-white shadow-lg max-h-48 overflow-y-auto">
                       {popularAmenities
                         .filter((suggestion) =>
                           suggestion.toLowerCase().includes(newAmenity.toLowerCase())
                         )
                         .slice(0, 8)
-                        .map((suggestion) => (
+                        .map((suggestion, index) => (
                           <button
                             key={suggestion}
                             type="button"
-                            onClick={() => addAmenity(suggestion)}
-                            className="w-full text-left px-5 py-3 hover:bg-emerald-50 hover:text-emerald-700 text-base transition-all border-b border-gray-100 last:border-b-0"
+                            onClick={() => {
+                              addAmenity(suggestion);
+                              setHighlightedIndex(-1);
+                            }}
+                            className={`w-full text-left px-5 py-3 text-base transition-all border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedIndex
+                                ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold shadow-md'
+                                : 'hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
                           >
                             {suggestion}
                           </button>

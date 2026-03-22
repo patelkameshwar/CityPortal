@@ -29,6 +29,7 @@ const AddHotel = () => {
   });
   const [newAmenity, setNewAmenity] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [geocoding, setGeocoding] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -55,6 +56,7 @@ const AddHotel = () => {
 
   const handleAmenitiesInput = (e) => {
     setNewAmenity(e.target.value);
+    setHighlightedIndex(-1);
     setShowSuggestions(e.target.value.length > 0);
   };
 
@@ -67,6 +69,7 @@ const AddHotel = () => {
     setFormData(prev => ({ ...prev, amenities: [...prev.amenities, trimmed] }));
     setNewAmenity("");
     setShowSuggestions(false);
+    setHighlightedIndex(-1);
     toast.success("Amenity added!");
   };
 
@@ -356,12 +359,37 @@ const AddHotel = () => {
                     value={newAmenity}
                     onChange={handleAmenitiesInput}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
+                      const filteredSuggestions = popularAmenities
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newAmenity.toLowerCase())
+                        )
+                        .slice(0, 8);
+                      const suggestionCount = filteredSuggestions.length;
+
+                      if (e.key === "ArrowDown") {
                         e.preventDefault();
-                        addAmenity(newAmenity);
+                        setHighlightedIndex((prev) => 
+                          prev < suggestionCount - 1 ? prev + 1 : 0
+                        );
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setHighlightedIndex((prev) => 
+                          prev <= 0 ? suggestionCount - 1 : prev - 1
+                        );
+                      } else if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (highlightedIndex >= 0 && highlightedIndex < suggestionCount) {
+                          addAmenity(filteredSuggestions[highlightedIndex]);
+                        } else {
+                          addAmenity(newAmenity);
+                        }
+                      } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        setShowSuggestions(false);
+                        setHighlightedIndex(-1);
                       }
                     }}
-                    placeholder="Type amenity and press Enter (e.g., WiFi)"
+                    placeholder="Type amenity and press Enter (e.g., WiFi)."
                     className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                   <button
@@ -374,19 +402,26 @@ const AddHotel = () => {
                   </button>
                 </div>
 
-                {showSuggestions && (
+{showSuggestions && (
                   <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
                     {popularAmenities
                       .filter((suggestion) =>
                         suggestion.toLowerCase().includes(newAmenity.toLowerCase())
                       )
                       .slice(0, 8)
-                      .map((suggestion) => (
+                      .map((suggestion, index) => (
                         <button
                           key={suggestion}
                           type="button"
-                          onClick={() => addAmenity(suggestion)}
-                          className="w-full text-left px-4 py-2 hover:bg-emerald-50 hover:text-emerald-700 text-sm transition-colors"
+                          onClick={() => {
+                            addAmenity(suggestion);
+                            setHighlightedIndex(-1);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                            index === highlightedIndex
+                              ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                              : 'hover:bg-emerald-50 hover:text-emerald-700'
+                          }`}
                         >
                           {suggestion}
                         </button>

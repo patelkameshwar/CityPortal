@@ -1,34 +1,21 @@
-# Fix Amenities Update Bug ✅ COMPLETE
+# CityPortal TODO
 
-## Changes Made:
+## Task Complete: Arrow key navigation for amenities suggestions
 
-### 1. [COMPLETE] Frontend: admin/src/pages/EditItems.jsx
-- Added `JSON.stringify(amenities)` in FormData → Valid JSON for backend
+✅ **Status: Complete in EditItems.jsx and AddHotel.jsx**
 
-### 2. [COMPLETE] Backend: backend/controllers/hotelController.js
-- Added amenities parsing + assignment in `updateHotel` (matches createHotel)
-```
-const parsedAmenities = req.body.amenities ? (typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities) : [];
-hotel.amenities = parsedAmenities;
-```
+**Features:**
+- Arrow Up/Down: Navigate with emerald highlight
+- Enter: Select highlighted or add typed
+- Escape: Close suggestions
+- Mouse click: Add & reset
+- Live filter, no duplicates, max 20
+- State reset on add/type
 
-## Test Instructions:
-```
-# Terminal 1 - Backend (restart if running)
-cd backend
-npm start
+**Demo:** `cd admin && npm run dev`
+- EditItems: Edit hotel → amenities (↑↓ ⏎ test)
+- AddHotel: New hotel → amenities (↑↓ ⏎ test)
 
-# Terminal 2 - Frontend  
-cd admin
-npm run dev
-```
-1. Login (admin/client)
-2. Edit hotel → Add "Test Amenity" → Submit
-3. Refresh ViewItems/MyHotels → Amenity persists ✅
+Both files updated with full keyboard UX.
 
-**Issue Root Causes Fixed**:
-- Frontend: Invalid FormData serialization
-- Backend: Missing amenities update logic
-
-Dev servers ready. Amenities now update fully.
 
