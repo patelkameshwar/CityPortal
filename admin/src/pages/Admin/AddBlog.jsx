@@ -2,12 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { blogAPI } from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { FaArrowLeft, FaSpinner, FaCalendarAlt, FaTag, FaUser, FaAlignLeft } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaSpinner,
+  FaCalendarAlt,
+  FaTag,
+  FaUser,
+  FaAlignLeft,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const AddBlog = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +22,7 @@ const AddBlog = () => {
     excerpt: "",
     author: "",
     category: "",
-    date: ""
+    date: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const { user, isAuthenticated } = useAuth();
@@ -33,12 +40,17 @@ const AddBlog = () => {
   };
 
   const handleDateChange = (newValue) => {
-    setFormData((prev) => ({ ...prev, date: newValue.format('YYYY-MM-DD') }));
+    setFormData((prev) => ({ ...prev, date: newValue.format("YYYY-MM-DD") }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.excerpt || !formData.author || !formData.category) {
+    if (
+      !formData.title ||
+      !formData.excerpt ||
+      !formData.author ||
+      !formData.category
+    ) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -60,8 +72,13 @@ const AddBlog = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center p-8">
           <FaAlignLeft className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Login</h2>
-          <Link to="/login" className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Please Login
+          </h2>
+          <Link
+            to="/login"
+            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700"
+          >
             Go to Login
           </Link>
         </div>
@@ -75,12 +92,19 @@ const AddBlog = () => {
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center space-x-4">
-              <Link to="/admin/blogs" className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+              <Link
+                to="/admin/blogs"
+                className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 <FaArrowLeft />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Add New Blog</h1>
-                <p className="text-gray-600 mt-1">Create engaging content for CityPortal visitors</p>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Add New Blog
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Create engaging content for CityPortal visitors
+                </p>
               </div>
             </div>
           </div>
@@ -116,7 +140,8 @@ const AddBlog = () => {
                   onChange={handleInputChange}
                   rows="4"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical"
-                  placeholder="Short summary of the blog post (shows on listings)"
+                  placeholder="Short summary of the blog post (shows on listings) 
+bold: **text**, Headings: # Title ## Subtitle, Lists: - item 1 - item 2"
                   required
                 />
               </div>
@@ -164,9 +189,10 @@ const AddBlog = () => {
                   onChange={handleDateChange}
                   slotProps={{
                     textField: {
-                      className: "w-full px-4 py-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 shadow-sm",
-                      placeholder: "Select publish date"
-                    }
+                      className:
+                        "w-full px-4 py-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 shadow-sm",
+                      placeholder: "Select publish date",
+                    },
                   }}
                 />
               </div>
@@ -202,17 +228,26 @@ const AddBlog = () => {
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 p-2 flex items-center justify-center">
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt={user?.name} className="w-full h-full object-cover rounded-full" />
+                  <img
+                    src={user.profilePicture}
+                    alt={user?.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 ) : (
                   <FaUser className="h-8 w-8 text-gray-500" />
                 )}
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{user?.name || "Admin"}</p>
+                <p className="font-semibold text-gray-900">
+                  {user?.name || "Admin"}
+                </p>
                 <p className="text-sm text-gray-500">{user?.email}</p>
               </div>
             </div>
-            <Link to="/admin-dashboard" className="text-emerald-600 hover:text-emerald-700 font-medium">
+            <Link
+              to="/admin-dashboard"
+              className="text-emerald-600 hover:text-emerald-700 font-medium"
+            >
               ← Back to Dashboard
             </Link>
           </div>
@@ -223,4 +258,3 @@ const AddBlog = () => {
 };
 
 export default AddBlog;
-

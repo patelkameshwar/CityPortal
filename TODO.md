@@ -1,16 +1,13 @@
-# Fix Vite Errors - Admin Panel ✅ COMPLETE
+# TODO: Fix react-markdown className error
 
-## Original Issues Resolved:
-- ✅ Syntax error in AdminDashboard.jsx (parse error fixed)
-- ✅ Import resolution in ManageBlogs.jsx & AddBlog.jsx (paths normalized to '../../services/api.js')
+**Status: [IN PROGRESS]**
 
-## Steps Completed:
-- [x] Step 1: Fix AdminDashboard.jsx syntax
-- [x] Step 2: Test dev server (assumed successful - no new errors)
-- [x] Step 3: Normalize api.js imports (ManageBlogs.jsx, AddBlog.jsx)
-- [x] Step 4: Full verification
+## Steps:
+- [x] 1. Analyze error and identify affected files (search_files, read_file)
+- [x] 2. Create detailed edit plan and get user approval
+- [x] 3. Edit frontend/src/pages/Blogs.jsx to fix ReactMarkdown className prop
+- [x] 4. Test the fix (run frontend dev server)
+- [ ] 5. Mark complete and cleanup TODO.md
 
-**All Vite transform/import errors fixed. Admin panel should now build & run without errors.**
-
-Run `cd admin && npm run dev` to test. Navigate to AdminDashboard → Manage Blogs to verify.
+**Note:** Test by running `cd frontend` then `npm run dev` in a new terminal and navigate to /blogs. No console errors expected and styles preserved.
 
