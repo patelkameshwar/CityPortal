@@ -166,6 +166,11 @@ exports.updateHotel = async (req, res) => {
     hotel.description = req.body.description || hotel.description;
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
+    
+    // Parse and update amenities (matches createHotel)
+    const parsedAmenities = req.body.amenities ? (typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities) : [];
+    hotel.amenities = parsedAmenities;
+    
     hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
     hotel.defaultCheckOutTime = req.body.defaultCheckOutTime || hotel.defaultCheckOutTime;
 

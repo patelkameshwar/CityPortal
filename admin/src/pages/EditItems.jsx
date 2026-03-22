@@ -53,11 +53,21 @@ const EditItems = () => {
     bookingFromDate: "",
     bookingToDate: "",
     // Hotel specific  
-    amenities: "",
+    amenities: [],
     pricePerNight: "",
     totalRooms: "",
     name: "",
   });
+
+  const [newAmenity, setNewAmenity] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const popularAmenities = [
+    "WiFi", "Free WiFi", "AC", "Air Conditioning", "Parking", "Free Parking",
+    "Swimming Pool", "Pool", "Gym", "Fitness Center", "Restaurant",
+    "Free Breakfast", "Spa", "Laundry", "Room Service", "Airport Shuttle",
+    "24 Hour Front Desk", "Elevator", "Non Smoking Rooms", "Family Rooms"
+  ];
   
   const [imagePreviews, setImagePreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
@@ -94,7 +104,7 @@ const EditItems = () => {
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
-      ...(isHotel && { amenities: apiData.amenities || "" }),
+      ...(isHotel && { amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [] }),
       ...(itemType === 'event' && {
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
@@ -114,7 +124,7 @@ const EditItems = () => {
       location: formData.location,
       [map.price]: formData.price,
       [map.capacity]: formData.capacity,
-      ...(isHotel && { amenities: formData.amenities }),
+      ...(isHotel && { amenities: formData.amenities || [] }),
       ...(itemType === 'event' && ({
         eventType: formData.eventType,
         eventTime: formData.eventTime,
@@ -193,6 +203,30 @@ const EditItems = () => {
     }));
   };
 
+  const handleAmenitiesInput = (e) => {
+    setNewAmenity(e.target.value);
+    setShowSuggestions(e.target.value.length > 0);
+  };
+
+  const addAmenity = (amenity) => {
+    const trimmed = amenity.trim();
+    if (!trimmed || formData.amenities.length >= 20 || formData.amenities.some(a => a.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate amenity, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, amenities: [...prev.amenities, trimmed] }));
+    setNewAmenity("");
+    setShowSuggestions(false);
+    toast.success("Amenity added!");
+  };
+
+  const removeAmenity = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      amenities: prev.amenities.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
   const handleEventDateChange = (e) => {
     const date = e.target.value;
     setFormData(prev => ({
@@ -264,7 +298,11 @@ const EditItems = () => {
       // Append other fields
       Object.entries(apiPayload).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== 'coordinates') {
-          submitData.append(key, value);
+          if (key === 'amenities' && Array.isArray(value)) {
+            submitData.append(key, JSON.stringify(value));
+          } else {
+            submitData.append(key, value);
+          }
         }
       });
 
@@ -575,22 +613,79 @@ const EditItems = () => {
                 </div>
               </>
             ) : (
-              /* Hotel Amenities */
+              /* Hotel Amenities - AddHotel style */
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-4">
                   Amenities (optional)
                 </label>
-                <textarea
-                  name="amenities"
-                  rows="3"
-                  value={formData.amenities}
-                  onChange={handleCommonChange}
-                  className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical"
-                  placeholder="WiFi, AC, Parking, Pool, Gym, Free Breakfast, 24/7 Room Service..."
-                />
-                <p className="mt-2 text-sm text-gray-500 italic">
-                  Comma-separated list. Highlight your best features!
-                </p>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newAmenity}
+                      onChange={handleAmenitiesInput}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          addAmenity(newAmenity);
+                        }
+                      }}
+                      placeholder="Type amenity and press Enter (e.g., WiFi)"
+                      className="w-full px-5 py-4 pr-24 border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 text-base"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addAmenity(newAmenity)}
+                      disabled={!newAmenity.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-5 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showSuggestions && (
+                    <div className="border-2 border-gray-200 rounded-2xl bg-white shadow-lg max-h-48 overflow-y-auto">
+                      {popularAmenities
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newAmenity.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => addAmenity(suggestion)}
+                            className="w-full text-left px-5 py-3 hover:bg-emerald-50 hover:text-emerald-700 text-base transition-all border-b border-gray-100 last:border-b-0"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.amenities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl">
+                      {formData.amenities.map((amenity, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-base font-semibold shadow-sm"
+                        >
+                          {amenity}
+                          <button
+                            type="button"
+                            onClick={() => removeAmenity(index)}
+                            className="ml-2 text-emerald-600 hover:text-emerald-800 p-1 rounded-full hover:bg-emerald-200 transition-all"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-sm text-gray-500 ml-3 self-center">
+                        ({formData.amenities.length}/20)
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
