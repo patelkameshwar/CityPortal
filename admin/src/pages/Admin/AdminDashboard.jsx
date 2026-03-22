@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../services/api.js';
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaEdit, FaUserEdit, FaTrash, FaTheaterMasks } from 'react-icons/fa';
+
+import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaEdit, FaUserEdit, FaTrash, FaTheaterMasks, FaAlignLeft } from 'react-icons/fa';
 import {
   LineChart,
   Line,
@@ -650,6 +651,10 @@ const AdminDashboard = () => {
                 <Link to="/admin/clients" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
                   <FaUsers className="h-5 w-5 text-blue-600 mr-3" />
                   Manage Clients
+                </Link>
+                <Link to="/admin/blogs" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                  <FaAlignLeft className="h-5 w-5 text-indigo-600 mr-3" />
+                  Manage Blogs
                 </Link>
                 <Link to="/admin/hotels" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
                   <FaHotel className="h-5 w-5 text-emerald-600 mr-3" />

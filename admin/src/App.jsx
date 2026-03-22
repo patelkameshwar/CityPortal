@@ -22,6 +22,8 @@ import ViewItems from "./pages/ViewItems.jsx";
 import AddTourism from "./pages/Admin/AddTourism.jsx";
 import AdminView from "./pages/Admin/AdminView.jsx";
 import AdminEdit from "./pages/Admin/AdminEdit.jsx";
+import ManageBlogs from "./pages/Admin/ManageBlogs.jsx";
+import AddBlog from "./pages/Admin/AddBlog.jsx";
 
 const App = () => {
   return (
@@ -48,11 +50,27 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+            <Route
             path="/admin/clients"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <ManageClients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blogs"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ManageBlogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/add-blog"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AddBlog />
               </ProtectedRoute>
             }
           />

@@ -12,6 +12,7 @@ require("./models/Hotel");
 require("./models/Event");
 require("./models/Tourism");
 require("./models/Booking");
+require("./models/Blog");
 
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/bookings", require("./routes/bookingRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/admin/clients", require("./routes/clientRoutes"));
 app.use("/api/client", require("./routes/clientRoutes"));
+app.use("/api/blogs", require("./routes/blogRoutes"));
 
 
 app.get("/", (req, res) => {

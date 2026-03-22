@@ -73,6 +73,15 @@ export const tourismAPI = {
   book: (id, data) => api.post(`/tourism/${id}/book`, data),
 };
 
+// Blog APIs
+export const blogAPI = {
+  getAll: () => api.get('/blogs'),
+  getById: (id) => api.get(`/blogs/${id}`),
+  create: (data) => api.post('/blogs', data),
+  update: (id, data) => api.put(`/blogs/${id}`, data),
+  delete: (id) => api.delete(`/blogs/${id}`),
+};
+
 // Booking APIs
 export const bookingAPI = {
   getMyBookings: () => api.get('/bookings/my'),
