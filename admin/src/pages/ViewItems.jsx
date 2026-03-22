@@ -58,7 +58,8 @@ const ViewItems = () => {
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
-      amenities: apiData.amenities || "",
+      amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
+      policies: Array.isArray(apiData.policies) ? apiData.policies : [],
       ...(itemType === 'event' && {
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
@@ -237,7 +238,7 @@ const ViewItems = () => {
                 Amenities
               </label>
               <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
-                {itemData.amenities && Array.isArray(itemData.amenities) && itemData.amenities.length > 0 ? (
+{itemData.amenities && Array.isArray(itemData.amenities) && itemData.amenities.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {itemData.amenities.map((amenity, index) => (
                       <span
@@ -251,6 +252,29 @@ const ViewItems = () => {
                 ) : (
                   <p className="text-gray-500 italic text-base">No amenities listed</p>
                 )}
+              </div>
+
+              {/* Policies Section */}
+              <div>
+                <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                  Policies
+                </label>
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                  {itemData.policies && Array.isArray(itemData.policies) && itemData.policies.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {itemData.policies.map((policy, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                        >
+                          {policy}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic text-base">No policies listed</p>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -54,20 +54,29 @@ const EditItems = () => {
     bookingToDate: "",
     // Hotel specific  
     amenities: [],
+    policies: [],
     pricePerNight: "",
     totalRooms: "",
     name: "",
   });
 
   const [newAmenity, setNewAmenity] = useState("");
+  const [newPolicy, setNewPolicy] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  const popularAmenities = [
+const popularAmenities = [
     "WiFi", "Free WiFi", "AC", "Air Conditioning", "Parking", "Free Parking",
     "Swimming Pool", "Pool", "Gym", "Fitness Center", "Restaurant",
     "Free Breakfast", "Spa", "Laundry", "Room Service", "Airport Shuttle",
     "24 Hour Front Desk", "Elevator", "Non Smoking Rooms", "Family Rooms"
+  ];
+
+  const popularPolicies = [
+    "Free Cancellation", "No Smoking", "Pets Allowed", "Children Allowed", 
+    "Strict No Cancellation", "ID Required", "Credit Card Required",
+    "24 Hour Check-in", "Extra Bed Available", "Accessible Rooms",
+    "Non Refundable", "Breakfast Included", "Early Check-in Available"
   ];
   
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -105,7 +114,10 @@ const EditItems = () => {
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
-      ...(isHotel && { amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [] }),
+      ...(isHotel && { 
+        amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
+        policies: Array.isArray(apiData.policies) ? apiData.policies : []
+      }),
       ...(itemType === 'event' && {
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
@@ -125,7 +137,10 @@ const EditItems = () => {
       location: formData.location,
       [map.price]: formData.price,
       [map.capacity]: formData.capacity,
-      ...(isHotel && { amenities: formData.amenities || [] }),
+      ...(isHotel && { 
+        amenities: formData.amenities || [],
+        policies: formData.policies || []
+      }),
       ...(itemType === 'event' && ({
         eventType: formData.eventType,
         eventTime: formData.eventTime,
@@ -210,6 +225,12 @@ const EditItems = () => {
     setShowSuggestions(e.target.value.length > 0);
   };
 
+  const handlePoliciesInput = (e) => {
+    setNewPolicy(e.target.value);
+    setHighlightedIndex(-1);
+    setShowSuggestions(e.target.value.length > 0);
+  };
+
   const addAmenity = (amenity) => {
     const trimmed = amenity.trim();
     if (!trimmed || formData.amenities.length >= 20 || formData.amenities.some(a => a.toLowerCase() === trimmed.toLowerCase())) {
@@ -223,10 +244,30 @@ const EditItems = () => {
     toast.success("Amenity added!");
   };
 
+  const addPolicy = (policy) => {
+    const trimmed = policy.trim();
+    if (!trimmed || formData.policies.length >= 15 || formData.policies.some(p => p.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate policy, or max 15 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, policies: [...prev.policies, trimmed] }));
+    setNewPolicy("");
+    setShowSuggestions(false);
+    setHighlightedIndex(-1);
+    toast.success("Policy added!");
+  };
+
   const removeAmenity = (indexToRemove) => {
     setFormData(prev => ({
       ...prev,
       amenities: prev.amenities.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  const removePolicy = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      policies: prev.policies.filter((_, index) => index !== indexToRemove)
     }));
   };
 
@@ -301,7 +342,7 @@ const EditItems = () => {
       // Append other fields
       Object.entries(apiPayload).forEach(([key, value]) => {
         if (value !== undefined && value !== null && key !== 'coordinates') {
-          if (key === 'amenities' && Array.isArray(value)) {
+          if ((key === 'amenities' || key === 'policies') && Array.isArray(value)) {
             submitData.append(key, JSON.stringify(value));
           } else {
             submitData.append(key, value);
@@ -616,11 +657,11 @@ const EditItems = () => {
                 </div>
               </>
             ) : (
-              /* Hotel Amenities - AddHotel style */
-              <div>
-                <label className="block text-base font-semibold text-gray-800 mb-4">
-                  Amenities (optional)
-                </label>
+              <>
+                <div>
+                  <label className="block text-base font-semibold text-gray-800 mb-4">
+                    Amenities (optional)
+                  </label>
                 <div className="space-y-3">
                   <div className="relative">
                     <input
@@ -722,6 +763,114 @@ const EditItems = () => {
                   )}
                 </div>
               </div>
+
+              {/* Policies Section */}
+              <div>
+                <label className="block text-base font-semibold text-gray-800 mb-4">
+                  Policies & Rules (optional)
+                </label>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newPolicy}
+                      onChange={handlePoliciesInput}
+                      onKeyDown={(e) => {
+                        const filteredSuggestions = popularPolicies
+                          .filter((suggestion) =>
+                            suggestion.toLowerCase().includes(newPolicy.toLowerCase())
+                          )
+                          .slice(0, 8);
+                        const suggestionCount = filteredSuggestions.length;
+
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          setHighlightedIndex((prev) => 
+                            prev < suggestionCount - 1 ? prev + 1 : 0
+                          );
+                        } else if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setHighlightedIndex((prev) => 
+                            prev <= 0 ? suggestionCount - 1 : prev - 1
+                          );
+                        } else if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (highlightedIndex >= 0 && highlightedIndex < suggestionCount) {
+                            addPolicy(filteredSuggestions[highlightedIndex]);
+                          } else {
+                            addPolicy(newPolicy);
+                          }
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          setShowSuggestions(false);
+                          setHighlightedIndex(-1);
+                        }
+                      }}
+                      placeholder="Type policy and press Enter (e.g., Free Cancellation)"
+                      className="w-full px-5 py-4 pr-24 border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-amber-500 focus:border-amber-500 text-base"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addPolicy(newPolicy)}
+                      disabled={!newPolicy.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-5 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showSuggestions && (
+                    <div className="border-2 border-gray-200 rounded-2xl bg-white shadow-lg max-h-48 overflow-y-auto">
+                      {popularPolicies
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newPolicy.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              addPolicy(suggestion);
+                              setHighlightedIndex(-1);
+                            }}
+                            className={`w-full text-left px-5 py-3 text-base transition-all border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedIndex
+                                ? 'bg-amber-100 border-l-4 border-amber-500 text-amber-800 font-semibold shadow-md'
+                                : 'hover:bg-amber-50 hover:text-amber-700'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.policies.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl">
+                      {formData.policies.map((policy, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-base font-semibold shadow-sm"
+                        >
+                          {policy}
+                          <button
+                            type="button"
+                            onClick={() => removePolicy(index)}
+                            className="ml-2 text-amber-600 hover:text-amber-800 p-1 rounded-full hover:bg-amber-200 transition-all"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-sm text-gray-500 ml-3 self-center">
+                        ({formData.policies.length}/15)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
             )}
 
             {/* Images Section */}

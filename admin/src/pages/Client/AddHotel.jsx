@@ -25,11 +25,15 @@ const AddHotel = () => {
     pricePerNight: "",
     totalRooms: "",
     amenities: [],
+    policies: [],
     images: [],
   });
   const [newAmenity, setNewAmenity] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [newPolicy, setNewPolicy] = useState("");
+  const [showAmenitySuggestions, setShowAmenitySuggestions] = useState(false);
+  const [showPolicySuggestions, setShowPolicySuggestions] = useState(false);
+  const [highlightedAmenityIndex, setHighlightedAmenityIndex] = useState(-1);
+  const [highlightedPolicyIndex, setHighlightedPolicyIndex] = useState(-1);
   const [geocoding, setGeocoding] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -54,10 +58,56 @@ const AddHotel = () => {
     "24 Hour Front Desk", "Elevator", "Non Smoking Rooms", "Family Rooms"
   ];
 
+  const popularPolicies = [
+    "Free Cancellation", "No Smoking", "Pets Allowed", "Children Free",
+    "Extra Bed Available", "Accessible Rooms", "Non Refundable", 
+    "Full Refund Before 48h", "Strict Policy", "Flexible Policy",
+    "Breakfast Included", "Children Policy", "ID Required", "Credit Card Required",
+    "Minimum Stay 2 Nights", "No Pets", "Quiet Hours", "No Parties"
+  ];
+
   const handleAmenitiesInput = (e) => {
     setNewAmenity(e.target.value);
-    setHighlightedIndex(-1);
-    setShowSuggestions(e.target.value.length > 0);
+    setHighlightedAmenityIndex(-1);
+    setShowAmenitySuggestions(e.target.value.length > 0);
+  };
+
+  const handleAmenityKeyDown = (e) => {
+    const filteredSuggestions = popularAmenities
+      .filter((suggestion) =>
+        suggestion.toLowerCase().includes(newAmenity.toLowerCase())
+      )
+      .slice(0, 8);
+    const suggestionCount = filteredSuggestions.length;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedAmenityIndex((prev) => 
+        prev < suggestionCount - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedAmenityIndex((prev) => 
+        prev <= 0 ? suggestionCount - 1 : prev - 1
+      );
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (highlightedAmenityIndex >= 0 && highlightedAmenityIndex < suggestionCount) {
+        addAmenity(filteredSuggestions[highlightedAmenityIndex]);
+      } else {
+        addAmenity(newAmenity);
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setShowAmenitySuggestions(false);
+      setHighlightedAmenityIndex(-1);
+    }
+  };
+
+  const handlePoliciesInput = (e) => {
+    setNewPolicy(e.target.value);
+    setHighlightedPolicyIndex(-1);
+    setShowPolicySuggestions(e.target.value.length > 0);
   };
 
   const addAmenity = (amenity) => {
@@ -68,8 +118,8 @@ const AddHotel = () => {
     }
     setFormData(prev => ({ ...prev, amenities: [...prev.amenities, trimmed] }));
     setNewAmenity("");
-    setShowSuggestions(false);
-    setHighlightedIndex(-1);
+    setShowAmenitySuggestions(false);
+    setHighlightedAmenityIndex(-1);
     toast.success("Amenity added!");
   };
 
@@ -77,6 +127,26 @@ const AddHotel = () => {
     setFormData(prev => ({
       ...prev,
       amenities: prev.amenities.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  const addPolicy = (policy) => {
+    const trimmed = policy.trim();
+    if (!trimmed || formData.policies.length >= 20 || formData.policies.some(p => p.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate policy, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, policies: [...prev.policies, trimmed] }));
+    setNewPolicy("");
+    setShowPolicySuggestions(false);
+    setHighlightedPolicyIndex(-1);
+    toast.success("Policy added!");
+  };
+
+  const removePolicy = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      policies: prev.policies.filter((_, index) => index !== indexToRemove)
     }));
   };
 
@@ -156,6 +226,9 @@ const AddHotel = () => {
     submitData.append("totalRooms", formData.totalRooms);
     if (formData.amenities.length > 0) {
       submitData.append("amenities", JSON.stringify(formData.amenities));
+    }
+    if (formData.policies.length > 0) {
+      submitData.append("policies", JSON.stringify(formData.policies));
     }
     formData.images?.forEach((image) => {
       submitData.append("images", image);
@@ -349,6 +422,9 @@ const AddHotel = () => {
                 placeholder="50"
                 required
               />
+            </div>
+
+            <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Amenities (optional)
               </label>
@@ -357,38 +433,8 @@ const AddHotel = () => {
                   <input
                     type="text"
                     value={newAmenity}
-                    onChange={handleAmenitiesInput}
-                    onKeyDown={(e) => {
-                      const filteredSuggestions = popularAmenities
-                        .filter((suggestion) =>
-                          suggestion.toLowerCase().includes(newAmenity.toLowerCase())
-                        )
-                        .slice(0, 8);
-                      const suggestionCount = filteredSuggestions.length;
-
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setHighlightedIndex((prev) => 
-                          prev < suggestionCount - 1 ? prev + 1 : 0
-                        );
-                      } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setHighlightedIndex((prev) => 
-                          prev <= 0 ? suggestionCount - 1 : prev - 1
-                        );
-                      } else if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        if (highlightedIndex >= 0 && highlightedIndex < suggestionCount) {
-                          addAmenity(filteredSuggestions[highlightedIndex]);
-                        } else {
-                          addAmenity(newAmenity);
-                        }
-                      } else if (e.key === "Escape") {
-                        e.preventDefault();
-                        setShowSuggestions(false);
-                        setHighlightedIndex(-1);
-                      }
-                    }}
+    onChange={handleAmenitiesInput}
+                    onKeyDown={handleAmenityKeyDown}
                     placeholder="Type amenity and press Enter (e.g., WiFi)."
                     className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
@@ -402,7 +448,7 @@ const AddHotel = () => {
                   </button>
                 </div>
 
-{showSuggestions && (
+{showAmenitySuggestions && (
                   <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
                     {popularAmenities
                       .filter((suggestion) =>
@@ -415,10 +461,10 @@ const AddHotel = () => {
                           type="button"
                           onClick={() => {
                             addAmenity(suggestion);
-                            setHighlightedIndex(-1);
+                            setHighlightedAmenityIndex(-1);
                           }}
                           className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
-                            index === highlightedIndex
+                            index === highlightedAmenityIndex
                               ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
                               : 'hover:bg-emerald-50 hover:text-emerald-700'
                           }`}
@@ -448,6 +494,112 @@ const AddHotel = () => {
                     ))}
                     <span className="text-xs text-gray-500 ml-2">
                       ({formData.amenities.length}/20)
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Policies (optional)
+              </label>
+              <div className="space-y-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={newPolicy}
+                    onChange={handlePoliciesInput}
+                    onKeyDown={(e) => {
+                      const filteredSuggestions = popularPolicies
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newPolicy.toLowerCase())
+                        )
+                        .slice(0, 8);
+                      const suggestionCount = filteredSuggestions.length;
+
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setHighlightedPolicyIndex((prev) => 
+                          prev < suggestionCount - 1 ? prev + 1 : 0
+                        );
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setHighlightedPolicyIndex((prev) => 
+                          prev <= 0 ? suggestionCount - 1 : prev - 1
+                        );
+                      } else if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (highlightedPolicyIndex >= 0 && highlightedPolicyIndex < suggestionCount) {
+                          addPolicy(filteredSuggestions[highlightedPolicyIndex]);
+                        } else {
+                          addPolicy(newPolicy);
+                        }
+                      } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        setShowPolicySuggestions(false);
+                        setHighlightedPolicyIndex(-1);
+                      }
+                    }}
+                    placeholder="Type policy and press Enter (e.g., Free Cancellation)."
+                    className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addPolicy(newPolicy)}
+                    disabled={!newPolicy.trim()}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {showPolicySuggestions && (
+                  <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
+                    {popularPolicies
+                      .filter((suggestion) =>
+                        suggestion.toLowerCase().includes(newPolicy.toLowerCase())
+                      )
+                      .slice(0, 8)
+                      .map((suggestion, index) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => {
+                            addPolicy(suggestion);
+                            setHighlightedPolicyIndex(-1);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                            index === highlightedPolicyIndex
+                              ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                              : 'hover:bg-emerald-50 hover:text-emerald-700'
+                          }`}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                  </div>
+                )}
+
+                {formData.policies.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-xl">
+                    {formData.policies.map((policy, index) => (
+                      <div
+                        key={index}
+                        className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                      >
+                        {policy}
+                        <button
+                          type="button"
+                          onClick={() => removePolicy(index)}
+                          className="ml-2 text-blue-600 hover:text-blue-800 p-0.5 rounded-full hover:bg-blue-200 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    <span className="text-xs text-gray-500 ml-2">
+                      ({formData.policies.length}/20)
                     </span>
                   </div>
                 )}

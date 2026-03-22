@@ -25,6 +25,7 @@ exports.createHotel = async (req, res) => {
       pricePerNight,
       totalRooms,
       amenities,
+      policies,
       defaultCheckInTime,
       defaultCheckOutTime,
       bookingFromDate,
@@ -41,6 +42,7 @@ exports.createHotel = async (req, res) => {
     const images = req.files ? req.files.map((file) => file.path) : [];
 
     const parsedAmenities = amenities ? (typeof amenities === 'string' ? JSON.parse(amenities) : amenities) : [];
+    const parsedPolicies = policies ? (typeof policies === 'string' ? JSON.parse(policies) : policies) : [];
 
     const hotel = await Hotel.create({
       name,
@@ -50,6 +52,7 @@ exports.createHotel = async (req, res) => {
       pricePerNight,
       totalRooms,
       amenities: parsedAmenities,
+      policies: parsedPolicies,
       defaultCheckInTime: defaultCheckInTime || "12:00 PM",
       defaultCheckOutTime: defaultCheckOutTime || "10:00 AM",
       bookingFromDate: bookingFromDate ? new Date(bookingFromDate) : Date.now(),
@@ -167,9 +170,11 @@ exports.updateHotel = async (req, res) => {
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
     
-    // Parse and update amenities (matches createHotel)
+    // Parse and update amenities/policies (matches createHotel)
     const parsedAmenities = req.body.amenities ? (typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities) : [];
+    const parsedPolicies = req.body.policies ? (typeof req.body.policies === 'string' ? JSON.parse(req.body.policies) : req.body.policies) : [];
     hotel.amenities = parsedAmenities;
+    hotel.policies = parsedPolicies;
     
     hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
     hotel.defaultCheckOutTime = req.body.defaultCheckOutTime || hotel.defaultCheckOutTime;
