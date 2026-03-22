@@ -50,6 +50,11 @@ const hotelSchema = new mongoose.Schema(
       min: 1,
     },
 
+    amenities: {
+      type: [String],
+      default: [],
+    },
+
     // Optional default check-in/check-out times
     defaultCheckInTime: {
       type: String,

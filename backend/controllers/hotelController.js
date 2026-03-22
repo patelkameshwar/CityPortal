@@ -24,6 +24,7 @@ exports.createHotel = async (req, res) => {
       description,
       pricePerNight,
       totalRooms,
+      amenities,
       defaultCheckInTime,
       defaultCheckOutTime,
       bookingFromDate,
@@ -39,6 +40,8 @@ exports.createHotel = async (req, res) => {
 
     const images = req.files ? req.files.map((file) => file.path) : [];
 
+    const parsedAmenities = amenities ? (typeof amenities === 'string' ? JSON.parse(amenities) : amenities) : [];
+
     const hotel = await Hotel.create({
       name,
       location,
@@ -46,6 +49,7 @@ exports.createHotel = async (req, res) => {
       description,
       pricePerNight,
       totalRooms,
+      amenities: parsedAmenities,
       defaultCheckInTime: defaultCheckInTime || "12:00 PM",
       defaultCheckOutTime: defaultCheckOutTime || "10:00 AM",
       bookingFromDate: bookingFromDate ? new Date(bookingFromDate) : Date.now(),

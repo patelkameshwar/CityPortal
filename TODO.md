@@ -1,13 +1,24 @@
-# TODO: Fix react-markdown className error
+# Amenities Feature Implementation
 
-**Status: [IN PROGRESS]**
+## Steps to Complete:
 
-## Steps:
-- [x] 1. Analyze error and identify affected files (search_files, read_file)
-- [x] 2. Create detailed edit plan and get user approval
-- [x] 3. Edit frontend/src/pages/Blogs.jsx to fix ReactMarkdown className prop
-- [x] 4. Test the fix (run frontend dev server)
-- [ ] 5. Mark complete and cleanup TODO.md
+- [ ] **Step 1**: Create TODO.md (current)
+- [x] **Step 2**: Edit `backend/models/Hotel.js` - Add `amenities` schema field as array of strings ✅
 
-**Note:** Test by running `cd frontend` then `npm run dev` in a new terminal and navigate to /blogs. No console errors expected and styles preserved.
+- [x] **Step 3**: Edit `admin/src/pages/Client/AddHotel.jsx` - Implement complete amenities setup: ✅
+
+  * Change to array state with chips UI
+  * Add/remove amenities interactively
+  * Suggestions dropdown/list
+  * Validation & FormData handling (JSON.stringify or join for backend)
+  * Max 20 amenities, dedupe/normalize
+- [x] **Step 4**: Test setup ✅
+  * Backend: `cd backend && npm start` (fixed controller parsing)
+  * Frontend: Add amenities via chips → saves array in DB
+- [x] **Step 5**: Complete task ✅
+
+**Progress**: 5/5 complete ✅
+
+
+
 
