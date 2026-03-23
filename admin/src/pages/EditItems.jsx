@@ -69,14 +69,15 @@ const popularAmenities = [
     "WiFi", "Free WiFi", "AC", "Air Conditioning", "Parking", "Free Parking",
     "Swimming Pool", "Pool", "Gym", "Fitness Center", "Restaurant",
     "Free Breakfast", "Spa", "Laundry", "Room Service", "Airport Shuttle",
-    "24 Hour Front Desk", "Elevator", "Non Smoking Rooms", "Family Rooms"
+    "24 Hour Front Desk", "Elevator", "Non Smoking Rooms", "Family Rooms", "Room Service", "Lounge(Private,Shared)", "Refrigerator",
   ];
 
   const popularPolicies = [
-    "Free Cancellation", "No Smoking", "Pets Allowed", "Children Allowed", 
-    "Strict No Cancellation", "ID Required", "Credit Card Required",
-    "24 Hour Check-in", "Extra Bed Available", "Accessible Rooms",
-    "Non Refundable", "Breakfast Included", "Early Check-in Available"
+    "Free Cancellation", "No Smoking", "Pets Allowed", "Children Free",
+    "Extra Bed Available", "Accessible Rooms", "Non Refundable", 
+    "Full Refund Before 48h", "Strict Policy", "Flexible Policy",
+    "Breakfast Included", "Children Policy", "ID Required", "Credit Card Required",
+    "Minimum Stay 2 Nights", "No Pets", "Quiet Hours", "No Parties", "Passport, Aadhaar and Driving License are accepted as ID proof(s)", "Primary Guest should be atleast 18 years of age", "There are no restrictions on alcohol consumption.", "There are restrictions on alcohol consumption.", "1 infant (0-2 yrs) per room included without counting in total room capacity"
   ];
   
   const [imagePreviews, setImagePreviews] = useState([]);

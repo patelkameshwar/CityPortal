@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { hotelAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { FiMapPin, FiHome, FiCalendar, FiUsers, FiArrowLeft, FiX, FiArrowRight, FiClock, FiTag, FiAlertCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiMapPin, FiHome, FiCalendar, FiUsers, FiArrowLeft, FiX, FiArrowRight, FiClock, FiTag, FiAlertCircle, FiCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const getTodayDate = () => {
   const today = new Date();
@@ -366,40 +366,24 @@ const HotelDetails = () => {
                 </div>
               )}
 
-              {activeTab === 'policies' && (
+{activeTab === 'policies' && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">Property Policies</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-2">
-                      <FiClock className="h-5 w-5 text-gray-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-medium text-gray-800">Check-in</h3>
-                        <p className="text-gray-600 text-sm">From 12:00 PM</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiClock className="h-5 w-5 text-gray-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-medium text-gray-800">Check-out</h3>
-                        <p className="text-gray-600 text-sm">Until 11:00 AM</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiAlertCircle className="h-5 w-5 text-gray-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-medium text-gray-800">Cancellation Policy</h3>
-                        <p className="text-gray-600 text-sm">Non-Refundable</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiUsers className="h-5 w-5 text-gray-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-medium text-gray-800">Children & Beds</h3>
-                        <p className="text-gray-600 text-sm">Children of all ages are welcome</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  <h2 className="text-xl font-bold text-gray-800 mb-4">
+    Property Policies
+  </h2>
+
+  {hotel.policies && hotel.policies.length > 0 ? (
+    <ul className="list-[circle] pl-5 space-y-2">
+      {hotel.policies.map((policy, index) => (
+        <li key={index} className="text-gray-700 text-sm leading-relaxed">
+          {policy}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-600 italic">No policies listed</p>
+  )}
+</div>
               )}
 
               {activeTab === 'location' && (
