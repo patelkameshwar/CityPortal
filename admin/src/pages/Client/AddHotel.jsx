@@ -16,7 +16,7 @@ import {
 import { toast } from "react-toastify";
 
 const AddHotel = () => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: "",
     description: "",
     location: "",
@@ -25,15 +25,32 @@ const AddHotel = () => {
     pricePerNight: "",
     totalRooms: "",
     amenities: [],
+    basicFacilities: [],
+    roomAmenities: [],
+    healthWellness: [],
+    safetySecurity: [],
     policies: [],
     images: [],
   });
   const [newAmenity, setNewAmenity] = useState("");
+  const [newBasicFacility, setNewBasicFacility] = useState("");
+  const [newRoomAmenity, setNewRoomAmenity] = useState("");
+  const [newHealthItem, setNewHealthItem] = useState("");
+  const [newSafetyItem, setNewSafetyItem] = useState("");
   const [newPolicy, setNewPolicy] = useState("");
   const [showAmenitySuggestions, setShowAmenitySuggestions] = useState(false);
+  const [showBasicSuggestions, setShowBasicSuggestions] = useState(false);
+  const [showRoomSuggestions, setShowRoomSuggestions] = useState(false);
+  const [showHealthSuggestions, setShowHealthSuggestions] = useState(false);
+  const [showSafetySuggestions, setShowSafetySuggestions] = useState(false);
   const [showPolicySuggestions, setShowPolicySuggestions] = useState(false);
   const [highlightedAmenityIndex, setHighlightedAmenityIndex] = useState(-1);
+  const [highlightedBasicIndex, setHighlightedBasicIndex] = useState(-1);
+  const [highlightedRoomIndex, setHighlightedRoomIndex] = useState(-1);
+  const [highlightedHealthIndex, setHighlightedHealthIndex] = useState(-1);
+  const [highlightedSafetyIndex, setHighlightedSafetyIndex] = useState(-1);
   const [highlightedPolicyIndex, setHighlightedPolicyIndex] = useState(-1);
+  const [activeSubAmenityTab, setActiveSubAmenityTab] = useState("basic");
   const [geocoding, setGeocoding] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -64,6 +81,36 @@ const AddHotel = () => {
     "Full Refund Before 48h", "Strict Policy", "Flexible Policy",
     "Breakfast Included", "Children Policy", "ID Required", "Credit Card Required",
     "Minimum Stay 2 Nights", "No Pets", "Quiet Hours", "No Parties", "Passport, Aadhaar and Driving License are accepted as ID proof(s)", "Primary Guest should be atleast 18 years of age", "There are no restrictions on alcohol consumption.", "There are restrictions on alcohol consumption.", "1 infant (0-2 yrs) per room included without counting in total room capacity"
+  ];
+
+  const popularBasicFacilities = [
+    "Free WiFi", "Parking", "Free Parking", "24 Hour Front Desk", "Elevator",
+    "Restaurant", "Free Breakfast", "Laundry", "Airport Shuttle",
+    "Non Smoking Rooms", "Family Rooms", "Lounge", "Refrigerator in Lobby",
+    "Business Center", "Meeting Rooms", "Concierge", "Currency Exchange",
+    "ATM", "Baggage Storage", "Newspapers", "Vending Machine"
+  ];
+
+  const popularRoomAmenities = [
+    "Air Conditioning", "Private Bathroom", "King Bed", "Queen Bed",
+    "Minibar", "Room Service", "Balcony", "City View", "Mountain View",
+    "Flat Screen TV", "Cable TV", "Telephone", "Safe", "Desk", "Ironing Facilities",
+    "Hair Dryer", "Bathrobe", "Slippers", "Coffee Maker", "Electric Kettle", "Wardrobe"
+  ];
+
+  const popularHealthWellness = [
+    "Swimming Pool", "Gym", "Fitness Center", "Spa", "Sauna",
+    "Steam Room", "Massage", "Hot Tub", "Yoga Classes", "Jogging Track",
+    "Outdoor Pool", "Indoor Pool", "Poolside Bar", "Sun Deck", "Wellness Center",
+    "Beauty Salon", "Ayurveda", "Meditation", "Personal Trainer", "Steam Bath"
+  ];
+
+  const popularSafetySecurity = [
+    "CCTV", "Security Guard", "Fire Extinguisher", "Smoke Detector",
+    "First Aid Kit", "Doctor on Call", "24 Hour Security", "Safe Deposit Box",
+    "Electronic Key Card", "Panic Button", "Burglar Alarm", "Motion Sensors",
+    "CCTV in Common Areas", "Fire Alarms", "Sprinkler System", "Emergency Exit",
+    "Earthquake Resistant", "Power Backup", "Water Purifier", "Sanitized Rooms"
   ];
 
   const handleAmenitiesInput = (e) => {
@@ -150,6 +197,242 @@ const AddHotel = () => {
     }));
   };
 
+  // Basic Facilities handlers
+  const handleBasicInput = (e) => {
+    setNewBasicFacility(e.target.value);
+    setHighlightedBasicIndex(-1);
+    setShowBasicSuggestions(e.target.value.length > 0);
+  };
+
+  const handleBasicKeyDown = (e) => {
+    const filteredSuggestions = popularBasicFacilities
+      .filter((suggestion) =>
+        suggestion.toLowerCase().includes(newBasicFacility.toLowerCase())
+      )
+      .slice(0, 8);
+    const suggestionCount = filteredSuggestions.length;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedBasicIndex((prev) => 
+        prev < suggestionCount - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedBasicIndex((prev) => 
+        prev <= 0 ? suggestionCount - 1 : prev - 1
+      );
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (highlightedBasicIndex >= 0 && highlightedBasicIndex < suggestionCount) {
+        addBasicFacility(filteredSuggestions[highlightedBasicIndex]);
+      } else {
+        addBasicFacility(newBasicFacility);
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setShowBasicSuggestions(false);
+      setHighlightedBasicIndex(-1);
+    }
+  };
+
+  const addBasicFacility = (facility) => {
+    const trimmed = facility.trim();
+    if (!trimmed || formData.basicFacilities.length >= 20 || formData.basicFacilities.some(f => f.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate basic facility, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, basicFacilities: [...prev.basicFacilities, trimmed] }));
+    setNewBasicFacility("");
+    setShowBasicSuggestions(false);
+    setHighlightedBasicIndex(-1);
+    toast.success("Basic facility added!");
+  };
+
+  const removeBasicFacility = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      basicFacilities: prev.basicFacilities.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  // Room Amenities handlers
+  const handleRoomInput = (e) => {
+    setNewRoomAmenity(e.target.value);
+    setHighlightedRoomIndex(-1);
+    setShowRoomSuggestions(e.target.value.length > 0);
+  };
+
+  const handleRoomKeyDown = (e) => {
+    const filteredSuggestions = popularRoomAmenities
+      .filter((suggestion) =>
+        suggestion.toLowerCase().includes(newRoomAmenity.toLowerCase())
+      )
+      .slice(0, 8);
+    const suggestionCount = filteredSuggestions.length;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedRoomIndex((prev) => 
+        prev < suggestionCount - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedRoomIndex((prev) => 
+        prev <= 0 ? suggestionCount - 1 : prev - 1
+      );
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (highlightedRoomIndex >= 0 && highlightedRoomIndex < suggestionCount) {
+        addRoomAmenity(filteredSuggestions[highlightedRoomIndex]);
+      } else {
+        addRoomAmenity(newRoomAmenity);
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setShowRoomSuggestions(false);
+      setHighlightedRoomIndex(-1);
+    }
+  };
+
+  const addRoomAmenity = (amenity) => {
+    const trimmed = amenity.trim();
+    if (!trimmed || formData.roomAmenities.length >= 20 || formData.roomAmenities.some(r => r.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate room amenity, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, roomAmenities: [...prev.roomAmenities, trimmed] }));
+    setNewRoomAmenity("");
+    setShowRoomSuggestions(false);
+    setHighlightedRoomIndex(-1);
+    toast.success("Room amenity added!");
+  };
+
+  const removeRoomAmenity = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      roomAmenities: prev.roomAmenities.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  // Health & Wellness handlers
+  const handleHealthInput = (e) => {
+    setNewHealthItem(e.target.value);
+    setHighlightedHealthIndex(-1);
+    setShowHealthSuggestions(e.target.value.length > 0);
+  };
+
+  const handleHealthKeyDown = (e) => {
+    const filteredSuggestions = popularHealthWellness
+      .filter((suggestion) =>
+        suggestion.toLowerCase().includes(newHealthItem.toLowerCase())
+      )
+      .slice(0, 8);
+    const suggestionCount = filteredSuggestions.length;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedHealthIndex((prev) => 
+        prev < suggestionCount - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedHealthIndex((prev) => 
+        prev <= 0 ? suggestionCount - 1 : prev - 1
+      );
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (highlightedHealthIndex >= 0 && highlightedHealthIndex < suggestionCount) {
+        addHealthItem(filteredSuggestions[highlightedHealthIndex]);
+      } else {
+        addHealthItem(newHealthItem);
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setShowHealthSuggestions(false);
+      setHighlightedHealthIndex(-1);
+    }
+  };
+
+  const addHealthItem = (item) => {
+    const trimmed = item.trim();
+    if (!trimmed || formData.healthWellness.length >= 20 || formData.healthWellness.some(h => h.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate health item, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, healthWellness: [...prev.healthWellness, trimmed] }));
+    setNewHealthItem("");
+    setShowHealthSuggestions(false);
+    setHighlightedHealthIndex(-1);
+    toast.success("Health & wellness item added!");
+  };
+
+  const removeHealthItem = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      healthWellness: prev.healthWellness.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
+  // Safety & Security handlers
+  const handleSafetyInput = (e) => {
+    setNewSafetyItem(e.target.value);
+    setHighlightedSafetyIndex(-1);
+    setShowSafetySuggestions(e.target.value.length > 0);
+  };
+
+  const handleSafetyKeyDown = (e) => {
+    const filteredSuggestions = popularSafetySecurity
+      .filter((suggestion) =>
+        suggestion.toLowerCase().includes(newSafetyItem.toLowerCase())
+      )
+      .slice(0, 8);
+    const suggestionCount = filteredSuggestions.length;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedSafetyIndex((prev) => 
+        prev < suggestionCount - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedSafetyIndex((prev) => 
+        prev <= 0 ? suggestionCount - 1 : prev - 1
+      );
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (highlightedSafetyIndex >= 0 && highlightedSafetyIndex < suggestionCount) {
+        addSafetyItem(filteredSuggestions[highlightedSafetyIndex]);
+      } else {
+        addSafetyItem(newSafetyItem);
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setShowSafetySuggestions(false);
+      setHighlightedSafetyIndex(-1);
+    }
+  };
+
+  const addSafetyItem = (item) => {
+    const trimmed = item.trim();
+    if (!trimmed || formData.safetySecurity.length >= 20 || formData.safetySecurity.some(s => s.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning("Invalid or duplicate safety item, or max 20 reached.");
+      return;
+    }
+    setFormData(prev => ({ ...prev, safetySecurity: [...prev.safetySecurity, trimmed] }));
+    setNewSafetyItem("");
+    setShowSafetySuggestions(false);
+    setHighlightedSafetyIndex(-1);
+    toast.success("Safety item added!");
+  };
+
+  const removeSafetyItem = (indexToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      safetySecurity: prev.safetySecurity.filter((_, index) => index !== indexToRemove)
+    }));
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 50) {
@@ -226,6 +509,18 @@ const AddHotel = () => {
     submitData.append("totalRooms", formData.totalRooms);
     if (formData.amenities.length > 0) {
       submitData.append("amenities", JSON.stringify(formData.amenities));
+    }
+    if (formData.basicFacilities.length > 0) {
+      submitData.append("basicFacilities", JSON.stringify(formData.basicFacilities));
+    }
+    if (formData.roomAmenities.length > 0) {
+      submitData.append("roomAmenities", JSON.stringify(formData.roomAmenities));
+    }
+    if (formData.healthWellness.length > 0) {
+      submitData.append("healthWellness", JSON.stringify(formData.healthWellness));
+    }
+    if (formData.safetySecurity.length > 0) {
+      submitData.append("safetySecurity", JSON.stringify(formData.safetySecurity));
     }
     if (formData.policies.length > 0) {
       submitData.append("policies", JSON.stringify(formData.policies));
@@ -500,6 +795,354 @@ const AddHotel = () => {
               </div>
             </div>
 
+            {/* Sub-Amenities Tabbed Section */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Sub-Amenities (optional)
+              </label>
+              <div className="mb-4">
+                <div className="flex border-b border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubAmenityTab("basic")}
+                    className={`px-4 py-2 font-medium text-sm -mb-px ${
+                      activeSubAmenityTab === "basic"
+                        ? "text-emerald-600 border-b-2 border-emerald-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Basic Facilities
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubAmenityTab("room")}
+                    className={`px-4 py-2 font-medium text-sm -mb-px ${
+                      activeSubAmenityTab === "room"
+                        ? "text-emerald-600 border-b-2 border-emerald-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Room Amenities
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubAmenityTab("health")}
+                    className={`px-4 py-2 font-medium text-sm -mb-px ${
+                      activeSubAmenityTab === "health"
+                        ? "text-emerald-600 border-b-2 border-emerald-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Health & Wellness
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubAmenityTab("safety")}
+                    className={`px-4 py-2 font-medium text-sm -mb-px ${
+                      activeSubAmenityTab === "safety"
+                        ? "text-emerald-600 border-b-2 border-emerald-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    Safety & Security
+                  </button>
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              {activeSubAmenityTab === "basic" && (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newBasicFacility}
+                      onChange={handleBasicInput}
+                      onKeyDown={handleBasicKeyDown}
+                      placeholder="Type basic facility (e.g., Free WiFi)"
+                      className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addBasicFacility(newBasicFacility)}
+                      disabled={!newBasicFacility.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showBasicSuggestions && (
+                    <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
+                      {popularBasicFacilities
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newBasicFacility.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              addBasicFacility(suggestion);
+                              setHighlightedBasicIndex(-1);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedBasicIndex
+                                ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                                : 'hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.basicFacilities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-indigo-50 rounded-xl">
+                      {formData.basicFacilities.map((facility, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium"
+                        >
+                          {facility}
+                          <button
+                            type="button"
+                            onClick={() => removeBasicFacility(index)}
+                            className="ml-2 text-indigo-600 hover:text-indigo-800 p-0.5 rounded-full hover:bg-indigo-200 transition-colors"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({formData.basicFacilities.length}/20)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeSubAmenityTab === "room" && (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newRoomAmenity}
+                      onChange={handleRoomInput}
+                      onKeyDown={handleRoomKeyDown}
+                      placeholder="Type room amenity (e.g., Air Conditioning)"
+                      className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addRoomAmenity(newRoomAmenity)}
+                      disabled={!newRoomAmenity.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showRoomSuggestions && (
+                    <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
+                      {popularRoomAmenities
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newRoomAmenity.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              addRoomAmenity(suggestion);
+                              setHighlightedRoomIndex(-1);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedRoomIndex
+                                ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                                : 'hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.roomAmenities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-purple-50 rounded-xl">
+                      {formData.roomAmenities.map((amenity, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                        >
+                          {amenity}
+                          <button
+                            type="button"
+                            onClick={() => removeRoomAmenity(index)}
+                            className="ml-2 text-purple-600 hover:text-purple-800 p-0.5 rounded-full hover:bg-purple-200 transition-colors"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({formData.roomAmenities.length}/20)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeSubAmenityTab === "health" && (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newHealthItem}
+                      onChange={handleHealthInput}
+                      onKeyDown={handleHealthKeyDown}
+                      placeholder="Type health item (e.g., Swimming Pool)"
+                      className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addHealthItem(newHealthItem)}
+                      disabled={!newHealthItem.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showHealthSuggestions && (
+                    <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
+                      {popularHealthWellness
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newHealthItem.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              addHealthItem(suggestion);
+                              setHighlightedHealthIndex(-1);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedHealthIndex
+                                ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                                : 'hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.healthWellness.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-green-50 rounded-xl">
+                      {formData.healthWellness.map((item, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium"
+                        >
+                          {item}
+                          <button
+                            type="button"
+                            onClick={() => removeHealthItem(index)}
+                            className="ml-2 text-green-600 hover:text-green-800 p-0.5 rounded-full hover:bg-green-200 transition-colors"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({formData.healthWellness.length}/20)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeSubAmenityTab === "safety" && (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newSafetyItem}
+                      onChange={handleSafetyInput}
+                      onKeyDown={handleSafetyKeyDown}
+                      placeholder="Type safety feature (e.g., CCTV)"
+                      className="w-full px-4 py-3 pr-24 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addSafetyItem(newSafetyItem)}
+                      disabled={!newSafetyItem.trim()}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {showSafetySuggestions && (
+                    <div className="border border-gray-200 rounded-xl bg-white shadow-sm max-h-48 overflow-y-auto">
+                      {popularSafetySecurity
+                        .filter((suggestion) =>
+                          suggestion.toLowerCase().includes(newSafetyItem.toLowerCase())
+                        )
+                        .slice(0, 8)
+                        .map((suggestion, index) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              addSafetyItem(suggestion);
+                              setHighlightedSafetyIndex(-1);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors border-b border-gray-100 last:border-b-0 ${
+                              index === highlightedSafetyIndex
+                                ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 font-semibold'
+                                : 'hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
+                  {formData.safetySecurity.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-xl">
+                      {formData.safetySecurity.map((item, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-800 rounded-full text-sm font-medium"
+                        >
+                          {item}
+                          <button
+                            type="button"
+                            onClick={() => removeSafetyItem(index)}
+                            className="ml-2 text-red-600 hover:text-red-800 p-0.5 rounded-full hover:bg-red-200 transition-colors"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({formData.safetySecurity.length}/20)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Policies (optional)

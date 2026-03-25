@@ -25,6 +25,10 @@ exports.createHotel = async (req, res) => {
       pricePerNight,
       totalRooms,
       amenities,
+      basicFacilities,
+      roomAmenities,
+      healthWellness,
+      safetySecurity,
       policies,
       defaultCheckInTime,
       defaultCheckOutTime,
@@ -42,6 +46,10 @@ exports.createHotel = async (req, res) => {
     const images = req.files ? req.files.map((file) => file.path) : [];
 
     const parsedAmenities = amenities ? (typeof amenities === 'string' ? JSON.parse(amenities) : amenities) : [];
+    const parsedBasicFacilities = basicFacilities ? (typeof basicFacilities === 'string' ? JSON.parse(basicFacilities) : basicFacilities) : [];
+    const parsedRoomAmenities = roomAmenities ? (typeof roomAmenities === 'string' ? JSON.parse(roomAmenities) : roomAmenities) : [];
+    const parsedHealthWellness = healthWellness ? (typeof healthWellness === 'string' ? JSON.parse(healthWellness) : healthWellness) : [];
+    const parsedSafetySecurity = safetySecurity ? (typeof safetySecurity === 'string' ? JSON.parse(safetySecurity) : safetySecurity) : [];
     const parsedPolicies = policies ? (typeof policies === 'string' ? JSON.parse(policies) : policies) : [];
 
     const hotel = await Hotel.create({
@@ -52,6 +60,10 @@ exports.createHotel = async (req, res) => {
       pricePerNight,
       totalRooms,
       amenities: parsedAmenities,
+      basicFacilities: parsedBasicFacilities,
+      roomAmenities: parsedRoomAmenities,
+      healthWellness: parsedHealthWellness,
+      safetySecurity: parsedSafetySecurity,
       policies: parsedPolicies,
       defaultCheckInTime: defaultCheckInTime || "12:00 PM",
       defaultCheckOutTime: defaultCheckOutTime || "10:00 AM",
@@ -170,10 +182,18 @@ exports.updateHotel = async (req, res) => {
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
     
-    // Parse and update amenities/policies (matches createHotel)
+    // Parse and update amenities/sub-amenities/policies (matches createHotel)
     const parsedAmenities = req.body.amenities ? (typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities) : [];
+    const parsedBasicFacilities = req.body.basicFacilities ? (typeof req.body.basicFacilities === 'string' ? JSON.parse(req.body.basicFacilities) : req.body.basicFacilities) : [];
+    const parsedRoomAmenities = req.body.roomAmenities ? (typeof req.body.roomAmenities === 'string' ? JSON.parse(req.body.roomAmenities) : req.body.roomAmenities) : [];
+    const parsedHealthWellness = req.body.healthWellness ? (typeof req.body.healthWellness === 'string' ? JSON.parse(req.body.healthWellness) : req.body.healthWellness) : [];
+    const parsedSafetySecurity = req.body.safetySecurity ? (typeof req.body.safetySecurity === 'string' ? JSON.parse(req.body.safetySecurity) : req.body.safetySecurity) : [];
     const parsedPolicies = req.body.policies ? (typeof req.body.policies === 'string' ? JSON.parse(req.body.policies) : req.body.policies) : [];
     hotel.amenities = parsedAmenities;
+    hotel.basicFacilities = parsedBasicFacilities;
+    hotel.roomAmenities = parsedRoomAmenities;
+    hotel.healthWellness = parsedHealthWellness;
+    hotel.safetySecurity = parsedSafetySecurity;
     hotel.policies = parsedPolicies;
     
     hotel.defaultCheckInTime = req.body.defaultCheckInTime || hotel.defaultCheckInTime;
