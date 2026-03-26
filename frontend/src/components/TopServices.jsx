@@ -76,7 +76,7 @@ const TopServices = () => {
                     <p className="text-gray-900 text-lg font-medium truncate">{item.title || item.name}</p>
                     <p className="text-gray-600 text-sm -mt-1">{item.location}</p>
                     <div className="flex items-center gap-1 text-sm font-medium mt-1">
-                      <span className="text-blue-600">${item.pricePerNight || item.price || 0}</span>
+                      <span className="text-blue-600"><span className="text-blue-600">Price:</span> ₹{item.pricePerNight || item.price || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -118,7 +118,7 @@ const TopServices = () => {
                       <p className="text-gray-600 text-sm -mt-1">{item.location}</p>
                       
                     <div className="flex items-center gap-1 text-sm font-medium mt-1">
-                      <span className="text-blue-900"><span className="text-blue-900">Price:</span> ₹{item.entryFee || item.price}</span>
+                      <span className="text-blue-600"><span className="text-blue-600">Price:</span> ₹{item.entryFee || item.price}</span>
                     </div>
                     </div>
                   </div>
@@ -159,7 +159,7 @@ const TopServices = () => {
                     <p className="text-gray-900 text-lg font-medium truncate">{item.title || item.name}</p>
                     <p className="text-gray-600 text-sm -mt-1">{item.location}</p>
                     <div className="flex items-center gap-1 text-sm font-medium mt-1">
-                    <span className="text-blue-600">${item.price || item.ticketPrice}</span>
+                    <span className="text-blue-600"><span className="text-blue-600">Price:</span> ₹{item.price || item.ticketPrice}</span>
                     </div>
                   </div>
                 </div>

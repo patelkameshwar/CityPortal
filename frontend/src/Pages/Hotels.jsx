@@ -207,7 +207,7 @@ const Hotels = () => {
                       e.stopPropagation();
                       handleBookNow(hotel);
                     }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-2xl hover:bg-blue-700 transition font-medium cursor-pointer"
                   >
                     Book Now
                   </button>
@@ -226,7 +226,7 @@ const Hotels = () => {
         <div className="text-center mt-8">
           <button
             onClick={() => setDisplayCount((prev) => prev + 9)}
-            className="bg-gray-600/70 text-white px-8 py-3 rounded-3xl hover:bg-blue-700 transition font-semibold text-base"
+            className="bg-gray-600/70 text-white px-8 py-3 rounded-3xl hover:bg-blue-700 transition font-semibold text-base cursor-pointer"
           >
             Load More Hotels ( {filteredHotels.length - displayCount} left )
           </button>
