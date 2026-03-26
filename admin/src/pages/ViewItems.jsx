@@ -13,7 +13,8 @@ import {
   FaUsers, 
   FaBed, 
   FaUtensils,
-  FaSpinner 
+  FaSpinner,
+  FaUser 
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -68,6 +69,7 @@ const mapApiDataToView = (apiData) => {
       healthWellness: Array.isArray(apiData.healthWellness) ? apiData.healthWellness : [],
       safetySecurity: Array.isArray(apiData.safetySecurity) ? apiData.safetySecurity : [],
       ...(itemType === 'event' && {
+        artist: apiData.artist || "",
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
         eventDate: formatDate(apiData.eventDate),
@@ -202,6 +204,19 @@ const mapApiDataToView = (apiData) => {
                 </div>
               </div>
             </div>
+
+            {/* Artist Section for Events */}
+            {itemType === 'event' && itemData.artist && (
+              <div>
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <FaUser className="mr-2 text-indigo-600" />
+                  Artist
+                </label>
+                <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base font-semibold text-indigo-800">
+                  {itemData.artist}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
