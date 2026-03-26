@@ -312,6 +312,7 @@ const HotelDetails = () => {
               >
                 Amenities
               </button>
+
               <button
                 onClick={() => setActiveTab('policies')}
                 className={`px-4 py-2 font-medium text-sm ${
@@ -347,22 +348,98 @@ const HotelDetails = () => {
             {/* Tab Content */}
             <div className="min-h-64">
               {activeTab === 'amenities' && (
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">Amenities</h2>
-                  {hotel.amenities && hotel.amenities.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {hotel.amenities.map((amenity, index) => (
-                        <span
-                          key={index}
-                          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800 mb-4">Popular Amenities</h2>
+                    {hotel.amenities && hotel.amenities.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {hotel.amenities.map((amenity, index) => (
+                          <span
+                            key={`main-${index}`}
+                            className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium"
+                          >
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-indigo-600 italic text-sm mb-6">No amenities available</p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className=" p-4 rounded-xl">
+                      <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
+                        🏠 Basic Facilities
+                      </h3>
+                      {hotel.basicFacilities && hotel.basicFacilities.length > 0 ? (
+                        <div className="space-y-2">
+                          {hotel.basicFacilities.map((item, index) => (
+                            <div key={`basic-${index}`} className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
+                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                              <span className="text-sm bg-gray-100 text-gray-600">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-indigo-600 italic text-sm">No basic facilities listed</p>
+                      )}
                     </div>
-                  ) : (
-                    <p className="text-gray-600">No amenities available</p>
-                  )}
+
+                    <div className="p-4 rounded-xl">
+                      <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
+                        🛏️ Room Amenities
+                      </h3>
+                      {hotel.roomAmenities && hotel.roomAmenities.length > 0 ? (
+                        <div className="space-y-2">
+                          {hotel.roomAmenities.map((item, index) => (
+                            <div key={`room-${index}`} className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
+                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                              <span className="text-sm bg-gray-100 text-gray-600">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-indigo-600 italic text-sm">No room amenities listed</p>
+                      )}
+                    </div>
+
+                    <div className=" p-4 rounded-xl">
+                      <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
+                        💪 Health & Wellness
+                      </h3>
+                      {hotel.healthWellness && hotel.healthWellness.length > 0 ? (
+                        <div className="space-y-2">
+                          {hotel.healthWellness.map((item, index) => (
+                            <div key={`health-${index}`} className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
+                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                              <span className="text-sm bg-gray-100 text-gray-600">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-indigo-600 italic text-sm">No health & wellness features listed</p>
+                      )}
+                    </div>
+
+                    <div className=" p-4 rounded-xl">
+                      <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
+                        🛡️ Safety & Security
+                      </h3>
+                      {hotel.safetySecurity && hotel.safetySecurity.length > 0 ? (
+                        <div className="space-y-2">
+                          {hotel.safetySecurity.map((item, index) => (
+                            <div key={`safety-${index}`} className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
+                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                              <span className="text-sm bg-gray-100 text-gray-600">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-indigo-600 italic text-sm">No safety features listed</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -432,7 +509,7 @@ const HotelDetails = () => {
                   ) : similarError ? (
                     <p className="text-red-600">{similarError}</p>
                   ) : similarHotels.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {similarHotels.map((hotel) => (
                         <div
                           key={hotel._id}

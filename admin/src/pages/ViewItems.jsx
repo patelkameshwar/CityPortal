@@ -29,6 +29,7 @@ const ViewItems = () => {
 
   const [itemData, setItemData] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [activeSubAmenityTab, setActiveSubAmenityTab] = useState("basic");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const ViewItems = () => {
     }
   };
 
-  const mapApiDataToView = (apiData) => {
+const mapApiDataToView = (apiData) => {
     const map = fieldMap[itemType];
     return {
       title: apiData[map.title] || "",
@@ -60,6 +61,11 @@ const ViewItems = () => {
       capacity: apiData[map.capacity] || "",
       amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
       policies: Array.isArray(apiData.policies) ? apiData.policies : [],
+      // Sub-amenities for hotels
+      basicFacilities: Array.isArray(apiData.basicFacilities) ? apiData.basicFacilities : [],
+      roomAmenities: Array.isArray(apiData.roomAmenities) ? apiData.roomAmenities : [],
+      healthWellness: Array.isArray(apiData.healthWellness) ? apiData.healthWellness : [],
+      safetySecurity: Array.isArray(apiData.safetySecurity) ? apiData.safetySecurity : [],
       ...(itemType === 'event' && {
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
@@ -234,10 +240,10 @@ const ViewItems = () => {
             </div>
 
             <div>
-              <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
+              <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                 Amenities
               </label>
-              <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
+              <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl mb-4">
 {itemData.amenities && Array.isArray(itemData.amenities) && itemData.amenities.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {itemData.amenities.map((amenity, index) => (
@@ -254,12 +260,150 @@ const ViewItems = () => {
                 )}
               </div>
 
-              {/* Policies Section */}
+            
+              {/* Sub-Amenities Section for Hotels */}
+              {isHotel && (
+                <div>
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center mb-2">
+                    Sub-Amenities
+                  </label>
+                  <div className="mb-2">
+                    <div className="flex border-b border-gray-200 mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setActiveSubAmenityTab?.("basic") || setActiveSubAmenityTab("basic")}
+                        className={`px-4 py-2 font-medium text-sm -mb-px ${
+                          activeSubAmenityTab === "basic"
+                            ? "text-indigo-600 border-b-2 border-indigo-600"
+                            : "text-gray-600 hover:text-gray-800"
+                        }`}
+                      >
+                        Basic Facilities
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveSubAmenityTab?.("room") || setActiveSubAmenityTab("room")}
+                        className={`px-4 py-2 font-medium text-sm -mb-px ${
+                          activeSubAmenityTab === "room"
+                            ? "text-purple-600 border-b-2 border-purple-600"
+                            : "text-gray-600 hover:text-gray-800"
+                        }`}
+                      >
+                        Room Amenities
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveSubAmenityTab?.("health") || setActiveSubAmenityTab("health")}
+                        className={`px-4 py-2 font-medium text-sm -mb-px ${
+                          activeSubAmenityTab === "health"
+                            ? "text-green-600 border-b-2 border-green-600"
+                            : "text-gray-600 hover:text-gray-800"
+                        }`}
+                      >
+                        Health & Wellness
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveSubAmenityTab?.("safety") || setActiveSubAmenityTab("safety")}
+                        className={`px-4 py-2 font-medium text-sm -mb-px ${
+                          activeSubAmenityTab === "safety"
+                            ? "text-red-600 border-b-2 border-red-600"
+                            : "text-gray-600 hover:text-gray-800"
+                        }`}
+                      >
+                        Safety & Security
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tab Contents */}
+                  <div className="space-y-4">
+                    {activeSubAmenityTab === "basic" && (
+                      <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
+                        {itemData.basicFacilities && Array.isArray(itemData.basicFacilities) && itemData.basicFacilities.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {itemData.basicFacilities.map((facility, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium shadow-sm border border-indigo-200"
+                              >
+                                {facility}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic text-base">No basic facilities listed</p>
+                        )}
+                      </div>
+                    )}
+
+                    {activeSubAmenityTab === "room" && (
+                      <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl">
+                        {itemData.roomAmenities && Array.isArray(itemData.roomAmenities) && itemData.roomAmenities.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {itemData.roomAmenities.map((amenity, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-sm font-medium shadow-sm border border-purple-200"
+                              >
+                                {amenity}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic text-base">No room amenities listed</p>
+                        )}
+                      </div>
+                    )}
+
+                    {activeSubAmenityTab === "health" && (
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl">
+                        {itemData.healthWellness && Array.isArray(itemData.healthWellness) && itemData.healthWellness.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {itemData.healthWellness.map((item, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium shadow-sm border border-green-200"
+                              >
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic text-base">No health & wellness features listed</p>
+                        )}
+                      </div>
+                    )}
+
+                    {activeSubAmenityTab === "safety" && (
+                      <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl">
+                        {itemData.safetySecurity && Array.isArray(itemData.safetySecurity) && itemData.safetySecurity.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {itemData.safetySecurity.map((item, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-800 rounded-full text-sm font-medium shadow-sm border border-red-200"
+                              >
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic text-base">No safety & security features listed</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Policies Section */}
               <div>
-                <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                   Policies
                 </label>
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl mb-4">
                   {itemData.policies && Array.isArray(itemData.policies) && itemData.policies.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {itemData.policies.map((policy, index) => (
@@ -276,7 +420,7 @@ const ViewItems = () => {
                   )}
                 </div>
               </div>
-            </div>
+
 
             {itemData.eventType && (
               <>

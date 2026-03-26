@@ -80,26 +80,26 @@ const [formData, setFormData] = useState({
     "Extra Bed Available", "Accessible Rooms", "Non Refundable", 
     "Full Refund Before 48h", "Strict Policy", "Flexible Policy",
     "Breakfast Included", "Children Policy", "ID Required", "Credit Card Required",
-    "Minimum Stay 2 Nights", "No Pets", "Quiet Hours", "No Parties", "Passport, Aadhaar and Driving License are accepted as ID proof(s)", "Primary Guest should be atleast 18 years of age", "There are no restrictions on alcohol consumption.", "There are restrictions on alcohol consumption.", "1 infant (0-2 yrs) per room included without counting in total room capacity"
+    "Minimum Stay 2 Nights", "No Pets", "Quiet Hours", "No Parties", "Passport, Aadhaar and Driving License are accepted as ID proof(s)", "Primary Guest should be atleast 18 years of age", "There are no restrictions on alcohol consumption.", "There are restrictions on alcohol consumption.", "1 infant (0-2 yrs) per room included without counting in total room capacity", "Unmarried couples are not allowed", "Pets are not allowed", "Allows private parties or events", 
   ];
 
   const popularBasicFacilities = [
-    "Free WiFi", "Parking", "Free Parking", "24 Hour Front Desk", "Elevator",
+    "WiFi", "Free WiFi", "Air Conditioning", "HouseKeeping", "Swimming Pool", "Parking", "Free Parking", "24 Hour Front Desk", "Elevator", "Laundry Service", "Power Backup", "Smoke Detector", 
     "Restaurant", "Free Breakfast", "Laundry", "Airport Shuttle",
-    "Non Smoking Rooms", "Family Rooms", "Lounge", "Refrigerator in Lobby",
+    "Smoking Rooms", "Non Smoking Rooms", "Family Rooms", "Lounge", "Refrigerator",
     "Business Center", "Meeting Rooms", "Concierge", "Currency Exchange",
-    "ATM", "Baggage Storage", "Newspapers", "Vending Machine"
+    "ATM", "Baggage Storage", "Newspapers", "Washing Machine", "Vending Machine"
   ];
 
   const popularRoomAmenities = [
-    "Air Conditioning", "Private Bathroom", "King Bed", "Queen Bed",
-    "Minibar", "Room Service", "Balcony", "City View", "Mountain View",
-    "Flat Screen TV", "Cable TV", "Telephone", "Safe", "Desk", "Ironing Facilities",
+    "Air Conditioning", "Private Bathroom", "King Bed", "Queen Bed", "Full-Length Mirror", "Mineral Water", "Sofa", 
+    "Minibar", "Room Service", "Balcony", "City View", "Mountain View", 
+    "Flat Screen TV", "Cable TV", "Telephone", "Safe", "Work Desk", "Ironing Facilities",
     "Hair Dryer", "Bathrobe", "Slippers", "Coffee Maker", "Electric Kettle", "Wardrobe"
   ];
 
   const popularHealthWellness = [
-    "Swimming Pool", "Gym", "Fitness Center", "Spa", "Sauna",
+    "Gym", "Fitness Center", "Spa", "Sauna",
     "Steam Room", "Massage", "Hot Tub", "Yoga Classes", "Jogging Track",
     "Outdoor Pool", "Indoor Pool", "Poolside Bar", "Sun Deck", "Wellness Center",
     "Beauty Salon", "Ayurveda", "Meditation", "Personal Trainer", "Steam Bath"
