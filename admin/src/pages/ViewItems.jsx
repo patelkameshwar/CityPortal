@@ -26,6 +26,7 @@ const ViewItems = () => {
   const pageTitle = isHotel ? 'Hotel Details' : 'Event Details';
   const icon = isHotel ? FaHotel : FaCalendarAlt;
   const capacityLabel = isHotel ? 'Total Rooms' : 'Total Pass';
+  const Icon = icon;
 
   const [itemData, setItemData] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -170,7 +171,7 @@ const mapApiDataToView = (apiData) => {
           <div className="px-8 py-8 border-b border-gray-200 bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/80 rounded-2xl shadow-lg border">
-                {React.createElement(icon, { className: "h-10 w-10 text-emerald-600" })}
+<Icon className="h-10 w-10 text-emerald-600" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">

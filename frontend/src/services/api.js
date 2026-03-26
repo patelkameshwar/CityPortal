@@ -57,6 +57,7 @@ export const hotelAPI = {
 export const eventAPI = {
   getAll: () => api.get('/events'),
   getById: (id) => api.get(`/events/${id}`),
+  getSimilar: (id) => api.get(`/events/${id}/similar`),
   create: (data) => api.post('/events', data),
   update: (id, data) => api.put(`/events/${id}`, data),
   delete: (id) => api.delete(`/events/${id}`),
@@ -92,4 +93,3 @@ export const bookingAPI = {
 };
 
 export default api;
-

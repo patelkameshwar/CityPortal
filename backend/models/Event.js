@@ -88,10 +88,24 @@ const eventSchema = new mongoose.Schema(
       min: 0,
     },
 
+    artist: {
+      type: String,
+      trim: true,
+    },
+
+    amenities: {
+      type: [String],
+      default: [],
+    },
+    policies: {
+      type: [String],
+      default: [],
+    },
     images: {
       type: [String],
       default: [],
     },
+
 
     // Bookings array (stores dynamic bookings)
     bookings: {

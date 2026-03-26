@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { eventAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +27,7 @@ const Events = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
@@ -129,7 +131,11 @@ const Events = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
-            <div key={event._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            <div 
+              key={event._id} 
+              onClick={() => navigate(`/events/${event._id}`)}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+            >
               <div className="h-48 bg-gray-200 relative">
                 {event.images && event.images.length > 0 ? (
                   <img src={event.images[0]} alt={event.title} className="w-full h-full object-cover" />
@@ -157,7 +163,10 @@ const Events = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">{event.totalSeats} seats available</span>
                   <button
-                    onClick={() => handleBookNow(event)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookNow(event);
+                    }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
                   >
                     Book Now

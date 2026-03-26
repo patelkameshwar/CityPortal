@@ -35,6 +35,7 @@ const EditItems = () => {
   const pageTitle = isHotel ? 'Edit Hotel' : 'Edit Event';
   const icon = isHotel ? FaHotel : FaCalendarAlt;
   const capacityLabel = isHotel ? 'Total Rooms' : 'Total Seats';
+  const Icon = icon;
 
   const [formData, setFormData] = useState({
     // Common fields
@@ -166,9 +167,9 @@ const [newAmenity, setNewAmenity] = useState("");
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
+      amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
+      policies: Array.isArray(apiData.policies) ? apiData.policies : [],
       ...(isHotel && { 
-        amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
-        policies: Array.isArray(apiData.policies) ? apiData.policies : [],
         basicFacilities: Array.isArray(apiData.basicFacilities) ? apiData.basicFacilities : [],
         roomAmenities: Array.isArray(apiData.roomAmenities) ? apiData.roomAmenities : [],
         healthWellness: Array.isArray(apiData.healthWellness) ? apiData.healthWellness : [],
@@ -236,10 +237,9 @@ const [newAmenity, setNewAmenity] = useState("");
         setFormData(formData);
         
         // Set existing images
-        if (apiItem.images?.length > 0) {
-          setExistingImages(apiItem.images);
-          setImagePreviews(apiItem.images);
-        }
+        const safeImages = Array.isArray(apiItem.images) ? apiItem.images : [];
+        setExistingImages(safeImages);
+        setImagePreviews(safeImages);
       } catch (error) {
         console.error(`Failed to load ${itemType}:`, error);
         toast.error(`Failed to load ${isHotel ? 'hotel' : 'event'} data`);
@@ -306,7 +306,7 @@ const [newAmenity, setNewAmenity] = useState("");
 
   const addPolicy = (policy) => {
     const trimmed = policy.trim();
-    if (!trimmed || formData.policies.length >= 15 || formData.policies.some(p => p.toLowerCase() === trimmed.toLowerCase())) {
+    if (!trimmed || (formData.policies || []).length >= 15 || (formData.policies || []).some(p => p.toLowerCase() === trimmed.toLowerCase())) {
       toast.warning("Invalid or duplicate policy, or max 15 reached.");
       return;
     }
@@ -327,7 +327,7 @@ const [newAmenity, setNewAmenity] = useState("");
   const removePolicy = (indexToRemove) => {
     setFormData(prev => ({
       ...prev,
-      policies: prev.policies.filter((_, index) => index !== indexToRemove)
+      policies: (prev.policies || []).filter((_, index) => index !== indexToRemove)
     }));
   };
 
@@ -718,7 +718,7 @@ const [newAmenity, setNewAmenity] = useState("");
           <div className="px-8 py-8 border-b border-gray-200 bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/80 rounded-2xl shadow-lg border">
-                <icon className="h-10 w-10 text-emerald-600" />
+                <Icon className="h-10 w-10 text-emerald-600" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
@@ -1493,7 +1493,7 @@ const [newAmenity, setNewAmenity] = useState("");
                     </div>
                   )}
 
-                  {formData.policies.length > 0 && (
+                  {(formData.policies || []).length > 0 && (
                     <div className="flex flex-wrap gap-2 p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl">
                       {formData.policies.map((policy, index) => (
                         <div
@@ -1511,7 +1511,7 @@ const [newAmenity, setNewAmenity] = useState("");
                         </div>
                       ))}
                       <span className="text-sm text-gray-500 ml-3 self-center">
-                        ({formData.policies.length}/15)
+                        ({(formData.policies || []).length}/15)
                       </span>
                     </div>
                   )}
@@ -1526,17 +1526,16 @@ const [newAmenity, setNewAmenity] = useState("");
                 {isHotel ? 'Hotel Images' : 'Event Images'}
               </label>
               
-              {existingImages.length > 0 && (
+              {existingImages?.length > 0 && (
                 <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
                   <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                    Current Images ({existingImages.length - imagesToRemove.size})
+                  Current Images ({(existingImages?.length || 0) - imagesToRemove.size})
                     {imagesToRemove.size > 0 && (
                       <span className="ml-2 text-red-600 text-sm font-medium">({imagesToRemove.size} to remove)</span>
                     )}
                   </h4>
                   <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                    {existingImages
-                      .filter(img => !imagesToRemove.has(img))
+                    {(existingImages || []).filter(img => !imagesToRemove.has(img))
                       .slice(0, 10)
                       .map((imgSrc, idx) => {
                         const actualIdx = existingImages.indexOf(imgSrc);
@@ -1554,9 +1553,9 @@ const [newAmenity, setNewAmenity] = useState("");
                           </div>
                         );
                       })}
-                    {existingImages.length > 10 && (
+                    {existingImages?.length > 10 && (
                       <div className="col-span-1 md:col-span-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center shadow-lg font-semibold text-gray-600">
-                        +{Math.max(0, existingImages.length - imagesToRemove.size - 10)}
+                        +{Math.max(0, existingImages?.length - imagesToRemove.size - 10)}
                       </div>
                     )}
                   </div>
@@ -1596,11 +1595,11 @@ const [newAmenity, setNewAmenity] = useState("");
               </div>
 
               {/* New Image Previews */}
-              {imagePreviews.length > existingImages.length && (
+              {imagePreviews.length > ((existingImages || []).length) && (
                 <div className="mt-8">
                   <div className="flex items-center justify-between mb-6">
                     <h4 className="text-base font-semibold text-gray-900">
-                      New Images to Add ({imagePreviews.length - existingImages.length})
+                      New Images to Add ({imagePreviews.length - (existingImages?.length || 0)})
                     </h4>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">

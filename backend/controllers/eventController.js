@@ -15,7 +15,10 @@ console.log('Event files received:', req.files, req.file);
       return res.status(400).json({ success: false, message: "Maximum 50 images allowed" });
     }
 
-    const { title, location, lat, lng, description, eventType, eventDate, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
+    const { title, artist, location, lat, lng, description, eventType, eventDate, bookingFromDate, bookingToDate, eventTime, totalSeats, price } = req.body;
+    const amenities = req.body.amenities ? (typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities) : [];
+    const policies = req.body.policies ? (typeof req.body.policies === 'string' ? JSON.parse(req.body.policies) : req.body.policies) : [];
+
 
     if (!title || !location || !eventTime || !totalSeats || !price) {
       return res.status(400).json({ success: false, message: "All required fields must be provided" });
@@ -52,6 +55,9 @@ console.log('Event files received:', req.files, req.file);
 
     const event = await Event.create({
       title,
+      artist,
+      amenities,
+      policies,
       location,
       coordinates: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : undefined,
       description,
@@ -158,9 +164,12 @@ exports.updateEvent = async (req, res) => {
     event.images = newImages.length ? [...remainingImages, ...newImages] : remainingImages;
 
     // Update fields safely
-    if (req.body.title !== undefined) event.title = req.body.title;
+if (req.body.title !== undefined) event.title = req.body.title;
+if (req.body.artist !== undefined) event.artist = req.body.artist;
 if (req.body.location !== undefined) event.location = req.body.location;
 if (req.body.description !== undefined) event.description = req.body.description;
+if (req.body.amenities !== undefined) event.amenities = req.body.amenities && typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : (req.body.amenities || []);
+if (req.body.policies !== undefined) event.policies = req.body.policies && typeof req.body.policies === 'string' ? JSON.parse(req.body.policies) : (req.body.policies || []);
 if (req.body.eventTime !== undefined) event.eventTime = req.body.eventTime;
 if (req.body.price !== undefined) event.price = Number(req.body.price);
 
