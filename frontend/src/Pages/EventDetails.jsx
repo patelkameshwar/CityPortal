@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-} from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { eventAPI, bookingAPI } from "../services/api";
@@ -77,7 +73,9 @@ const EventDetails = () => {
     } else if (event?.location) {
       let lat = 21.7679;
       let lng = 72.1359;
-      const hash = event.location.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
+      const hash = event.location
+        .split("")
+        .reduce((a, b) => a + b.charCodeAt(0), 0);
       lat += (hash % 100) / 10000;
       lng += ((hash * 31) % 100) / 10000;
       setMapCenter({ lat, lng });
@@ -165,7 +163,9 @@ const EventDetails = () => {
 
   const prevImage = () => {
     if (event && event.images) {
-      setCurrentImageIndex((prev) => (prev - 1 + event.images.length) % event.images.length);
+      setCurrentImageIndex(
+        (prev) => (prev - 1 + event.images.length) % event.images.length,
+      );
     }
   };
 
@@ -178,10 +178,13 @@ const EventDetails = () => {
     setShowPhotoModal(false);
   };
 
-  const mapContainerStyle = useMemo(() => ({
-    height: "400px",
-    width: "100%",
-  }), []);
+  const mapContainerStyle = useMemo(
+    () => ({
+      height: "400px",
+      width: "100%",
+    }),
+    [],
+  );
 
   const hasMoreAmenities = !!(event?.amenities?.length > 4); // Assume amenities field
 
@@ -196,8 +199,13 @@ const EventDetails = () => {
   if (error || !event) {
     return (
       <div className="py-12 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Event not found</h2>
-        <button onClick={() => navigate("/events")} className="text-blue-600 hover:underline">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Event not found
+        </h2>
+        <button
+          onClick={() => navigate("/events")}
+          className="text-blue-600 hover:underline"
+        >
           Back to Events
         </button>
       </div>
@@ -298,7 +306,9 @@ const EventDetails = () => {
           <div className="p-8">
             {/* About Event Section */}
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">About Event</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
+                About Event
+              </h2>
               {isDescriptionExpanded ? (
                 <>
                   <p className="text-gray-600">{event.description}</p>
@@ -311,7 +321,9 @@ const EventDetails = () => {
                 </>
               ) : (
                 <p className="text-gray-600">
-                  {event.description ? event.description.slice(0, 320) + "..." : ""}
+                  {event.description
+                    ? event.description.slice(0, 320) + "..."
+                    : ""}
                   <button
                     onClick={() => setIsDescriptionExpanded(true)}
                     className="ml-1 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
@@ -330,7 +342,10 @@ const EventDetails = () => {
               </div>
               <div className="flex items-center gap-2">
                 <FiCalendar className="h-5 w-5 text-blue-500" />
-                <span>{new Date(event.bookingFromDate).toLocaleDateString()} - {new Date(event.bookingToDate).toLocaleDateString()}</span>
+                <span>
+                  {new Date(event.bookingFromDate).toLocaleDateString()} -{" "}
+                  {new Date(event.bookingToDate).toLocaleDateString()}
+                </span>
               </div>
             </div>
 
@@ -367,54 +382,78 @@ const EventDetails = () => {
               {activeTab === "amenities" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 mb-4">Popular Amenities</h2>
+                    <h2 className="text-lg font-bold text-gray-800 mb-4">
+                      Popular Amenities
+                    </h2>
                     {event.amenities && event.amenities.length > 0 ? (
                       <div className="flex flex-wrap gap-2 mb-2">
                         {event.amenities.map((amenity, index) => (
-                          <span key={`highlight-${index}`} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                          <span
+                            key={`highlight-${index}`}
+                            className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium"
+                          >
                             {amenity}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-indigo-600 italic text-sm mb-6">No amenities available</p>
+                      <p className="text-indigo-600 italic text-sm mb-6">
+                        No amenities available
+                      </p>
                     )}
                   </div>
                   {/* Simplified amenities grid - adapt if more fields exist */}
                   <div className="p-4 rounded-xl bg-gray-50">
-                    <h3 className="text-md font-bold text-gray-800 mb-3">Event Features</h3>
+                    <h3 className="text-md font-bold text-gray-800 mb-3">
+                      Event Features
+                    </h3>
                     <div className="space-y-2">
                       <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
                         <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-600">Live Entertainment</span>
+                        <span className="text-sm text-gray-600">
+                          Live Entertainment
+                        </span>
                       </div>
                       <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-600">Networking Opportunities</span>
+                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
+                        <span className="text-sm text-gray-600">
+                          Networking Opportunities
+                        </span>
                       </div>
                     </div>
                   </div>
-                  {hasMoreAmenities && (
-                    <button
-                      onClick={() => setShowAllAmenities(!showAllAmenities)}
-                      className="bg-gray-500 text-white py-2 px-8 rounded-2xl hover:bg-blue-700 transition font-medium text-sm -mt-4 cursor-pointer block mx-auto"
-                    >
-                      {showAllAmenities ? "Show Less" : "Show More"}
-                    </button>
-                  )}
                 </div>
               )}
 
               {activeTab === "policies" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">Event Policies</h2>
-                  <p className="text-gray-600 italic">Check event website for detailed policies. Tickets are non-refundable.</p>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                    Event Policies
+                  </h2>
+                  {event.policies && event.policies.length > 0 ? (
+                      <ul className="list-[circle] pl-5 space-y-2">
+                        {event.policies.map((policy, index) => (
+                          <li
+                            key={`policy-${index}`}
+                            className="text-gray-700 text-sm leading-relaxed"
+                          >
+                            {policy}
+                          </li>
+                        ))}
+                      </ul>
+                  ) : (
+                    <p className="text-gray-600 italic">
+                      No specific policies listed for this event.
+                    </p>
+                  )}
                 </div>
               )}
 
               {activeTab === "location" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">Location</h2>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                    Location
+                  </h2>
                   <div className="flex items-start gap-2 mb-4">
                     <FiMapPin className="h-5 w-5 text-gray-600 mt-0.5" />
                     <div>
@@ -422,13 +461,23 @@ const EventDetails = () => {
                     </div>
                   </div>
                   {mapCenter ? (
-                    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                    <LoadScript
+                      googleMapsApiKey={
+                        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+                      }
+                    >
                       <GoogleMap
                         mapContainerStyle={mapContainerStyle}
                         center={mapCenter}
                         zoom={14}
                         options={{
-                          styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
+                          styles: [
+                            {
+                              featureType: "poi",
+                              elementType: "labels",
+                              stylers: [{ visibility: "off" }],
+                            },
+                          ],
                         }}
                       >
                         <Marker position={mapCenter} />
@@ -444,7 +493,9 @@ const EventDetails = () => {
 
               {activeTab === "similar" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">Similar Events</h2>
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                    Similar Events
+                  </h2>
                   {similarLoading ? (
                     <div className="flex justify-center items-center h-32">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -461,7 +512,11 @@ const EventDetails = () => {
                         >
                           <div className="h-40 bg-gray-200 relative">
                             {evt.images && evt.images.length > 0 ? (
-                              <img src={evt.images[0]} alt={evt.title} className="w-full h-full object-cover" />
+                              <img
+                                src={evt.images[0]}
+                                alt={evt.title}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
                                 <FiMusic className="h-12 w-12" />
@@ -472,12 +527,16 @@ const EventDetails = () => {
                             </div>
                           </div>
                           <div className="p-4">
-                            <h3 className="font-bold text-gray-800 text-md">{evt.title}</h3>
+                            <h3 className="font-bold text-gray-800 text-md">
+                              {evt.title}
+                            </h3>
                             <div className="flex items-center text-gray-600 text-sm mb-1">
                               <FiMapPin className="h-3 w-3 mr-1" />
                               {evt.location}
                             </div>
-                            <p className="text-gray-600 text-sm line-clamp-2">{evt.description}</p>
+                            <p className="text-gray-600 text-sm line-clamp-2">
+                              {evt.description}
+                            </p>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -511,9 +570,17 @@ const EventDetails = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">Book {event.title}</h3>
+                <h3 className="text-xl font-bold text-gray-800">
+                  Book {event.title}
+                </h3>
                 <button
-                  onClick={() => setBookingData({ bookingFromDate: "", bookingToDate: "", tickets: 1 })}
+                  onClick={() =>
+                    setBookingData({
+                      bookingFromDate: "",
+                      bookingToDate: "",
+                      tickets: 1,
+                    })
+                  }
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <FiX className="h-6 w-6" />
@@ -528,35 +595,56 @@ const EventDetails = () => {
 
               <form onSubmit={handleBookingSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Event Start Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Event Start Date
+                  </label>
                   <input
                     type="date"
                     value={bookingData.bookingFromDate}
-                    onChange={(e) => setBookingData({ ...bookingData, bookingFromDate: e.target.value })}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        bookingFromDate: e.target.value,
+                      })
+                    }
                     required
                     min={getTodayDate()}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Event End Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Event End Date
+                  </label>
                   <input
                     type="date"
                     value={bookingData.bookingToDate}
-                    onChange={(e) => setBookingData({ ...bookingData, bookingToDate: e.target.value })}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        bookingToDate: e.target.value,
+                      })
+                    }
                     required
                     min={bookingData.bookingFromDate || getTodayDate()}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Number of Tickets</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Number of Tickets
+                  </label>
                   <input
                     type="number"
                     min="1"
                     max={event.totalSeats}
                     value={bookingData.tickets}
-                    onChange={(e) => setBookingData({ ...bookingData, tickets: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setBookingData({
+                        ...bookingData,
+                        tickets: parseInt(e.target.value),
+                      })
+                    }
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
@@ -568,7 +656,9 @@ const EventDetails = () => {
                   </div>
                   <div className="flex justify-between text-sm mt-2">
                     <span className="text-gray-600">Total:</span>
-                    <span className="font-bold text-lg">₹{calculateTotal()}</span>
+                    <span className="font-bold text-lg">
+                      ₹{calculateTotal()}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -627,7 +717,11 @@ const EventDetails = () => {
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? "border-blue-500" : "border-transparent"}`}
                     >
-                      <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
