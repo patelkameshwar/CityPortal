@@ -30,6 +30,32 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+const formatEventDate = (fromDate, toDate) => {
+  if (!fromDate || !toDate) return "";
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+
+  if (
+    from.getFullYear() !== to.getFullYear() ||
+    from.getMonth() !== to.getMonth() ||
+    from.getDate() !== to.getDate()
+  ) {
+    // Multi-day: "12 Jun - 20 Jun"
+    const fromStr = from.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+    const toStr = to.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+    return `${fromStr} - ${toStr}`;
+  } else {
+    // Single day: "12 June"
+    return from.toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+  }
+};
+
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,10 +63,10 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [bookingData, setBookingData] = useState({
-    bookingFromDate: "",
-    bookingToDate: "",
-    tickets: 1,
+    bookingDate: "",
+    totalQuantity: 1,
   });
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -114,11 +140,13 @@ const EventDetails = () => {
       return;
     }
 
+    // Default to today, constrained to event range in form
+    const defaultDate = event?.bookingFromDate ? new Date(event.bookingFromDate).toISOString().split('T')[0] : getTodayDate();
     setBookingData({
-      bookingFromDate: event?.bookingFromDate || getTodayDate(),
-      bookingToDate: event?.bookingToDate || getTodayDate(),
-      tickets: 1,
+      bookingDate: defaultDate,
+      totalQuantity: 1,
     });
+    setShowBookingModal(true);
   };
 
   const handleBookingSubmit = async (e) => {
@@ -127,24 +155,23 @@ const EventDetails = () => {
     setBookingSuccess("");
 
     try {
-      const totalPrice = event.price * bookingData.tickets;
+      const totalPrice = event.price * bookingData.totalQuantity;
 
       await bookingAPI.create({
         itemType: "Event",
         itemId: event._id,
-        bookingFromDate: bookingData.bookingFromDate,
-        bookingToDate: bookingData.bookingToDate,
-        totalQuantity: bookingData.tickets,
+        bookingDate: bookingData.bookingDate,
+        totalQuantity: bookingData.totalQuantity,
         totalPrice,
       });
 
       toast.success("Tickets booked successfully!");
+      setShowBookingModal(false);
       setTimeout(() => {
-        setBookingSuccess("");
         navigate("/my-bookings");
-      }, 2000);
+      }, 1500);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Booking failed");
+      toast.error(err.response?.data?.message || "Booking failed - check date availability");
     } finally {
       setBookingLoading(false);
     }
@@ -152,7 +179,12 @@ const EventDetails = () => {
 
   const calculateTotal = () => {
     if (!event) return 0;
-    return event.price * bookingData.tickets;
+    return event.price * bookingData.totalQuantity;
+  };
+
+  const closeBookingModal = () => {
+    setShowBookingModal(false);
+    setBookingData({ bookingDate: "", totalQuantity: 1 });
   };
 
   const nextImage = () => {
@@ -335,7 +367,11 @@ const EventDetails = () => {
             </div>
 
             {/* Location and Details */}
-            <div className="flex items-center justify-start gap-40 text-gray-600 mb-6">
+            <div className="flex items-center justify-start gap-36 text-gray-600 mb-6">
+              <div className="flex items-center gap-2">
+                <FiUser className="h-5 w-5 text-blue-500" />
+                <span>{event.artist}</span>
+              </div>
               <div className="flex items-center gap-2">
                 <FiMapPin className="h-5 w-5 text-blue-500" />
                 <span>{event.location}</span>
@@ -343,8 +379,13 @@ const EventDetails = () => {
               <div className="flex items-center gap-2">
                 <FiCalendar className="h-5 w-5 text-blue-500" />
                 <span>
-                  {new Date(event.bookingFromDate).toLocaleDateString()} -{" "}
-                  {new Date(event.bookingToDate).toLocaleDateString()}
+                  {new Date(event.bookingFromDate).toDateString() === new Date(event.bookingToDate).toDateString() ? 'One Day Event' : 'Multi-Day Event'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FiCalendar className="h-5 w-5 text-blue-500" />
+                <span>
+                  {formatEventDate(event.bookingFromDate, event.bookingToDate)}
                 </span>
               </div>
             </div>
@@ -431,16 +472,16 @@ const EventDetails = () => {
                     Event Policies
                   </h2>
                   {event.policies && event.policies.length > 0 ? (
-                      <ul className="list-[circle] pl-5 space-y-2">
-                        {event.policies.map((policy, index) => (
-                          <li
-                            key={`policy-${index}`}
-                            className="text-gray-700 text-sm leading-relaxed"
-                          >
-                            {policy}
-                          </li>
-                        ))}
-                      </ul>
+                    <ul className="list-[circle] pl-5 space-y-2">
+                      {event.policies.map((policy, index) => (
+                        <li
+                          key={`policy-${index}`}
+                          className="text-gray-700 text-sm leading-relaxed"
+                        >
+                          {policy}
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
                     <p className="text-gray-600 italic">
                       No specific policies listed for this event.
@@ -566,83 +607,57 @@ const EventDetails = () => {
           </div>
         </div>
 
-        {bookingData.bookingFromDate && (
+{showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-gray-800">
-                  Book {event.title}
+                  Book Tickets for {event.title}
                 </h3>
                 <button
-                  onClick={() =>
-                    setBookingData({
-                      bookingFromDate: "",
-                      bookingToDate: "",
-                      tickets: 1,
-                    })
-                  }
+                  onClick={closeBookingModal}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <FiX className="h-6 w-6" />
                 </button>
               </div>
 
-              {bookingSuccess && (
-                <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-                  {bookingSuccess}
-                </div>
-              )}
-
               <form onSubmit={handleBookingSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Event Start Date
+                    Event Date *
                   </label>
                   <input
                     type="date"
-                    value={bookingData.bookingFromDate}
+                    value={bookingData.bookingDate}
                     onChange={(e) =>
                       setBookingData({
                         ...bookingData,
-                        bookingFromDate: e.target.value,
+                        bookingDate: e.target.value,
                       })
                     }
                     required
-                    min={getTodayDate()}
+                    min={event?.bookingFromDate ? new Date(event.bookingFromDate).toISOString().split('T')[0] : getTodayDate()}
+                    max={event?.bookingToDate ? new Date(event.bookingToDate).toISOString().split('T')[0] : ''}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Available: {formatEventDate(event?.bookingFromDate, event?.bookingToDate)}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Event End Date
-                  </label>
-                  <input
-                    type="date"
-                    value={bookingData.bookingToDate}
-                    onChange={(e) =>
-                      setBookingData({
-                        ...bookingData,
-                        bookingToDate: e.target.value,
-                      })
-                    }
-                    required
-                    min={bookingData.bookingFromDate || getTodayDate()}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Number of Tickets
+                    Number of Tickets *
                   </label>
                   <input
                     type="number"
                     min="1"
                     max={event.totalSeats}
-                    value={bookingData.tickets}
+                    value={bookingData.totalQuantity}
                     onChange={(e) =>
                       setBookingData({
                         ...bookingData,
-                        tickets: parseInt(e.target.value),
+                        totalQuantity: parseInt(e.target.value),
                       })
                     }
                     required
@@ -664,9 +679,9 @@ const EventDetails = () => {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
                 >
-                  {bookingLoading ? "Processing..." : "Confirm Booking"}
+                  {bookingLoading ? "Processing..." : `Confirm Booking (₹${calculateTotal()})`}
                 </button>
               </form>
             </div>
