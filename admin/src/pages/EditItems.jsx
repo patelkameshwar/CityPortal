@@ -25,9 +25,9 @@ import dayjs from 'dayjs';
 
 const EditItems = () => {
   const { type, id } = useParams();
-  const legacyId = useParams().id; // For /client/edit-event/:id fallback
+  const legacyId = useParams().id; 
   const itemId = id || legacyId;
-  const itemType = type || 'event'; // Default to event for legacy route
+  const itemType = type || 'event'; 
   const isHotel = itemType === 'hotel';
   
   const apiService = isHotel ? hotelAPI : eventAPI;
@@ -203,6 +203,7 @@ const [newAmenity, setNewAmenity] = useState("");
         safetySecurity: formData.safetySecurity || [],
       }),
       ...(itemType === 'event' && ({
+        policies: formData.policies || [],
         eventType: formData.eventType,
         eventTime: formData.eventTime,
         ...(formData.eventType === 'one-day' 
