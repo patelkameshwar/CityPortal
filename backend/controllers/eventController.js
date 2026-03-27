@@ -276,6 +276,49 @@ exports.deleteEvent = async (req, res) => {
 };
 
 /*
+ * GET SIMILAR EVENTS
+ * Access: Public
+ */
+exports.getSimilarEvents = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate("owner", "name email");
+    if (!event) {
+      return res.status(404).json({ success: false, message: "Event not found" });
+    }
+
+    const searchCriteria = {
+      _id: { $ne: event._id }, // exclude self
+      $or: [
+        { location: { $regex: event.location.split(',')[0], $options: 'i' } }, // fuzzy location match (city)
+        { artist: { $regex: event.artist || '', $options: 'i' } },
+        // Add eventType if field exists in model
+      ],
+    };
+
+    // Date proximity: events within ~30 days
+    const thirtyDaysAgo = new Date(event.bookingFromDate);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysLater = new Date(event.bookingToDate);
+    thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+    searchCriteria.bookingFromDate = { $gte: thirtyDaysAgo, $lte: thirtyDaysLater };
+
+    const similarEvents = await Event.find(searchCriteria)
+      .populate("owner", "name email")
+      .limit(8)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      similarEvents,
+      count: similarEvents.length
+    });
+  } catch (error) {
+    console.error("Get Similar Events Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/*
  * BOOK EVENT
  * Access: User
  */

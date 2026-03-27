@@ -6,6 +6,7 @@ const {
   createEvent,
   getAllEvents,
   getEventById,
+  getSimilarEvents,
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
@@ -20,6 +21,7 @@ const createUpload = require("../middleware/uploadMiddleware");
 router.get("/", getAllEvents);
 
 router.get("/:id", getEventById);
+router.get("/:id/similar", getSimilarEvents);
 
 /**   ------------- PROTECTED ROUTES ----------------   */
 
