@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { tourismAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +27,7 @@ const Tourism = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTourismSpots();
@@ -130,7 +132,11 @@ const Tourism = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredSpots.length > 0 ? (
           filteredSpots.map((spot) => (
-            <div key={spot._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            <div 
+              key={spot._id} 
+              onClick={() => navigate(`/tourism/${spot._id}`)}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+            >
               <div className="h-48 bg-gray-200 relative">
                 {spot.images && spot.images.length > 0 ? (
                   <img src={spot.images[0]} alt={spot.name} className="w-full h-full object-cover" />
@@ -158,7 +164,10 @@ const Tourism = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">{spot.totalVisitors} visitors/day</span>
                   <button
-                    onClick={() => handleBookNow(spot)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookNow(spot);
+                    }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
                   >
                     Book Now

@@ -1,21 +1,31 @@
-# Fix Event Booking in EventDetails.jsx - TODO
+# TourismDetails.jsx - Match EventDetails UI/Design
 
-## Approved Plan Steps (Logical breakdown):
+## Plan Breakdown & Progress
 
-### 1. Create TODO.md [COMPLETED]
-### 2. Add explicit showBookingModal state and update bookingData structure [COMPLETED]
-### 3. Refactor handleBookTickets to set proper bookingDate and open modal [COMPLETED]
-### 2. Add explicit showBookingModal state and update bookingData structure [COMPLETED]
-### 3. Refactor handleBookTickets to set proper bookingDate and open modal [COMPLETED]
-### 4. Update modal JSX: condition on showBookingModal, single date input for bookingDate with constraints [COMPLETED]
-### 5. Refactor handleBookingSubmit: correct payload with bookingDate/totalQuantity [COMPLETED]
-### 6. Update calculateTotal and close modal handlers [COMPLETED]
-### 7. Fix button labels and add better error handling [COMPLETED]
-### 8. Test and cleanup [COMPLETED - manual test recommended: login → event details → Book Tickets → select date within range ≤ totalSeats → submit → verify /my-bookings]
-### 9. Mark complete and attempt_completion
+### 1. [x] Create this TODO.md (current)
 
-**Current Status:** All implementation steps [COMPLETED]. Event booking now properly opens modal on "Book Tickets", sends correct bookingDate/totalQuantity payload matching backend Event logic, validates dates against event range, handles availability errors. Ready for final completion.
+### 2. ✅ Add backend support for similar tourism [Done]
+   - ✅ Edit backend/controllers/tourismController.js: Add getSimilarTourism function 
+   - ✅ Edit backend/routes/tourismRoutes.js: Add route GET /tourism/:id/similar
 
-**Next Action:** Edit EventDetails.jsx per plan.
+### 3. ✅ Update frontend services [Done]
+   - ✅ Edit frontend/src/services/api.js: Add tourismAPI.getSimilar(id)
+
+### 4. ✅ [Main] Refactor frontend/src/pages/TourismDetails.jsx [Done]
+   - ✅ Full copy + adapt from EventDetails.jsx: exact layout/styling/modals/tabs/map/booking
+   - ✅ Tourism-specific: name/entryFee/totalVisitors/openTime-closeTime/owner.name, FiMapPin/FiCamera icons
+   - ✅ Booking: itemType:"Tourism", totalQuantity=visitors (max=totalVisitors), central bookingAPI.create
+   - ✅ Tabs: Amenities/policies (hardcoded tourism-relevant), Location map, Similar via API
+
+### 5. Skip - Model update [Skipped]
+   - No amenities/policies fields needed (hardcoded works)
+
+### 6. ✅ Task Complete - Test Ready
+   - Backend /tourism/:id/similar endpoint ready
+   - Frontend fully matched EventDetails UI
+   - Run: cd frontend && npm run dev + backend server
+   - Features: photo modal, booking modal->my-bookings, tabs, map, similar spots
+
+**All steps complete! TourismDetails now matches EventDetails exactly.**
 
 

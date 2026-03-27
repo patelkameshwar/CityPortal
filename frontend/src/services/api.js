@@ -68,11 +68,13 @@ export const eventAPI = {
 export const tourismAPI = {
   getAll: () => api.get('/tourism'),
   getById: (id) => api.get(`/tourism/${id}`),
+  getSimilar: (id) => api.get(`/tourism/${id}/similar`),
   create: (data) => api.post('/tourism', data),
   update: (id, data) => api.put(`/tourism/${id}`, data),
   delete: (id) => api.delete(`/tourism/${id}`),
   book: (id, data) => api.post(`/tourism/${id}/book`, data),
 };
+
 
 // Blog APIs
 export const blogAPI = {

@@ -227,6 +227,47 @@ exports.deleteTourism = async (req, res) => {
 };
 
 /**
+ * GET SIMILAR TOURISM PLACES
+ * Access: Public
+ */
+exports.getSimilarTourism = async (req, res) => {
+  try {
+    const tourism = await Tourism.findById(req.params.id).populate("owner", "name email");
+    if (!tourism) {
+      return res.status(404).json({ success: false, message: "Tourism place not found" });
+    }
+
+    const searchCriteria = {
+      _id: { $ne: tourism._id }, // exclude self
+      $or: [
+        { location: { $regex: tourism.location.split(',')[0], $options: 'i' } }, // fuzzy location match (city)
+      ],
+    };
+
+    // Date proximity: within ~30 days
+    const thirtyDaysAgo = new Date(tourism.bookingFromDate);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysLater = new Date(tourism.bookingToDate);
+    thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+    searchCriteria.bookingFromDate = { $gte: thirtyDaysAgo, $lte: thirtyDaysLater };
+
+    const similarTourism = await Tourism.find(searchCriteria)
+      .populate("owner", "name email")
+      .limit(8)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      similarTourism,
+      count: similarTourism.length
+    });
+  } catch (error) {
+    console.error("Get Similar Tourism Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
  * BOOK TOURISM PLACE
  * Access: User
  */
@@ -281,4 +322,5 @@ exports.bookTourism = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 

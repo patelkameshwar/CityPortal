@@ -20,6 +20,8 @@ const createUpload = require("../middleware/uploadMiddleware");
 router.get("/", getAllTourism);
 
 router.get("/:id", getTourismById);
+router.get("/:id/similar", getSimilarTourism);
+
 
 // ================= CLIENT / ADMIN ROUTES =================
 router.post(
