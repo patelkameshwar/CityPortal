@@ -2,22 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import api from "../../services/api.js";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { 
-  FaArrowLeft, 
-  FaUser, 
-  FaUsers, 
-  FaHotel, 
-  FaMapMarkerAlt, 
-  FaCalendarAlt, 
-  FaImage, 
-  FaRupeeSign, 
-  FaClock, 
-  FaBed, 
-  FaUtensils, 
+import {
+  FaArrowLeft,
+  FaUser,
+  FaUsers,
+  FaHotel,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaImage,
+  FaRupeeSign,
+  FaClock,
+  FaBed,
+  FaUtensils,
   FaSpinner,
   FaPhone,
   FaEnvelope,
-  FaMapPin
+  FaMapPin,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -27,136 +27,168 @@ const AdminView = () => {
   const { user } = useAuth();
   const [itemData, setItemData] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [activeSubAmenityTab, setActiveSubAmenityTab] = useState("basic");
   const [loading, setLoading] = useState(true);
 
   const typeConfig = {
     client: {
-      title: 'Client Details',
+      title: "Client Details",
       icon: FaUser,
       apiPath: `/admin/clients/${id}`,
       fieldMap: {
-        title: 'name',
-        email: 'email',
-        phone: 'phone',
-        address: 'address'
+        title: "name",
+        email: "email",
+        phone: "phone",
+        address: "address",
       },
-      hasImages: false
+      hasImages: false,
     },
     hotel: {
-      title: 'Hotel Details',
+      title: "Hotel Details",
       icon: FaHotel,
       apiPath: `/hotels/${id}`,
       fieldMap: {
-        title: 'name',
-        price: 'pricePerNight',
-        capacity: 'totalRooms',
-        extra: 'amenities'
+        title: "name",
+        price: "pricePerNight",
+        capacity: "totalRooms",
+        extra: "amenities",
       },
-      hasImages: true
+      hasImages: true,
     },
     event: {
-      title: 'Event Details',
+      title: "Event Details",
       icon: FaCalendarAlt,
       apiPath: `/events/${id}`,
       fieldMap: {
-        title: 'title',
-        price: 'price',
-        capacity: 'totalSeats'
+        title: "title",
+        price: "price",
+        capacity: "totalSeats",
       },
-      hasImages: true
+      hasImages: true,
     },
     tourism: {
-      title: 'Tourism Details',
+      title: "Tourism Details",
       icon: FaMapMarkerAlt,
       apiPath: `/tourism/${id}`,
       fieldMap: {
-        title: 'name',
-        price: 'entryFee',
-        capacity: 'totalVisitors',
-        openTime: 'openTime',
-        closeTime: 'closeTime'
+        title: "name",
+        price: "entryFee",
+        capacity: "totalVisitors",
+        openTime: "openTime",
+        closeTime: "closeTime",
       },
-      hasImages: true
-    }
+      hasImages: true,
+    },
   };
 
   const config = typeConfig[type] || typeConfig.client;
+  const isClient = type === "client";
 
   const location = useLocation();
   const backRoutes = {
-    client: { path: '/admin/clients', label: 'Clients' },
-    hotel: { path: '/admin/hotels', label: 'Hotels' },
-    event: { path: '/admin/events', label: 'Events' },
-    tourism: { path: '/admin/tourism', label: 'Tourism' }
+    client: { path: "/admin/clients", label: "Clients" },
+    hotel: { path: "/admin/hotels", label: "Hotels" },
+    event: { path: "/admin/events", label: "Events" },
+    tourism: { path: "/admin/tourism", label: "Tourism" },
   };
-  const defaultBack = backRoutes[type] || { path: '/admin-dashboard', label: 'Dashboard' };
+  const defaultBack = backRoutes[type] || {
+    path: "/admin-dashboard",
+    label: "Dashboard",
+  };
   const backPath = location.state?.from || defaultBack.path;
   const backLabel = location.state?.fromLabel || defaultBack.label;
 
-const mapApiDataToView = (apiData) => {
-    const mapped = {
-      title: apiData[config.fieldMap.title] || "",
-      description: apiData.description || "",
-      location: apiData.location || "",
-      lat: (['hotel', 'event', 'tourism'].includes(type) && apiData.coordinates?.lat) ? apiData.coordinates.lat.toString() : "",
-      lng: (['hotel', 'event', 'tourism'].includes(type) && apiData.coordinates?.lng) ? apiData.coordinates.lng.toString() : "",
-      ...(config.fieldMap.price && { price: apiData[config.fieldMap.price] || "" }),
-      ...(config.fieldMap.capacity && { capacity: apiData[config.fieldMap.capacity] || "" }),
-      ...(config.fieldMap.extra && { amenities: apiData[config.fieldMap.extra] || "" }),
-      ...(type === 'client' && {
-        email: apiData.email || "",
-        phone: apiData.phone || "",
-        address: apiData.address || ""
+  const safeArray = (val) => (Array.isArray(val) ? val : []);
+  const mapApiDataToView = (apiData) => {
+    const map = config.fieldMap;
+
+    return {
+      title: apiData?.[map.title] ?? "",
+      description: apiData?.description ?? "",
+      location: apiData?.location ?? "",
+      lat: apiData?.coordinates?.lat?.toString() ?? "",
+      lng: apiData?.coordinates?.lng?.toString() ?? "",
+      price: apiData?.[map.price] ?? "",
+      capacity: apiData?.[map.capacity] ?? "",
+
+      amenities: safeArray(apiData?.amenities),
+      policies: safeArray(apiData?.policies),
+
+      basicFacilities: safeArray(apiData?.basicFacilities),
+      roomAmenities: safeArray(apiData?.roomAmenities),
+      healthWellness: safeArray(apiData?.healthWellness),
+      safetySecurity: safeArray(apiData?.safetySecurity),
+
+      images: safeArray(apiData?.images),
+      profilePicture: apiData?.profilePicture ?? "",
+
+      ...(type === "event" && {
+        artist: apiData?.artist ?? "",
+        eventType: apiData?.eventDate ? "one-day" : "multi-day",
+        eventTime: apiData?.eventTime ?? "",
+        eventDate: formatDate(apiData?.eventDate),
+        bookingFromDate: formatDate(apiData?.bookingFromDate),
+        bookingToDate: formatDate(apiData?.bookingToDate),
       }),
-      ...(type === 'event' && {
-        eventType: apiData.eventDate ? "one-day" : "multi-day",
-        eventTime: apiData.eventTime || "",
-        eventDate: formatDate(apiData.eventDate),
+
+      ...(type === "client" && {
+        email: apiData?.email ?? "",
+        phone: apiData?.phone ?? "",
+        address: apiData?.address ?? "",
+      }),
+
+      ...(type === "tourism" && {
+        openTime: apiData?.openTime ?? "",
+        closeTime: apiData?.closeTime ?? "",
         bookingFromDate: formatDate(apiData.bookingFromDate),
         bookingToDate: formatDate(apiData.bookingToDate),
       }),
-      ...(type === 'tourism' && {
-        bookingFromDate: apiData.bookingFromDate,
-        bookingToDate: apiData.bookingToDate,
-        openTime: apiData.openTime || "",
-        closeTime: apiData.closeTime || ""
-      }),
-      images: apiData.images || [],
-      profilePicture: apiData.profilePicture
     };
-    return mapped;
   };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString('en-GB', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
   useEffect(() => {
     if (!id || !config) {
       toast.error("Invalid type or ID");
-      navigate('/admin-dashboard');
+      navigate("/admin-dashboard");
       return;
     }
 
     const fetchItem = async () => {
       try {
         const response = await api.get(config.apiPath);
-        const apiItem = response.data.event || response.data.hotel || response.data.tourism || response.data.client || response.data;
+        const getApiItem = (data) => {
+          switch (type) {
+            case "event":
+              return data.event;
+            case "hotel":
+              return data.hotel;
+            case "tourism":
+              return data.tourism;
+            case "client":
+              return data.client;
+            default:
+              return data;
+          }
+        };
+
+        const apiItem = getApiItem(response.data);
         const viewData = mapApiDataToView(apiItem);
         setItemData(viewData);
-        
-        if (apiItem.images?.length > 0) {
-          setImagePreviews(apiItem.images);
-        }
+
+        setImagePreviews(apiItem.images || []);
       } catch (error) {
         console.error(`Failed to load ${type}:`, error);
         toast.error(`Failed to load ${type} data`);
-        navigate('/admin-dashboard');
+        navigate("/admin-dashboard");
       } finally {
         setLoading(false);
       }
@@ -178,8 +210,13 @@ const mapApiDataToView = (apiData) => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center p-8">
           <config.icon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Item not found</h2>
-          <Link to={backPath} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Item not found
+          </h2>
+          <Link
+            to={backPath}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
             Back to {backLabel}
           </Link>
         </div>
@@ -202,14 +239,20 @@ const mapApiDataToView = (apiData) => {
             <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-emerald-100 border-2 border-emerald-200">
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={user.profilePicture}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-xs">
-                    {user?.name?.[0] || 'A'}
+                    {user?.name?.[0] || "A"}
                   </div>
                 )}
               </div>
-              <span className="font-semibold text-gray-900 hidden sm:inline">{user?.name}</span>
+              <span className="font-semibold text-gray-900 hidden sm:inline">
+                {user?.name}
+              </span>
             </div>
           </div>
         </div>
@@ -220,7 +263,9 @@ const mapApiDataToView = (apiData) => {
           <div className="px-8 py-8 border-b border-gray-200 bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/80 rounded-2xl shadow-lg border">
-                {React.createElement(config.icon, { className: "h-10 w-10 text-emerald-600" })}
+                {React.createElement(config.icon, {
+                  className: "h-10 w-10 text-emerald-600",
+                })}
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
@@ -236,17 +281,27 @@ const mapApiDataToView = (apiData) => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
-                  {type === 'client' ? 'Name' : type === 'hotel' ? 'Hotel Name' : type === 'event' ? 'Event Title' : 'Tourism Name'}
+                  {type === "client"
+                    ? "Name"
+                    : type === "hotel"
+                      ? "Hotel Name"
+                      : type === "event"
+                        ? "Event Title"
+                        : "Tourism Name"}
                 </label>
                 <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
                   {itemData.title}
                 </div>
               </div>
-              {(itemData.price !== undefined) && (
+              {!isClient && itemData.price !== undefined && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaRupeeSign className="mr-2 text-emerald-600" />
-                    {type === 'hotel' ? 'Price per Night' : type === 'event' ? 'Price per Pass' : 'Entry Fee'}
+                    {type === "hotel"
+                      ? "Price per Night"
+                      : type === "event"
+                        ? "Price per Pass"
+                        : "Entry Fee"}
                   </label>
                   <div className="px-5 py-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-base font-semibold text-emerald-800 flex items-center">
                     ₹{itemData.price}
@@ -255,9 +310,22 @@ const mapApiDataToView = (apiData) => {
               )}
             </div>
 
+            {/* Artist Section for Events */}
+            {type === "event" && itemData.artist && (
+              <div>
+                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <FaUser className="mr-2 text-indigo-600" />
+                  Artist
+                </label>
+                <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base font-semibold text-indigo-800">
+                  {itemData.artist}
+                </div>
+              </div>
+            )}
+
             {/* Location/Capacity Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {type !== 'client' && (
+              {type !== "client" && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaMapPin className="mr-2 text-blue-600" />
@@ -269,17 +337,22 @@ const mapApiDataToView = (apiData) => {
                     </div>
                     {itemData.lat && itemData.lng && (
                       <div className="text-xs text-blue-700 font-mono bg-blue-100 px-3 py-1 rounded-lg border">
-                        📍 {parseFloat(itemData.lat).toFixed(6)}, {parseFloat(itemData.lng).toFixed(6)}
+                        📍 {parseFloat(itemData.lat).toFixed(6)},{" "}
+                        {parseFloat(itemData.lng).toFixed(6)}
                       </div>
                     )}
                   </div>
                 </div>
               )}
-              {(itemData.capacity !== undefined) && (
+              {!isClient && itemData.capacity !== undefined && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                     <FaUsers className="mr-2 text-purple-600" />
-                    {type === 'hotel' ? 'Total Rooms' : type === 'event' ? 'Total Seats' : 'Total Visitors per day'}
+                    {type === "hotel"
+                      ? "Total Rooms"
+                      : type === "event"
+                        ? "Total Seats"
+                        : "Total Visitors per day"}
                   </label>
                   <div className="px-5 py-4 bg-purple-50 border-2 border-purple-200 rounded-2xl text-base font-semibold text-purple-900">
                     {itemData.capacity}
@@ -289,7 +362,7 @@ const mapApiDataToView = (apiData) => {
             </div>
 
             {/* Client Specific Fields */}
-            {type === 'client' && (
+            {type === "client" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
@@ -324,39 +397,237 @@ const mapApiDataToView = (apiData) => {
               </div>
             )}
 
-            {/* Hotel Amenities */}
-{type === 'hotel' && (
+            {/* Amenities Section */}
+            {!isClient && (
               <div>
-                <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                   Amenities
-                  <FaUtensils className="ml-2 text-indigo-600" />
                 </label>
-                <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base">
-                  {itemData.amenities || 'No amenities listed'}
-                  {(!itemData.amenities || itemData.amenities.length === 0) && (
-                    <p className="text-indigo-600 italic mt-2 text-sm">No amenities available</p>
+                <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl mb-4">
+                  {itemData.amenities &&
+                  Array.isArray(itemData.amenities) &&
+                  itemData.amenities.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {itemData.amenities.map((amenity, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 rounded-full text-sm font-medium shadow-sm border border-indigo-200"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-indigo-500 italic text-base">
+                      No amenities listed
+                    </p>
                   )}
+                </div>
+
+                {/* Sub-Amenities Section for Hotels */}
+                {type === "hotel" && (
+                  <div>
+                    <label className="text-base font-semibold text-gray-800 flex items-center">
+                      Sub-Amenities
+                    </label>
+                    <div className="mb-2">
+                      <div className="flex border-b border-gray-200 mb-4">
+                        <button
+                          type="button"
+                          onClick={() => setActiveSubAmenityTab("basic")}
+                          className={`px-4 py-2 font-medium text-sm -mb-px ${
+                            activeSubAmenityTab === "basic"
+                              ? "text-indigo-600 border-b-2 border-indigo-600"
+                              : "text-gray-600 hover:text-gray-800"
+                          }`}
+                        >
+                          Basic Facilities
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveSubAmenityTab("room")}
+                          className={`px-4 py-2 font-medium text-sm -mb-px ${
+                            activeSubAmenityTab === "room"
+                              ? "text-purple-600 border-b-2 border-purple-600"
+                              : "text-gray-600 hover:text-gray-800"
+                          }`}
+                        >
+                          Room Amenities
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveSubAmenityTab("health")}
+                          className={`px-4 py-2 font-medium text-sm -mb-px ${
+                            activeSubAmenityTab === "health"
+                              ? "text-green-600 border-b-2 border-green-600"
+                              : "text-gray-600 hover:text-gray-800"
+                          }`}
+                        >
+                          Health & Wellness
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveSubAmenityTab("safety")}
+                          className={`px-4 py-2 font-medium text-sm -mb-px ${
+                            activeSubAmenityTab === "safety"
+                              ? "text-red-600 border-b-2 border-red-600"
+                              : "text-gray-600 hover:text-gray-800"
+                          }`}
+                        >
+                          Safety & Security
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Tab Contents */}
+                    <div className="space-y-4 mb-6">
+                      {activeSubAmenityTab === "basic" && (
+                        <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
+                          {itemData.basicFacilities &&
+                          Array.isArray(itemData.basicFacilities) &&
+                          itemData.basicFacilities.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {itemData.basicFacilities.map(
+                                (facility, index) => (
+                                  <span
+                                    key={index}
+                                    className="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium shadow-sm border border-indigo-200"
+                                  >
+                                    {facility}
+                                  </span>
+                                ),
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-indigo-500 italic text-sm">
+                              No basic facilities listed
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {activeSubAmenityTab === "room" && (
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl">
+                          {itemData.roomAmenities &&
+                          Array.isArray(itemData.roomAmenities) &&
+                          itemData.roomAmenities.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {itemData.roomAmenities.map((amenity, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-800 rounded-full text-sm font-medium shadow-sm border border-purple-200"
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-indigo-500 italic text-sm">
+                              No room amenities listed
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {activeSubAmenityTab === "health" && (
+                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl">
+                          {itemData.healthWellness &&
+                          Array.isArray(itemData.healthWellness) &&
+                          itemData.healthWellness.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {itemData.healthWellness.map((item, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium shadow-sm border border-green-200"
+                                >
+                                  {item}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-indigo-500 italic text-sm">
+                              No health & wellness features listed
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {activeSubAmenityTab === "safety" && (
+                        <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl">
+                          {itemData.safetySecurity &&
+                          Array.isArray(itemData.safetySecurity) &&
+                          itemData.safetySecurity.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {itemData.safetySecurity.map((item, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-800 rounded-full text-sm font-medium shadow-sm border border-red-200"
+                                >
+                                  {item}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-indigo-500 italic text-sm">
+                              No safety & security features listed
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Policies Section */}
+                <div>
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
+                    Policies
+                  </label>
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl mb-4">
+                    {itemData.policies &&
+                    Array.isArray(itemData.policies) &&
+                    itemData.policies.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {itemData.policies.map((policy, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                          >
+                            {policy}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-indigo-500 italic text-sm">
+                        No policies listed
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Event Specific */}
-            {type === 'event' && (
+            {type === "event" && (
               <>
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-3">
                     Event Type
                   </label>
-                  <div className={`px-4 py-3 rounded-2xl font-semibold shadow-sm ${
-                    itemData.eventType === 'one-day' 
-                      ? 'bg-blue-100 border-2 border-blue-300 text-blue-800' 
-                      : 'bg-purple-100 border-2 border-purple-300 text-purple-800'
-                  }`}>
-                    {itemData.eventType === 'one-day' ? 'One Day Event' : 'Multi-Day Event'}
+                  <div
+                    className={`px-4 py-3 rounded-2xl font-semibold shadow-sm ${
+                      itemData.eventType === "one-day"
+                        ? "bg-blue-100 border-2 border-blue-300 text-blue-800"
+                        : "bg-purple-100 border-2 border-purple-300 text-purple-800"
+                    }`}
+                  >
+                    {itemData.eventType === "one-day"
+                      ? "One Day Event"
+                      : "Multi-Day Event"}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {itemData.eventType === 'one-day' ? (
+                  {itemData.eventType === "one-day" ? (
                     <div>
                       <label className="font-semibold text-gray-800 mb-3 flex items-center">
                         <FaCalendarAlt className="mr-2 text-orange-500" />
@@ -369,13 +640,17 @@ const mapApiDataToView = (apiData) => {
                   ) : (
                     <>
                       <div>
-                        <label className="block font-semibold text-gray-800 mb-3">Booking From</label>
+                        <label className="block font-semibold text-gray-800 mb-3">
+                          Booking From
+                        </label>
                         <div className="px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-2xl font-medium text-blue-800">
                           {itemData.bookingFromDate}
                         </div>
                       </div>
                       <div>
-                        <label className="block font-semibold text-gray-800 mb-3">Booking To</label>
+                        <label className="block font-semibold text-gray-800 mb-3">
+                          Booking To
+                        </label>
                         <div className="px-4 py-3 bg-purple-50 border-2 border-purple-200 rounded-2xl font-medium text-purple-800">
                           {itemData.bookingToDate}
                         </div>
@@ -396,7 +671,7 @@ const mapApiDataToView = (apiData) => {
             )}
 
             {/* Tourism Dates & Timings */}
-            {type === 'tourism' && (
+            {type === "tourism" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
@@ -405,7 +680,7 @@ const mapApiDataToView = (apiData) => {
                       Booking From Date
                     </label>
                     <div className="px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-2xl font-medium text-blue-800">
-                      {formatDate(itemData.bookingFromDate) || 'Not set'}
+                      {formatDate(itemData.bookingFromDate) || "Not set"}
                     </div>
                   </div>
                   <div>
@@ -414,7 +689,7 @@ const mapApiDataToView = (apiData) => {
                       Booking To Date
                     </label>
                     <div className="px-4 py-3 bg-purple-50 border-2 border-purple-200 rounded-2xl font-medium text-purple-800">
-                      {formatDate(itemData.bookingToDate) || 'Not set'}
+                      {formatDate(itemData.bookingToDate) || "Not set"}
                     </div>
                   </div>
                 </div>
@@ -425,7 +700,7 @@ const mapApiDataToView = (apiData) => {
                       Open Time
                     </label>
                     <div className="px-4 py-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl font-medium text-indigo-800">
-                      {itemData.openTime || 'Not set'}
+                      {itemData.openTime || "Not set"}
                     </div>
                   </div>
                   <div>
@@ -434,7 +709,7 @@ const mapApiDataToView = (apiData) => {
                       Close Time
                     </label>
                     <div className="px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-2xl font-medium text-orange-800">
-                      {itemData.closeTime || 'Not set'}
+                      {itemData.closeTime || "Not set"}
                     </div>
                   </div>
                 </div>
@@ -442,16 +717,16 @@ const mapApiDataToView = (apiData) => {
             )}
 
             {/* Client Profile Picture */}
-            {type === 'client' && itemData.profilePicture && (
+            {type === "client" && itemData.profilePicture && (
               <div>
                 <label className="text-base font-semibold text-gray-800 mb-5 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
                   Profile Picture
                 </label>
                 <div className="flex justify-center">
-                  <img 
-                    src={itemData.profilePicture} 
-                    alt="Profile" 
+                  <img
+                    src={itemData.profilePicture}
+                    alt="Profile"
                     className="max-w-md max-h-96 object-cover rounded-2xl shadow-2xl border-4 border-gray-200"
                   />
                 </div>
@@ -459,16 +734,29 @@ const mapApiDataToView = (apiData) => {
             )}
 
             {/* Images Gallery */}
-            {(imagePreviews.length > 0 || (type === 'hotel' && itemData.images?.length > 0)) && (
+            {(imagePreviews.length > 0 ||
+              (type === "hotel" && itemData.images?.length > 0)) && (
               <div>
                 <label className="text-base font-semibold text-gray-800 mb-5 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
-                  {type === 'hotel' ? 'Hotel Images' : type === 'event' ? 'Event Images' : 'Tourism Images'} ({imagePreviews.length})
+                  {type === "hotel"
+                    ? "Hotel Images"
+                    : type === "event"
+                      ? "Event Images"
+                      : "Tourism Images"}{" "}
+                  ({imagePreviews.length})
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {imagePreviews.map((imgSrc, idx) => (
-                    <div key={idx} className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all">
-                      <img src={imgSrc} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div
+                      key={idx}
+                      className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all"
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={`Image ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>
@@ -492,4 +780,3 @@ const mapApiDataToView = (apiData) => {
 };
 
 export default AdminView;
-

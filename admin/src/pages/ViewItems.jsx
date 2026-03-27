@@ -280,7 +280,7 @@ const mapApiDataToView = (apiData) => {
               {/* Sub-Amenities Section for Hotels */}
               {isHotel && (
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center mb-2">
+                  <label className="text-base font-semibold text-gray-800 flex items-center mb-2">
                     Sub-Amenities
                   </label>
                   <div className="mb-2">
