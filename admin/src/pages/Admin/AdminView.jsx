@@ -280,7 +280,7 @@ const AdminView = () => {
             {/* Title/Price Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
+                <label className="block text-base font-semibold text-gray-800 mb-2">
                   {type === "client"
                     ? "Name"
                     : type === "hotel"
@@ -295,7 +295,7 @@ const AdminView = () => {
               </div>
               {!isClient && itemData.price !== undefined && (
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaRupeeSign className="mr-2 text-emerald-600" />
                     {type === "hotel"
                       ? "Price per Night"
@@ -313,7 +313,7 @@ const AdminView = () => {
             {/* Artist Section for Events */}
             {type === "event" && itemData.artist && (
               <div>
-                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                   <FaUser className="mr-2 text-indigo-600" />
                   Artist
                 </label>
@@ -327,7 +327,7 @@ const AdminView = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {type !== "client" && (
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaMapPin className="mr-2 text-blue-600" />
                     Location
                   </label>
@@ -346,7 +346,7 @@ const AdminView = () => {
               )}
               {!isClient && itemData.capacity !== undefined && (
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaUsers className="mr-2 text-purple-600" />
                     {type === "hotel"
                       ? "Total Rooms"
@@ -365,7 +365,7 @@ const AdminView = () => {
             {type === "client" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaEnvelope className="mr-2 text-orange-600" />
                     Email
                   </label>
@@ -374,7 +374,7 @@ const AdminView = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaPhone className="mr-2 text-green-600" />
                     Phone
                   </label>
@@ -388,7 +388,7 @@ const AdminView = () => {
             {/* Description */}
             {itemData.description && (
               <div>
-                <label className="block text-base font-semibold text-gray-800 mb-4">
+                <label className="block text-base font-semibold text-gray-800 mb-2">
                   Description
                 </label>
                 <div className="px-5 py-6 bg-gray-50 border-2 border-gray-200 rounded-2xl prose max-w-none text-base leading-relaxed">
@@ -431,7 +431,7 @@ const AdminView = () => {
                       Sub-Amenities
                     </label>
                     <div className="mb-2">
-                      <div className="flex border-b border-gray-200 mb-4">
+                      <div className="flex border-b border-gray-200 mb-2">
                         <button
                           type="button"
                           onClick={() => setActiveSubAmenityTab("basic")}
@@ -583,7 +583,7 @@ const AdminView = () => {
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     Policies
                   </label>
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl mb-4">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
                     {itemData.policies &&
                     Array.isArray(itemData.policies) &&
                     itemData.policies.length > 0 ? (
@@ -611,7 +611,7 @@ const AdminView = () => {
             {type === "event" && (
               <>
                 <div>
-                  <label className="block text-base font-semibold text-gray-800 mb-3">
+                  <label className="block text-base font-semibold text-gray-800 mb-2">
                     Event Type
                   </label>
                   <div
@@ -640,7 +640,7 @@ const AdminView = () => {
                   ) : (
                     <>
                       <div>
-                        <label className="block font-semibold text-gray-800 mb-3">
+                        <label className="block font-semibold text-gray-800 mb-2">
                           Booking From
                         </label>
                         <div className="px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-2xl font-medium text-blue-800">
@@ -648,7 +648,7 @@ const AdminView = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block font-semibold text-gray-800 mb-3">
+                        <label className="block font-semibold text-gray-800 mb-2">
                           Booking To
                         </label>
                         <div className="px-4 py-3 bg-purple-50 border-2 border-purple-200 rounded-2xl font-medium text-purple-800">
@@ -675,7 +675,7 @@ const AdminView = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="font-semibold text-gray-800 mb-2 flex items-center">
                       <FaCalendarAlt className="mr-2 text-blue-500" />
                       Booking From Date
                     </label>
@@ -684,7 +684,7 @@ const AdminView = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="font-semibold text-gray-800 mb-2 flex items-center">
                       <FaCalendarAlt className="mr-2 text-purple-500" />
                       Booking To Date
                     </label>
@@ -695,7 +695,7 @@ const AdminView = () => {
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="font-semibold text-gray-800 mb-2 flex items-center">
                       <FaClock className="mr-2 text-indigo-500" />
                       Open Time
                     </label>
@@ -704,7 +704,7 @@ const AdminView = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <label className="font-semibold text-gray-800 mb-2 flex items-center">
                       <FaClock className="mr-2 text-orange-500" />
                       Close Time
                     </label>
@@ -737,7 +737,7 @@ const AdminView = () => {
             {(imagePreviews.length > 0 ||
               (type === "hotel" && itemData.images?.length > 0)) && (
               <div>
-                <label className="text-base font-semibold text-gray-800 mb-5 flex items-center">
+                <label className="text-base font-semibold text-gray-800 mb-4 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
                   {type === "hotel"
                     ? "Hotel Images"
