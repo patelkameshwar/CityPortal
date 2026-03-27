@@ -32,6 +32,23 @@ exports.createTourism = async (req, res) => {
       totalVisitors,
     } = req.body;
 
+    let amenities = [];
+    let policies = [];
+    if (req.body.amenities) {
+      try {
+        amenities = JSON.parse(req.body.amenities);
+      } catch (e) {
+        console.warn('Invalid amenities JSON:', e.message);
+      }
+    }
+    if (req.body.policies) {
+      try {
+        policies = JSON.parse(req.body.policies);
+      } catch (e) {
+        console.warn('Invalid policies JSON:', e.message);
+      }
+    }
+
     if (!bookingFromDate || !bookingToDate || !bookingFromTime || !bookingToTime) {
       return res.status(400).json({
         success: false,
@@ -62,6 +79,8 @@ exports.createTourism = async (req, res) => {
       bookingToTime,
       totalVisitors: totalVisitors || 100,
       bookings: [], // Store per-day bookings
+      amenities,
+      policies,
       images,
       owner: req.user.id,
     };
@@ -167,6 +186,22 @@ exports.updateTourism = async (req, res) => {
     if (req.body.bookingToDate) tourism.bookingToDate = new Date(req.body.bookingToDate);
     tourism.bookingFromTime = req.body.bookingFromTime || tourism.bookingFromTime;
     tourism.bookingToTime = req.body.bookingToTime || tourism.bookingToTime;
+
+    // Handle amenities and policies arrays
+    if (req.body.amenities) {
+      try {
+        tourism.amenities = JSON.parse(req.body.amenities);
+      } catch (e) {
+        console.warn('Invalid amenities JSON in update:', e.message);
+      }
+    }
+    if (req.body.policies) {
+      try {
+        tourism.policies = JSON.parse(req.body.policies);
+      } catch (e) {
+        console.warn('Invalid policies JSON in update:', e.message);
+      }
+    }
 
     // Update coordinates if lat/lng provided
     if (req.body.lat !== undefined && req.body.lng !== undefined) {

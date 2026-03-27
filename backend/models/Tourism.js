@@ -105,6 +105,16 @@ const tourismSchema = new mongoose.Schema(
       default: [],
     },
 
+    amenities: {
+      type: [String],
+      default: [],
+    },
+
+    policies: {
+      type: [String],
+      default: [],
+    },
+
     // Created by (Client / Admin)
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -114,6 +124,7 @@ const tourismSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("Tourism", tourismSchema);
 

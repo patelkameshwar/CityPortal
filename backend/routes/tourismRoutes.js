@@ -6,6 +6,7 @@ const {
   createTourism,
   getAllTourism,
   getTourismById,
+  getSimilarTourism,
   updateTourism,
   deleteTourism,
   bookTourism,
@@ -21,7 +22,6 @@ router.get("/", getAllTourism);
 
 router.get("/:id", getTourismById);
 router.get("/:id/similar", getSimilarTourism);
-
 
 // ================= CLIENT / ADMIN ROUTES =================
 router.post(
