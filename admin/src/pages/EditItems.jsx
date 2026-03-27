@@ -203,6 +203,7 @@ const [newAmenity, setNewAmenity] = useState("");
         safetySecurity: formData.safetySecurity || [],
       }),
       ...(itemType === 'event' && ({
+        amenities: formData.amenities || [],
         policies: formData.policies || [],
         eventType: formData.eventType,
         eventTime: formData.eventTime,
@@ -848,7 +849,7 @@ const [newAmenity, setNewAmenity] = useState("");
             </div>
 
             {/* Type-specific sections */}
-            {itemType === 'event' ? (
+            {itemType === 'event' && (
               <>
                 {/* Event Type Selector */}
                 <div>
@@ -953,11 +954,10 @@ const [newAmenity, setNewAmenity] = useState("");
                   </div>
                 </div>
               </>
-            ) : (
-              <>
+            )}
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-4">
-                    Amenities (optional)
+                    {itemType === 'event' ? 'Event Facilities (optional)' : 'Amenities (optional)'}
                   </label>
                 <div className="space-y-3">
                   <div className="relative">
@@ -1407,10 +1407,8 @@ const [newAmenity, setNewAmenity] = useState("");
                       )}
                     </div>
                   </div>
-                </>
+                </>    
               )}
-            </> 
-            )}
 
             {/* Policies Section */}
               <div>
