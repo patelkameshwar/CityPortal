@@ -14,6 +14,7 @@ import {
   FiArrowRight,
   FiClock,
   FiAlertCircle,
+  FiNavigation,
   FiCircle,
   FiChevronLeft,
   FiChevronRight,
@@ -58,8 +59,9 @@ const formatEventDate = (fromDate, toDate) => {
 
 const parseEventTime = (timeStr) => {
   timeStr = timeStr.toUpperCase().trim();
-  let hours = 0, mins = 0;
-  const isPM = timeStr.includes('PM');
+  let hours = 0,
+    mins = 0;
+  const isPM = timeStr.includes("PM");
   const timeMatch = timeStr.match(/(\\d{1,2}):(\\d{2})/);
 
   if (timeMatch) {
@@ -73,13 +75,19 @@ const parseEventTime = (timeStr) => {
 
 const isPastEvent = (event) => {
   const today = new Date(getTodayDate());
-  const endDate = event.bookingToDate ? new Date(event.bookingToDate) : event.bookingFromDate ? new Date(event.bookingFromDate) : null;
+  const endDate = event.bookingToDate
+    ? new Date(event.bookingToDate)
+    : event.bookingFromDate
+      ? new Date(event.bookingFromDate)
+      : null;
   if (!endDate || endDate > today) return false;
 
   // Past date
-  if (endDate.getFullYear() !== today.getFullYear() || 
-      endDate.getMonth() !== today.getMonth() || 
-      endDate.getDate() !== today.getDate()) {
+  if (
+    endDate.getFullYear() !== today.getFullYear() ||
+    endDate.getMonth() !== today.getMonth() ||
+    endDate.getDate() !== today.getDate()
+  ) {
     return true;
   }
 
@@ -89,8 +97,6 @@ const isPastEvent = (event) => {
   const eventTimeMins = parseEventTime(event.eventTime);
   return eventTimeMins < nowMins;
 };
-
-
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -161,7 +167,9 @@ const EventDetails = () => {
     setSimilarError("");
     try {
       const response = await eventAPI.getSimilar(event._id);
-      const filteredEvents = (response.data.similarEvents || []).filter(evt => !isPastEvent(evt));
+      const filteredEvents = (response.data.similarEvents || []).filter(
+        (evt) => !isPastEvent(evt),
+      );
       setSimilarEvents(filteredEvents);
     } catch (err) {
       setSimilarError("Failed to load similar events");
@@ -169,7 +177,6 @@ const EventDetails = () => {
       setSimilarLoading(false);
     }
   };
-
 
   const handleBookTickets = () => {
     if (!isAuthenticated) {
@@ -179,7 +186,9 @@ const EventDetails = () => {
     }
 
     // Default to today, constrained to event range in form
-    const defaultDate = event?.bookingFromDate ? new Date(event.bookingFromDate).toISOString().split('T')[0] : getTodayDate();
+    const defaultDate = event?.bookingFromDate
+      ? new Date(event.bookingFromDate).toISOString().split("T")[0]
+      : getTodayDate();
     setBookingData({
       bookingDate: defaultDate,
       totalQuantity: 1,
@@ -209,7 +218,10 @@ const EventDetails = () => {
         navigate("/my-bookings");
       }, 1500);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Booking failed - check date availability");
+      toast.error(
+        err.response?.data?.message ||
+          "Booking failed - check date availability",
+      );
     } finally {
       setBookingLoading(false);
     }
@@ -218,6 +230,15 @@ const EventDetails = () => {
   const calculateTotal = () => {
     if (!event) return 0;
     return event.price * bookingData.totalQuantity;
+  };
+
+  const openDirections = () => {
+    if (!mapCenter) return;
+
+    const { lat, lng } = mapCenter;
+
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, "_blank");
   };
 
   const closeBookingModal = () => {
@@ -417,7 +438,10 @@ const EventDetails = () => {
               <div className="flex items-center gap-2">
                 <FiCalendar className="h-5 w-5 text-blue-500" />
                 <span>
-                  {new Date(event.bookingFromDate).toDateString() === new Date(event.bookingToDate).toDateString() ? 'One Day Event' : 'Multi-Day Event'}
+                  {new Date(event.bookingFromDate).toDateString() ===
+                  new Date(event.bookingToDate).toDateString()
+                    ? "One Day Event"
+                    : "Multi-Day Event"}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -545,22 +569,33 @@ const EventDetails = () => {
                         import.meta.env.VITE_GOOGLE_MAPS_API_KEY
                       }
                     >
-                      <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={mapCenter}
-                        zoom={14}
-                        options={{
-                          styles: [
-                            {
-                              featureType: "poi",
-                              elementType: "labels",
-                              stylers: [{ visibility: "off" }],
-                            },
-                          ],
-                        }}
-                      >
-                        <Marker position={mapCenter} />
-                      </GoogleMap>
+                      <div className="relative">
+                        <GoogleMap
+                          mapContainerStyle={mapContainerStyle}
+                          center={mapCenter}
+                          zoom={14}
+                          options={{
+                            styles: [
+                              {
+                                featureType: "poi",
+                                elementType: "labels",
+                                stylers: [{ visibility: "off" }],
+                              },
+                            ],
+                          }}
+                        >
+                          <Marker position={mapCenter} />
+                        </GoogleMap>
+
+                        {/* 🧭 Get Directions Button */}
+                        <button
+                          onClick={openDirections}
+                          title="Get Directions"
+                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                        >
+                          <FiNavigation className="h-4.5 w-4.5" />
+                        </button>
+                      </div>
                     </LoadScript>
                   ) : (
                     <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
@@ -645,7 +680,7 @@ const EventDetails = () => {
           </div>
         </div>
 
-{showBookingModal && (
+        {showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
@@ -675,12 +710,28 @@ const EventDetails = () => {
                       })
                     }
                     required
-                    min={event?.bookingFromDate ? new Date(event.bookingFromDate).toISOString().split('T')[0] : getTodayDate()}
-                    max={event?.bookingToDate ? new Date(event.bookingToDate).toISOString().split('T')[0] : ''}
+                    min={
+                      event?.bookingFromDate
+                        ? new Date(event.bookingFromDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : getTodayDate()
+                    }
+                    max={
+                      event?.bookingToDate
+                        ? new Date(event.bookingToDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Available: {formatEventDate(event?.bookingFromDate, event?.bookingToDate)}
+                    Available:{" "}
+                    {formatEventDate(
+                      event?.bookingFromDate,
+                      event?.bookingToDate,
+                    )}
                   </p>
                 </div>
                 <div>
@@ -719,7 +770,9 @@ const EventDetails = () => {
                   disabled={bookingLoading}
                   className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
                 >
-                  {bookingLoading ? "Processing..." : `Confirm Booking (₹${calculateTotal()})`}
+                  {bookingLoading
+                    ? "Processing..."
+                    : `Confirm Booking (₹${calculateTotal()})`}
                 </button>
               </form>
             </div>

@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import {
   FiMapPin,
   FiCalendar,
-  FiNavigation, 
+  FiNavigation,
   FiUser,
   FiArrowLeft,
   FiX,
@@ -499,32 +499,32 @@ const TourismDetails = () => {
                       }
                     >
                       <div className="relative">
-  <GoogleMap
-    mapContainerStyle={mapContainerStyle}
-    center={mapCenter}
-    zoom={14}
-    options={{
-      styles: [
-        {
-          featureType: "poi",
-          elementType: "labels",
-          stylers: [{ visibility: "off" }],
-        },
-      ],
-    }}
-  >
-    <Marker position={mapCenter} />
-  </GoogleMap>
+                        <GoogleMap
+                          mapContainerStyle={mapContainerStyle}
+                          center={mapCenter}
+                          zoom={14}
+                          options={{
+                            styles: [
+                              {
+                                featureType: "poi",
+                                elementType: "labels",
+                                stylers: [{ visibility: "off" }],
+                              },
+                            ],
+                          }}
+                        >
+                          <Marker position={mapCenter} />
+                        </GoogleMap>
 
-  {/* 🧭 Get Directions Button */}
-  <button
-  onClick={openDirections}
-  title="Get Directions"
-  className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
->
-  <FiNavigation className="h-4.5 w-4.5" />
-</button>
-</div>
+                        {/* 🧭 Get Directions Button */}
+                        <button
+                          onClick={openDirections}
+                          title="Get Directions"
+                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                        >
+                          <FiNavigation className="h-4.5 w-4.5" />
+                        </button>
+                      </div>
                     </LoadScript>
                   ) : (
                     <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
