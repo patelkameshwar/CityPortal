@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import {
   FiMapPin,
   FiCalendar,
+  FiNavigation, 
   FiUser,
   FiArrowLeft,
   FiX,
@@ -182,6 +183,15 @@ const TourismDetails = () => {
   const calculateTotal = () => {
     if (!tourism) return 0;
     return tourism.entryFee * bookingData.totalQuantity;
+  };
+
+  const openDirections = () => {
+    if (!mapCenter) return;
+
+    const { lat, lng } = mapCenter;
+
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, "_blank");
   };
 
   const closeBookingModal = () => {
@@ -448,28 +458,27 @@ const TourismDetails = () => {
               )}
 
               {activeTab === "policies" && (
-                
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-800 mb-4">
-                      Tourism Policies
-                    </h2>
-                    {tourism.policies && tourism.policies.length > 0 ? (
-                      <ul className="list-[circle] pl-5 space-y-2">
-                        {tourism.policies.map((policies, index) => (
-                          <li
-                            key={`policies-${index}`}
-                            className="text-gray-700 text-sm leading-relaxed"
-                          >
-                            {policies}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-indigo-600 italic text-sm mb-6">
-                        No specific policies listed for this event.
-                      </p>
-                    )}
-                  </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800 mb-4">
+                    Tourism Policies
+                  </h2>
+                  {tourism.policies && tourism.policies.length > 0 ? (
+                    <ul className="list-[circle] pl-5 space-y-2">
+                      {tourism.policies.map((policies, index) => (
+                        <li
+                          key={`policies-${index}`}
+                          className="text-gray-700 text-sm leading-relaxed"
+                        >
+                          {policies}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-indigo-600 italic text-sm mb-6">
+                      No specific policies listed for this event.
+                    </p>
+                  )}
+                </div>
               )}
 
               {activeTab === "location" && (
@@ -489,22 +498,33 @@ const TourismDetails = () => {
                         import.meta.env.VITE_GOOGLE_MAPS_API_KEY
                       }
                     >
-                      <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={mapCenter}
-                        zoom={14}
-                        options={{
-                          styles: [
-                            {
-                              featureType: "poi",
-                              elementType: "labels",
-                              stylers: [{ visibility: "off" }],
-                            },
-                          ],
-                        }}
-                      >
-                        <Marker position={mapCenter} />
-                      </GoogleMap>
+                      <div className="relative">
+  <GoogleMap
+    mapContainerStyle={mapContainerStyle}
+    center={mapCenter}
+    zoom={14}
+    options={{
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+      ],
+    }}
+  >
+    <Marker position={mapCenter} />
+  </GoogleMap>
+
+  {/* 🧭 Get Directions Button */}
+  <button
+  onClick={openDirections}
+  title="Get Directions"
+  className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+>
+  <FiNavigation className="h-4.5 w-4.5" />
+</button>
+</div>
                     </LoadScript>
                   ) : (
                     <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
@@ -730,7 +750,7 @@ const TourismDetails = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? "border-blue-500" : "border-transparent"}`}
+                      className={`shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? "border-blue-500" : "border-transparent"}`}
                     >
                       <img
                         src={img}

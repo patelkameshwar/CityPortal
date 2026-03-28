@@ -488,7 +488,7 @@ const EventDetails = () => {
                     </h3>
                     <div className="space-y-2">
                       <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
                         <span className="text-sm text-gray-600">
                           Live Entertainment
                         </span>
@@ -768,7 +768,7 @@ const EventDetails = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? "border-blue-500" : "border-transparent"}`}
+                      className={`shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex ? "border-blue-500" : "border-transparent"}`}
                     >
                       <img
                         src={img}
