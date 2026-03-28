@@ -13,7 +13,8 @@ import {
   FaClock, 
   FaUsers, 
   FaUpload, 
-  FaSpinner, 
+  FaSpinner,
+  FaUser, 
   FaBed, 
   FaUtensils 
 } from "react-icons/fa";
@@ -46,6 +47,7 @@ const EditItems = () => {
     lng: "",
     price: "",
     capacity: "",
+    artist: "",
     images: [],
     // Event specific
     eventType: "one-day",
@@ -167,6 +169,7 @@ const [newAmenity, setNewAmenity] = useState("");
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
       capacity: apiData[map.capacity] || "",
+      artist: itemType === 'event' ? (apiData.artist || "") : "",
       amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
       policies: Array.isArray(apiData.policies) ? apiData.policies : [],
       ...(isHotel && { 
@@ -194,6 +197,7 @@ const [newAmenity, setNewAmenity] = useState("");
       location: formData.location,
       [map.price]: formData.price,
       [map.capacity]: formData.capacity,
+      ...(itemType === 'event' && { artist: formData.artist }),
       ...(isHotel && { 
         amenities: formData.amenities || [],
         policies: formData.policies || [],
@@ -770,6 +774,22 @@ const [newAmenity, setNewAmenity] = useState("");
 
             {/* Location & Capacity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {itemType === 'event' && (
+                <div className="lg:col-span-2">
+                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                    <FaUser className="mr-2 text-indigo-600" />
+                    Artist Name
+                  </label>
+                  <input
+                    type="text"
+                    name="artist"
+                    value={formData.artist}
+                    onChange={handleCommonChange}
+                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    placeholder="e.g., Arijit Singh"
+                  />
+                </div>
+              )}
               <div className="lg:col-span-2">
                 <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-blue-600" />

@@ -1,20 +1,18 @@
-# CityPortal - Add Artist Field for Event in AdminEdit ✅
+# TODO: Add Artist Field for Events in EditItems.jsx
 
-## Status: ✅ COMPLETE
+**Status: ✅ Complete**
 
-### Steps:
-- [x] 1. Create TODO.md ✅
-- [x] 2. Updated mapApiDataToForm ✅
-- [x] 3. Added Artist field in JSX (above location) ✅
-- [x] 4. Verified submission logic (generic FormData + backend handles) ✅
-- [x] 5. Changes applied successfully, ready to test ✅
-- [x] 6. Task complete ✅
+## Steps:
+- [x] Step 1: Create TODO.md with plan breakdown ✅
+- [x] Step 2: Update formData initial state to include artist: ""
+- [x] Step 3: Update mapApiDataToForm to handle artist for events
+- [x] Step 4: Update mapFormDataToApi to include artist for events
+- [x] Step 5: Insert conditional Artist input field just above Location div in JSX form
+- [x] Step 6: Verify form structure preserves layout (Artist as full-width row above Location)
+- [x] Step 7: Mark all TODOs complete and attempt_completion
 
-**Result:** Artist field now appears in AdminEdit for Event type (/admin/event/:id), positioned above Location, editable/savable. Backend fully supports.
-
-To test: 
-1. `cd admin && npm run dev`
-2. Navigate to Event edit page
-3. Edit Artist → Save → Check backend DB
-
+**Plan Reference:**
+- Add artist field conditionally when itemType === 'event'
+- Position: Just above location input (in Location & Capacity grid section)
+- Backend Event model already supports artist field
 
