@@ -31,6 +31,48 @@ const TopServices = () => {
     }
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseEventTime = (timeStr) => {
+    timeStr = timeStr.toUpperCase().trim();
+    let hours = 0, mins = 0;
+    const isPM = timeStr.includes('PM');
+    const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (timeMatch) {
+      hours = parseInt(timeMatch[1]);
+      mins = parseInt(timeMatch[2]);
+      if (isPM && hours !== 12) hours += 12;
+    }
+    return hours * 60 + mins;
+  };
+
+  const isPastEvent = (event) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    const now = new Date(); // Current time
+
+    const endDateStr = event.bookingToDate || event.bookingFromDate || event.eventDate;
+    if (!endDateStr) return true;
+
+    const endDate = new Date(endDateStr);
+    endDate.setHours(0, 0, 0, 0); // Normalize end date
+
+    if (endDate < today) return true; // Past date
+    if (endDate > today) return false; // Future date
+
+    // Same day: compare times
+    const eventTimeMins = parseEventTime(event.eventTime || '00:00');
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    return eventTimeMins <= currentMins; // Past or ongoing
+  };
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -135,7 +177,7 @@ const TopServices = () => {
         <div className="w-full flex flex-col lg:flex-row gap-6 items-center">
           <div className="w-full">
             <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 px-3 sm:px-0 auto-rows-fr">
-              {events.slice(0, 5).map((item, index) => (
+              {events.filter(event => !isPastEvent(event)).slice(0, 5).map((item, index) => (
                 <div
                   key={`event-${index}`}
                   onClick={() => {
@@ -165,6 +207,7 @@ const TopServices = () => {
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       </div>

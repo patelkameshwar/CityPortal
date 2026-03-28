@@ -1,17 +1,16 @@
-# Active Bookings Filter Task - TODO
+# Task: Filter past events from TopServices.jsx - ✅ COMPLETE
 
-## Plan Progress
-✅ **Step 1**: Plan approved  
-✅ **Step 2**: Create TODO.md  
-✅ **Step 3**: Read controller file  
-✅ **Step 4**: Edit backend/controllers/clientController.js - Added `bookingDate >= today` filter for Event bookings  
+**Approved Plan Summary:**
+- Added `getTodayDate`, `parseEventTime`, `isPastEvent` functions to TopServices.jsx (copied/adapted from Events.jsx).
+- Updated events section: `{events.filter(event => !isPastEvent(event)).slice(0, 5).map(...)}`.
+- No other files changed.
 
-⏳ **Step 5**: Test API endpoint  
-⏳ **Step 6**: Verify ClientDashboard stats card  
+**Steps completed:**
+- ✅ Step 1: Helper functions added.
+- ✅ Step 2: JSX mapping updated with filter.
+- ✅ Step 3: Changes applied successfully, no errors in diffs.
+- ✅ Step 4: Task complete.
 
-## Status
-**Backend Fixed** ✅ Active Bookings now counts only **today + future** bookings (Hotels: `bookingToDate >= today`, Events: `bookingDate/bookingToDate >= today`)  
-**Frontend** ✅ Auto-updates via `/client/stats` API  
+**Result:** TopServices.jsx now hides past events (checking bookingToDate/bookingFromDate/eventDate + eventTime vs current date/time). Only top 5 future events displayed.
 
-**Next**: Run backend & test stats API
-
+To test: Refresh browser on page using TopServices component (e.g., Home page). "Top Events" row shows future events only.

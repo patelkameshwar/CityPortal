@@ -56,6 +56,42 @@ const formatEventDate = (fromDate, toDate) => {
   }
 };
 
+const parseEventTime = (timeStr) => {
+  timeStr = timeStr.toUpperCase().trim();
+  let hours = 0, mins = 0;
+  const isPM = timeStr.includes('PM');
+  const timeMatch = timeStr.match(/(\\d{1,2}):(\\d{2})/);
+
+  if (timeMatch) {
+    hours = parseInt(timeMatch[1]);
+    mins = parseInt(timeMatch[2]);
+    if (isPM && hours !== 12) hours += 12;
+    if (!isPM && hours === 12) hours = 0;
+  }
+  return hours * 60 + mins;
+};
+
+const isPastEvent = (event) => {
+  const today = new Date(getTodayDate());
+  const endDate = event.bookingToDate ? new Date(event.bookingToDate) : event.bookingFromDate ? new Date(event.bookingFromDate) : null;
+  if (!endDate || endDate > today) return false;
+
+  // Past date
+  if (endDate.getFullYear() !== today.getFullYear() || 
+      endDate.getMonth() !== today.getMonth() || 
+      endDate.getDate() !== today.getDate()) {
+    return true;
+  }
+
+  // Same day: compare times
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const eventTimeMins = parseEventTime(event.eventTime);
+  return eventTimeMins < nowMins;
+};
+
+
+
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -125,13 +161,15 @@ const EventDetails = () => {
     setSimilarError("");
     try {
       const response = await eventAPI.getSimilar(event._id);
-      setSimilarEvents(response.data.similarEvents || []);
+      const filteredEvents = (response.data.similarEvents || []).filter(evt => !isPastEvent(evt));
+      setSimilarEvents(filteredEvents);
     } catch (err) {
       setSimilarError("Failed to load similar events");
     } finally {
       setSimilarLoading(false);
     }
   };
+
 
   const handleBookTickets = () => {
     if (!isAuthenticated) {

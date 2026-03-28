@@ -14,6 +14,65 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+const formatEventDate = (fromDate, toDate) => {
+  if (!fromDate || !toDate) return "";
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+
+  if (
+    from.getFullYear() !== to.getFullYear() ||
+    from.getMonth() !== to.getMonth() ||
+    from.getDate() !== to.getDate()
+  ) {
+    // Multi-day: "12 Jun - 20 Jun"
+    const fromStr = from.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+    const toStr = to.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+    });
+    return `${fromStr} - ${toStr}`;
+  } else {
+    // Single day: "12 June"
+    return from.toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+  }
+};
+
+const parseEventTime = (timeStr) => {
+  timeStr = timeStr.toUpperCase().trim();
+  let hours = 0, mins = 0;
+  const isPM = timeStr.includes('PM');
+  const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
+  if (timeMatch) {
+    hours = parseInt(timeMatch[1]);
+    mins = parseInt(timeMatch[2]);
+    if (isPM && hours !== 12) hours += 12;
+  }
+  return hours * 60 + mins;
+};
+
+const isPastEvent = (event) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Start of today
+  const now = new Date(); // Current time
+
+  const endDateStr = event.bookingToDate || event.bookingFromDate || event.eventDate;
+  if (!endDateStr) return true;
+
+  const endDate = new Date(endDateStr);
+  endDate.setHours(0, 0, 0, 0); // Normalize end date
+
+  if (endDate < today) return true; // Past date
+  if (endDate > today) return false; // Future date
+
+  // Same day: compare times
+  const eventTimeMins = parseEventTime(event.eventTime || '00:00');
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  return eventTimeMins <= currentMins; // Past or ongoing
+};
+
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +103,9 @@ const Events = () => {
     }
   };
 
-  const filteredEvents = events.filter((event) =>
+const filteredEvents = events
+  .filter((event) => !isPastEvent(event))
+  .filter((event) =>
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -55,8 +116,9 @@ const Events = () => {
       return;
     }
     setSelectedEvent(event);
+    const defaultDate = event?.bookingFromDate ? new Date(event.bookingFromDate).toISOString().split('T')[0] : getTodayDate();
     setBookingData({
-      date: getTodayDate(),
+      date: defaultDate,
       tickets: 1,
     });
   };
@@ -206,9 +268,13 @@ const Events = () => {
                   value={bookingData.date}
                   onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
                   required
-                  min={getTodayDate()}
+                  min={selectedEvent?.bookingFromDate ? new Date(selectedEvent.bookingFromDate).toISOString().split('T')[0] : getTodayDate()}
+                  max={selectedEvent?.bookingToDate ? new Date(selectedEvent.bookingToDate).toISOString().split('T')[0] : ''}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Available: {formatEventDate(selectedEvent?.bookingFromDate, selectedEvent?.bookingToDate)}
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Number of Tickets</label>
