@@ -22,7 +22,7 @@ const Login = () => {
     try {
       const response = await authAPI.login({ email, password });
       if (response.data.success) {
-        login(response.data.user, response.data.token);
+        login(response.data.user, response.data.token, rememberMe);
         toast.success('Login successful!');
         navigate('/');
       } else {

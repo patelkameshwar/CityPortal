@@ -8,23 +8,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser && token) {
+    // Check sessionStorage first, then localStorage
+    const sessionToken = sessionStorage.getItem('token');
+    const localToken = localStorage.getItem('token');
+    const tokenToUse = sessionToken || localToken;
+    const storedUser = (sessionToken ? sessionStorage : localStorage).getItem('user');
+    
+    if (storedUser && tokenToUse) {
       setUser(JSON.parse(storedUser));
+      if (!token) setToken(tokenToUse); // Only set if not already set
     }
     setLoading(false);
-  }, [token]);
+  }, []); // Remove token dep to run once
 
-  const login = (userData, authToken) => {
+const login = (userData, authToken, rememberMe = true) => {
+    const storage = rememberMe ? localStorage : sessionStorage;
     setUser(userData);
     setToken(authToken);
-    localStorage.setItem('token', authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    storage.setItem('token', authToken);
+    storage.setItem('user', JSON.stringify(userData));
   };
 
   const updateUser = (updatedUserData) => {
     setUser(updatedUserData);
+    // Update both storages to keep in sync
     localStorage.setItem('user', JSON.stringify(updatedUserData));
+    sessionStorage.setItem('user', JSON.stringify(updatedUserData));
   };
 
   const logout = () => {
@@ -32,6 +41,8 @@ export const AuthProvider = ({ children }) => {
     setToken('');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
   };
 
   const isAuthenticated = !!token;
