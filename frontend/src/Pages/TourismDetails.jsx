@@ -444,61 +444,32 @@ const TourismDetails = () => {
                       </p>
                     )}
                   </div>
-                  <div className="p-4 rounded-xl bg-gray-50">
-                    <h3 className="text-md font-bold text-gray-800 mb-3">
-                      Spot Features
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-600">
-                          Parking Available
-                        </span>
-                      </div>
-                      <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
-                        <span className="text-sm text-gray-600">
-                          Guided Tours
-                        </span>
-                      </div>
-                      <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
-                        <span className="text-sm text-gray-600">Restrooms</span>
-                      </div>
-                      <div className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm">
-                        <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
-                        <span className="text-sm text-gray-600">
-                          Food Stalls
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
               {activeTab === "policies" && (
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
-                    Visit Policies
-                  </h2>
-                  <ul className="list-[circle] pl-5 space-y-2">
-                    <li className="text-gray-700 text-sm leading-relaxed">
-                      Flexible entry timing within operating hours
-                    </li>
-                    <li className="text-gray-700 text-sm leading-relaxed">
-                      Group discounts available (5+ people)
-                    </li>
-                    <li className="text-gray-700 text-sm leading-relaxed">
-                      No refunds after booking confirmation
-                    </li>
-                    <li className="text-gray-700 text-sm leading-relaxed">
-                      Children under 5 enter free
-                    </li>
-                    <li className="text-gray-700 text-sm leading-relaxed">
-                      Pets allowed on leash
-                    </li>
-                  </ul>
-                </div>
+                
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800 mb-4">
+                      Tourism Policies
+                    </h2>
+                    {tourism.policies && tourism.policies.length > 0 ? (
+                      <ul className="list-[circle] pl-5 space-y-2">
+                        {tourism.policies.map((policies, index) => (
+                          <li
+                            key={`policies-${index}`}
+                            className="text-gray-700 text-sm leading-relaxed"
+                          >
+                            {policies}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-indigo-600 italic text-sm mb-6">
+                        No specific policies listed for this event.
+                      </p>
+                    )}
+                  </div>
               )}
 
               {activeTab === "location" && (

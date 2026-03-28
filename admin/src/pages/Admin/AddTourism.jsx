@@ -51,15 +51,14 @@ const AddTourism = () => {
   const navigate = useNavigate();
 
   const popularAmenities = [
-    "Parking", "Restrooms", "Drinking Water", "Wheelchair Accessible", "Guided Tours",
-    "Souvenir Shop", "Café/Restaurant", "Photo Spot", "WiFi", "Information Desk",
-    "AC", "Audio Guide", "Lockers", "Baby Changing", "First Aid", "Lost & Found"
+    "Parking", "Restrooms", "Drinking Water", "Wheelchair Accessible", "Guided Tours", "Locker Room",
+    "Souvenir Shop", "Café/Restaurant", "Photo Points", "WiFi", "Information Desk",
+    "AC", "Audio Guide", "Lockers", "Baby Changing", "First Aid", "Lost & Found", "Information Desk", "Digital Maps", "EV Charging", "Bicycle Rentals", "Stroller Friendly"
   ];
 
   const popularPolicies = [
-    "No Photography", "No Food Inside", "No Pets", "Children Free",
-    "Timed Entry Tickets", "Group Discounts", "Audio Guides Available",
-    "Wheelchair Access", "Restrooms Available", "No Smoking", "ID Required"
+    "Flexible entry timing within operating hours", "Group discounts available (5+ people)", "No refunds after booking confirmation", "Children under 5 enter free", "Pets allowed on leash", "No Photography", "No Food Inside",
+    "Timed Entry Tickets", "Audio Guides Available", "Valid Identification Required", "Government ID Mandatory", "Strictly Non-Smoking", "On-Site Restrooms Available"
   ];
 
   useEffect(() => {

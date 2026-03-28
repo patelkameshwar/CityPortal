@@ -521,7 +521,7 @@ const EventDetails = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-600 italic">
+                    <p className="text-indigo-600 italic">
                       No specific policies listed for this event.
                     </p>
                   )}

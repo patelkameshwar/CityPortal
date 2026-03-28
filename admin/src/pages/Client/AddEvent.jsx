@@ -113,17 +113,11 @@ const AddEvent = () => {
   const [loading, setLoading] = useState(false);
 
   const popularAmenities = [
-    "Food & Drinks", "Live Music", "Parking Available", "AC Hall", "Wheelchair Accessible",
-    "VIP Seating", "Restrooms", "Drinking Water", "Sound System", "Lighting",
-    "Seating Arranged", "Stage", "Dance Floor", "Projector", "WiFi",
-    "Power Backup", "Security", "First Aid", "Photo Booth", "Merchandise Stall"
+    "Parking Available", "Restrooms", "Drinking Water", "Power Backup", "Security", "First Aid", "WiFi", "Wheelchair Accessible", "AC Hall", "Open Air Space", "VIP Seating", "Seating Arranged", "Stage", "Dance Floor", "Changing Rooms", "Smoking Area", "Sound System", "Charging Stations", "Lighting", "Projector", "LED Screen", "Mic & Podium", "Live Streaming Ready", "Food & Drinks", "Live Music", "Photo Booth", "Merchandise Stall", "DJ", "Bar Service", "Kids Zone", "Valet Parking", "CCTV Surveillance", "Fire Extinguisher","Emergency Exit",
   ];
 
   const popularPolicies = [
-    "No Smoking", "No Outside Food", "Children Free", "Refundable Tickets",
-    "ID Required", "No Re-entry", "Pets Not Allowed", "Family Friendly",
-    "Non Refundable", "Rain Check Available", "Early Bird Discount",
-    "Group Booking Discount", "Students Discount", "Senior Citizens Discount"
+    "No Smoking", "No Alcohol", "No Outside Food", "Valid ID Required", "Non-Refundable", "CCTV in Operation", "No Re-entry", "Emergency Exit Access", "First Aid on Site", "Photography Allowed", "No Professional Cameras", "Silent Zone", "No Flash Photography", "Kids Under 5 Free", "Couples Only", "Family Friendly", "Eco-Friendly Event", "Limited Capacity", "Timed Entry", "Refundable Tickets", "Rain Check Available", "Early Bird Discount", "Group Booking Discount", "Students Discount", "Senior Citizens Discount"
   ];
 
   const handleAmenitiesInput = (e) => {
