@@ -21,6 +21,7 @@ import {
   FaCamera,
   FaRupeeSign as RupeeIcon,
   FaUsers as UsersIcon,
+  FaAlignLeft,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
@@ -296,6 +297,27 @@ const AdminEdit = () => {
       hasImages: true,
       imageField: "images",
     },
+    blog: {
+      title: "Edit Blog",
+      icon: FaAlignLeft,
+      apiPath: `/blogs/${id}`,
+      backLabel: "Blogs",
+      fieldMap: {
+        title: "title",
+        extra: "excerpt",
+      },
+      hasImages: false,
+    },
+    view: {
+      title: "View Blog",
+      icon: FaAlignLeft,
+      apiPath: `/blogs/${id}`,
+      backLabel: "Blogs",
+      fieldMap: {
+        title: "title",
+      },
+      hasImages: false,
+    },
   };
 
   const config = typeConfig[type] || typeConfig.client;
@@ -326,6 +348,15 @@ const AdminEdit = () => {
   const mapApiDataToForm = (apiData) => {
     const mapped = {
       title: apiData[config.fieldMap?.title] || "",
+      ...(type === "blog" && {
+        excerpt: apiData.excerpt || "",
+        author: apiData.author || "",
+        category: apiData.category || "",
+        date: apiData.date
+          ? new Date(apiData.date).toISOString().split("T")[0]
+          : "",
+      }),
+      ...(type !== "client" && { description: apiData.description || "" }),
       ...(type !== "client" && { description: apiData.description || "" }),
       ...(type !== "client" && {
         location: apiData.location || "",
@@ -390,12 +421,10 @@ const AdminEdit = () => {
     const fetchItem = async () => {
       try {
         const response = await api.get(config.apiPath);
-        const apiItem =
-          response.data.event ||
-          response.data.hotel ||
-          response.data.tourism ||
-          response.data.client ||
-          response.data;
+        // Handle consistent {success, data} structure from controllers + type-specific wrappers
+        let apiItem = response.data.data || response.data;
+        apiItem = apiItem.event || apiItem.hotel || apiItem.tourism || apiItem.client || apiItem;
+        
         const formDataMapped = mapApiDataToForm(apiItem);
         setFormData(formDataMapped);
         setEventType(formDataMapped.eventType || "one-day");
@@ -1020,9 +1049,20 @@ const AdminEdit = () => {
 
       imageFiles.forEach((file) => submitData.append("images", file));
 
-      await api.put(config.apiPath, submitData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (type === 'blog') {
+        const blogData = {
+          title: formData.title || "",
+          excerpt: formData.excerpt || "",
+          author: formData.author || "",
+          category: formData.category || "",
+          date: formData.date || undefined,
+        };
+        await api.put(config.apiPath, blogData);
+      } else {
+        await api.put(config.apiPath, submitData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
       toast.success(
         `${config.title.replace(/^Edit /, "")} updated successfully!`,
@@ -1148,7 +1188,6 @@ const AdminEdit = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
               {type === "event" && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
@@ -1190,8 +1229,7 @@ const AdminEdit = () => {
                 </div>
               )}
 
-              
-              {type !== "client" && (
+              {type !== "client" && type !== "blog" && (
                 <div className="lg:col-span-2">
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaMapMarkerAlt className="mr-2 text-blue-600" />
@@ -1240,11 +1278,9 @@ const AdminEdit = () => {
                   </div>
                 </div>
               )}
-
-              
             </div>
 
-            {type !== "client" && (
+            {type !== "client" && type !== "blog" && (
               <>
                 <div>
                   <label className="block text-base font-semibold text-gray-800 mb-2">
@@ -1259,6 +1295,63 @@ const AdminEdit = () => {
                   />
                 </div>
               </>
+            )}
+            {type === "blog" && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-base font-semibold text-gray-800 mb-2">
+                    Excerpt *
+                  </label>
+                  <textarea
+                    name="excerpt"
+                    rows="3"
+                    value={formData.excerpt || ""}
+                    onChange={handleCommonChange}
+                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical leading-relaxed"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-base font-semibold text-gray-800 mb-2">
+                      Author *
+                    </label>
+                    <input
+                      type="text"
+                      name="author"
+                      value={formData.author || ""}
+                      onChange={handleCommonChange}
+                      className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-base font-semibold text-gray-800 mb-2">
+                      Category *
+                    </label>
+                    <input
+                      type="text"
+                      name="category"
+                      value={formData.category || ""}
+                      onChange={handleCommonChange}
+                      className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-base font-semibold text-gray-800 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date || ""}
+                    onChange={handleCommonChange}
+                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+              </div>
             )}
 
             {type === "client" && (
@@ -1491,8 +1584,9 @@ const AdminEdit = () => {
               </div>
             )}
 
+            {/* Blog-specific fields already handled above */}
             {/* Amenities & Policies Sections */}
-            {type !== "client" && (
+            {type !== "client" && type !== "blog" && (
               <>
                 {/* Amenities Section */}
                 <div>

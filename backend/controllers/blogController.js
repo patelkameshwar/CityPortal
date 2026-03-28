@@ -58,22 +58,37 @@ const createBlog = async (req, res) => {
 // Update blog (admin only)
 const updateBlog = async (req, res) => {
   try {
+    console.log('Blog update request:', { id: req.params.id, body: req.body });
+    
+    // Validate required fields
+    const { title, excerpt, author, category } = req.body;
+    if (!title || !excerpt || !author || !category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title, excerpt, author, and category are required'
+      });
+    }
     const blog = await Blog.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
+
     if (!blog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
+
+    console.log('Blog updated successfully:', blog._id);
+
     res.status(200).json({
       success: true,
       data: blog
     });
   } catch (error) {
+    console.error('Blog update error:', error);
     res.status(400).json({
       success: false,
       message: error.message
