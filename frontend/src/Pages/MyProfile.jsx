@@ -147,7 +147,7 @@ const MyProfile = () => {
                 <div className='inline-block relative cursor-pointer'>
                   <img 
                     className='w-36 rounded opacity-75' 
-                    src={image ? URL.createObjectURL(image) : userData.image || assets.kaushalpic} 
+                    src={image ? URL.createObjectURL(image) : userData.image || assets.defaultprofile} 
                     alt="" 
                   />
                   <div className='w-10 h-10 absolute bottom-0 right-0 bg-blue-600 rounded-full flex items-center justify-center'>
@@ -167,7 +167,7 @@ const MyProfile = () => {
               </label>
             : <img 
                 className='w-36 rounded' 
-                src={userData.image || assets.kaushalpic} 
+                src={userData.image || assets.defaultprofile} 
                 alt="" 
               />
           }

@@ -5,6 +5,7 @@ import dropdown from './dropdown.svg'
 import groupprofiles from './groupprofiles.png'
 import arrowicon from './arrowicon.svg'
 import headers from './headers.png'
+import defaultprofile from './defaultprofile.png'
 import hotel from './hotel.png'
 import tourism from './tourism.png'
 import event from './event.png'
@@ -23,7 +24,8 @@ export const assets = {
     tourism,
     event,
     blog,
-    banner
+    banner,
+    defaultprofile
 }
 
 export const serviceData = [
