@@ -117,6 +117,10 @@ exports.updateProfile = async (req, res) => {
     }
     if (gender !== undefined) updateData.gender = gender.toLowerCase();
     if (birthday !== undefined) updateData.birthday = birthday;
+    // Handle profile picture removal
+    if ('profilePicture' in req.body) {
+      updateData.profilePicture = req.body.profilePicture || null;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
