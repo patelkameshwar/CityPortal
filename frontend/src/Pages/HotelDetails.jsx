@@ -20,6 +20,7 @@ import {
   FiClock,
   FiAlertCircle,
   FiCircle,
+  FiNavigation,
   FiChevronLeft,
   FiChevronRight,
   FiCoffee,
@@ -180,6 +181,15 @@ const HotelDetails = () => {
     const toDate = new Date(bookingData.checkOut);
     const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
     return hotel.pricePerNight * days * bookingData.rooms;
+  };
+
+  const openDirections = () => {
+    if (!mapCenter) return;
+
+    const { lat, lng } = mapCenter;
+
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, "_blank");
   };
 
   const nextImage = () => {
@@ -580,13 +590,13 @@ const HotelDetails = () => {
                     </div>
                   </div>
                   {hasMoreAmenities && (
-                      <button
-                        onClick={() => setShowAllAmenities(!showAllAmenities)}
-                        className="bg-gray-500 text-white py-2 px-8 rounded-2xl hover:bg-blue-700 transition font-medium text-sm -mt-4 cursor-pointer block mx-auto"
-                      >
-                        {showAllAmenities ? "Show Less" : "Show More"}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setShowAllAmenities(!showAllAmenities)}
+                      className="bg-gray-500 text-white py-2 px-8 rounded-2xl hover:bg-blue-700 transition font-medium text-sm -mt-4 cursor-pointer block mx-auto"
+                    >
+                      {showAllAmenities ? "Show Less" : "Show More"}
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -630,22 +640,33 @@ const HotelDetails = () => {
                         import.meta.env.VITE_GOOGLE_MAPS_API_KEY
                       }
                     >
-                      <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={mapCenter}
-                        zoom={14}
-                        options={{
-                          styles: [
-                            {
-                              featureType: "poi",
-                              elementType: "labels",
-                              stylers: [{ visibility: "off" }],
-                            },
-                          ],
-                        }}
-                      >
-                        <Marker position={mapCenter} />
-                      </GoogleMap>
+                      <div className="relative">
+                        <GoogleMap
+                          mapContainerStyle={mapContainerStyle}
+                          center={mapCenter}
+                          zoom={14}
+                          options={{
+                            styles: [
+                              {
+                                featureType: "poi",
+                                elementType: "labels",
+                                stylers: [{ visibility: "off" }],
+                              },
+                            ],
+                          }}
+                        >
+                          <Marker position={mapCenter} />
+                        </GoogleMap>
+
+                        {/* 🧭 Get Directions Button */}
+                        <button
+                          onClick={openDirections}
+                          title="Get Directions"
+                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                        >
+                          <FiNavigation className="h-4.5 w-4.5" />
+                        </button>
+                      </div>
                     </LoadScript>
                   ) : (
                     <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
