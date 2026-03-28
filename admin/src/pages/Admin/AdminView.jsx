@@ -17,6 +17,7 @@ import {
   FaSpinner,
   FaPhone,
   FaEnvelope,
+  FaAlignLeft,
   FaMapPin,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -79,6 +80,15 @@ const AdminView = () => {
       },
       hasImages: true,
     },
+    blog: {
+      title: "Blog Post Details",
+      icon: FaAlignLeft,
+      apiPath: `/blogs/${id}`, // correct endpoint
+      fieldMap: {
+        title: "title",
+      },
+      hasImages: false,
+    },
   };
 
   const config = typeConfig[type] || typeConfig.client;
@@ -90,6 +100,7 @@ const AdminView = () => {
     hotel: { path: "/admin/hotels", label: "Hotels" },
     event: { path: "/admin/events", label: "Events" },
     tourism: { path: "/admin/tourism", label: "Tourism" },
+    blog: { path: "/admin/blogs", label: "Blog" },
   };
   const defaultBack = backRoutes[type] || {
     path: "/admin-dashboard",
@@ -143,6 +154,26 @@ const AdminView = () => {
         bookingFromDate: formatDate(apiData.bookingFromDate),
         bookingToDate: formatDate(apiData.bookingToDate),
       }),
+      ...(type === "blog" && {
+        // ← ADD THIS BLOCK
+        excerpt: apiData?.excerpt ?? "",
+        author: apiData?.author ?? "",
+        category: apiData?.category ?? "",
+        publishDate: apiData?.date
+          ? new Date(apiData.date).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+          : "",
+        createdAt: apiData?.createdAt
+          ? new Date(apiData.createdAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+          : "",
+      }),
     };
   };
 
@@ -167,6 +198,8 @@ const AdminView = () => {
         const response = await api.get(config.apiPath);
         const getApiItem = (data) => {
           switch (type) {
+            case "blog":
+              return data.data || data.blog || data;
             case "event":
               return data.event;
             case "hotel":
@@ -287,13 +320,17 @@ const AdminView = () => {
                       ? "Hotel Name"
                       : type === "event"
                         ? "Event Title"
-                        : "Tourism Name"}
+                        : type === "Tourism Name"
+                          ? "Tourism Name"
+                          : type === "blog"
+                            ? "Blog Title"
+                            : "Title"}
                 </label>
                 <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
                   {itemData.title}
                 </div>
               </div>
-              {!isClient && itemData.price !== undefined && (
+              {!isClient && type !== "blog" && itemData.price !== undefined && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaRupeeSign className="mr-2 text-emerald-600" />
@@ -325,7 +362,7 @@ const AdminView = () => {
 
             {/* Location/Capacity Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {type !== "client" && (
+              {type !== "client" && type !== "blog" && (
                 <div>
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaMapPin className="mr-2 text-blue-600" />
@@ -344,27 +381,29 @@ const AdminView = () => {
                   </div>
                 </div>
               )}
-              {!isClient && itemData.capacity !== undefined && (
-                <div>
-                  <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
-                    <FaUsers className="mr-2 text-purple-600" />
-                    {type === "hotel"
-                      ? "Total Rooms"
-                      : type === "event"
-                        ? "Total Seats"
-                        : "Total Visitors per day"}
-                  </label>
-                  <div className="px-5 py-4 bg-purple-50 border-2 border-purple-200 rounded-2xl text-base font-semibold text-purple-900">
-                    {itemData.capacity}
+              {!isClient &&
+                type !== "blog" &&
+                itemData.capacity !== undefined && (
+                  <div>
+                    <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
+                      <FaUsers className="mr-2 text-purple-600" />
+                      {type === "hotel"
+                        ? "Total Rooms"
+                        : type === "event"
+                          ? "Total Seats"
+                          : "Total Visitors per day"}
+                    </label>
+                    <div className="px-5 py-4 bg-purple-50 border-2 border-purple-200 rounded-2xl text-base font-semibold text-purple-900">
+                      {itemData.capacity}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Client Specific Fields */}
             {type === "client" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
+                <div className="-mt-10">
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaEnvelope className="mr-2 text-orange-600" />
                     Email
@@ -373,7 +412,7 @@ const AdminView = () => {
                     {itemData.email}
                   </div>
                 </div>
-                <div>
+                <div className="-mt-10">
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaPhone className="mr-2 text-green-600" />
                     Phone
@@ -397,8 +436,53 @@ const AdminView = () => {
               </div>
             )}
 
+            {/* Blog Specific Fields */}
+            {type === "blog" && (
+              <div className="space-y-6">
+                {/* Excerpt */}
+                <div>
+                  <label className="block text-base font-semibold text-gray-800 mb-2 -mt-10">
+                    Excerpt
+                  </label>
+                  <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl prose max-w-none text-base leading-relaxed">
+                    {itemData.excerpt || "-"}
+                  </div>
+                </div>
+
+                {/* Author & Category */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-base font-semibold text-gray-800 mb-2">
+                      Author
+                    </label>
+                    <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
+                      {itemData.author || "-"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-base font-semibold text-gray-800 mb-2">
+                      Category
+                    </label>
+                    <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
+                      {itemData.category || "-"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Publish Date */}
+                <div>
+                  <label className="block text-base font-semibold text-gray-800 mb-2">
+                    Publish Date
+                  </label>
+                  <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
+                    {itemData.publishDate || "-"}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Amenities Section */}
-            {!isClient && (
+            {!isClient && type !== "blog" && (
               <div>
                 <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                   Amenities

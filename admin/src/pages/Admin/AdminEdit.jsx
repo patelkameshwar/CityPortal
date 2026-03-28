@@ -1356,7 +1356,7 @@ const AdminEdit = () => {
 
             {type === "client" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
+                <div className="-mt-10">
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaEnvelope className="mr-2 text-orange-600" />
                     Email
@@ -1369,7 +1369,7 @@ const AdminEdit = () => {
                     className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
-                <div>
+                <div className="-mt-10">
                   <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
                     <FaPhone className="mr-2 text-green-600" />
                     Phone
