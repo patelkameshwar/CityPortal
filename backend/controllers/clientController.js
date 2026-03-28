@@ -84,12 +84,15 @@ exports.getClientStats = async (req, res) => {
       bookingToDate: { $gte: now }
     });
 
-    // ✅ EVENT BOOKINGS (FIXED 🔥)
-    // Removed strict date filter because bookingDate may be missing or inconsistent
+    // ✅ EVENT ACTIVE BOOKINGS (future bookingDate >= today)
     const activeEventBookings = await Booking.countDocuments({
       itemType: 'Event',
       itemId: { $in: eventIds },
-      status: 'Confirmed'
+      status: 'Confirmed',
+      $or: [
+        { bookingDate: { $gte: now, $ne: null } },
+        { bookingToDate: { $gte: now, $ne: null } }
+      ]
     });
 
     // ✅ HOTEL REVENUE (current month)

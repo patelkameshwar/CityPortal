@@ -1,18 +1,17 @@
-# TODO: Add Artist Field for Events in EditItems.jsx
+# Active Bookings Filter Task - TODO
 
-**Status: ✅ Complete**
+## Plan Progress
+✅ **Step 1**: Plan approved  
+✅ **Step 2**: Create TODO.md  
+✅ **Step 3**: Read controller file  
+✅ **Step 4**: Edit backend/controllers/clientController.js - Added `bookingDate >= today` filter for Event bookings  
 
-## Steps:
-- [x] Step 1: Create TODO.md with plan breakdown ✅
-- [x] Step 2: Update formData initial state to include artist: ""
-- [x] Step 3: Update mapApiDataToForm to handle artist for events
-- [x] Step 4: Update mapFormDataToApi to include artist for events
-- [x] Step 5: Insert conditional Artist input field just above Location div in JSX form
-- [x] Step 6: Verify form structure preserves layout (Artist as full-width row above Location)
-- [x] Step 7: Mark all TODOs complete and attempt_completion
+⏳ **Step 5**: Test API endpoint  
+⏳ **Step 6**: Verify ClientDashboard stats card  
 
-**Plan Reference:**
-- Add artist field conditionally when itemType === 'event'
-- Position: Just above location input (in Location & Capacity grid section)
-- Backend Event model already supports artist field
+## Status
+**Backend Fixed** ✅ Active Bookings now counts only **today + future** bookings (Hotels: `bookingToDate >= today`, Events: `bookingDate/bookingToDate >= today`)  
+**Frontend** ✅ Auto-updates via `/client/stats` API  
+
+**Next**: Run backend & test stats API
 

@@ -304,7 +304,7 @@ const ClientDashboard = () => {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-medium text-gray-900">
-                    Active Bookings & Revenue
+                    Bookings & Revenue
                   </h3>
                   <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
                     {["day", "month", "year"].map((period) => (
@@ -373,7 +373,7 @@ const ClientDashboard = () => {
                           type="monotone"
                           dataKey="activeBookings"
                           stroke="#2563eb"
-                          name="Active Bookings"
+                          name="Bookings"
                           strokeWidth={3}
                         />
                         <Line
