@@ -1,18 +1,8 @@
-# Remember Me Fix TODO
+# TODO: Update Register.jsx for User-only registration
 
-## Planned Steps:
-1. [x] Create TODO.md with steps 
-2. [x] Edit frontend/src/pages/Login.jsx - Pass rememberMe to login()
-3. [x] Edit frontend/src/context/AuthContext.jsx - Implement conditional localStorage/sessionStorage based on rememberMe
-4. [ ] Test login with rememberMe checked/unchecked, browser close/reopen
-5. [ ] Verify protected pages (MyProfile, MyBookings) require login when unchecked
-6. [ ] Complete task
-
-## Current Progress: Edits complete. Test:
-1. Login with rememberMe ✓ → close browser → /my-profile should show profile
-2. Login with rememberMe ✗ → close browser → /my-profile should show 'Please Login'
-
-Run `cd frontend && npm run dev` to test.
-
-Ready for completion.
+- [x] Create TODO.md with implementation steps
+- [ ] Step 1: Edit frontend/src/pages/Register.jsx - remove role state, remove Account Type div, hardcode role: 'user' in API call
+- [ ] Step 2: Test the registration form (npm run dev in frontend/, register new user)
+- [ ] Step 3: Verify backend creates user with role 'user'
+- [ ] Step 4: Mark complete and attempt_completion
 

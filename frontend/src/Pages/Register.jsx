@@ -12,7 +12,6 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [role, setRole] = useState('user');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -34,7 +33,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.register({ name, email, password, role });
+      const response = await authAPI.register({ name, email, password, role: 'user' });
       if (response.data.user) {
         // Auto login after registration
         login(response.data.user, response.data.token);
@@ -95,21 +94,6 @@ const Register = () => {
                 placeholder="your@email.com"
               />
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-              Account Type
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-            >
-              <option value="user">User</option>
-              <option value="client">Service Provider (Client)</option>
-            </select>
           </div>
 
           <div>
