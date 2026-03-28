@@ -1,16 +1,12 @@
-# Task: Filter past events from TopServices.jsx - ✅ COMPLETE
+# Fix Login Remember Me Persistence Issue
 
-**Approved Plan Summary:**
-- Added `getTodayDate`, `parseEventTime`, `isPastEvent` functions to TopServices.jsx (copied/adapted from Events.jsx).
-- Updated events section: `{events.filter(event => !isPastEvent(event)).slice(0, 5).map(...)}`.
-- No other files changed.
+## Steps:
+- [ ] Step 1: Create TODO.md with plan breakdown (current)
+- [x] Step 2: Edit admin/src/context/AuthContext.jsx to fix login function:\n  * Remove default param `remember = true`\n  * When rememberMe=false: use only sessionStorage, remove cookie setting\n  * Update init logic if needed to avoid cookie fallback when rememberMe=false
+- [ ] Step 3: Test login with rememberMe unchecked:
+  * Login, close browser, reopen → should go to /login not dashboard
+- [ ] Step 4: Test with checked → should persist
+- [ ] Step 5: Mark complete, attempt_completion
 
-**Steps completed:**
-- ✅ Step 1: Helper functions added.
-- ✅ Step 2: JSX mapping updated with filter.
-- ✅ Step 3: Changes applied successfully, no errors in diffs.
-- ✅ Step 4: Task complete.
+Current progress: Step 1 complete. Next: Step 2.
 
-**Result:** TopServices.jsx now hides past events (checking bookingToDate/bookingFromDate/eventDate + eventTime vs current date/time). Only top 5 future events displayed.
-
-To test: Refresh browser on page using TopServices component (e.g., Home page). "Top Events" row shows future events only.

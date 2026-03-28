@@ -28,7 +28,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const success = await login(email, password, role);
+    const success = await login(email, password, role, rememberMe);
     if (success) {
       navigate(role === 'admin' ? '/admin-dashboard' : '/client-dashboard');
     }
@@ -151,8 +151,8 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <ToastContainer position="top-right" theme="colored" />
-        </div>
+        <ToastContainer position="top-right" theme="colored" />
+      </div>
 
 {role === 'client' && (
           <p className="mt-8 text-center text-sm text-gray-600">

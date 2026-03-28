@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
@@ -24,6 +24,24 @@ import AdminView from "./pages/Admin/AdminView.jsx";
 import AdminEdit from "./pages/Admin/AdminEdit.jsx";
 import ManageBlogs from "./pages/Admin/ManageBlogs.jsx";
 import AddBlog from "./pages/Admin/AddBlog.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
+
+const RootRedirect = () => {
+  const { loading, isAuthenticated, user } = useAuth();
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">Loading...</div>;
+  }
+
+  if (isAuthenticated && user?.role === 'admin') {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+  if (isAuthenticated && user?.role === 'client') {
+    return <Navigate to="/client-dashboard" replace />;
+  }
+
+  return <Login />;
+};
 
 const App = () => {
   return (
@@ -31,7 +49,7 @@ const App = () => {
       <div className="min-h-screen bg-gray-50">
         <ToastContainer />
         <Routes>
-          <Route path="/" element={<Login />} />
+<Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
