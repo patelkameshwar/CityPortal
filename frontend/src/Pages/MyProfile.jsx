@@ -82,7 +82,7 @@ const MyProfile = () => {
           ...prev,
           image: response.data.user.profilePicture,
         }));
-        toast.success("Profile picture updated successfully!");
+        toast.success("Profile picture updated!");
       }
     } catch (error) {
       toast.error(
@@ -94,33 +94,23 @@ const MyProfile = () => {
   };
 
   const handleRemoveProfilePic = async () => {
-    if (
-      !window.confirm("Are you sure you want to remove your profile picture?")
-    )
-      return;
+  // Removed the window.confirm alert block
+  try {
+    setSaving(true);
+    const response = await authAPI.updateProfile({ profilePicture: "" });
 
-    try {
-      setSaving(true);
-      // Change: Send an empty string to the backend
-      const response = await authAPI.updateProfile({ profilePicture: "" });
-
-      if (response.data.success) {
-        // Change: Clear BOTH the file preview and the stored image URL
-        setImage(null);
-        setUserData((prev) => ({ ...prev, image: "" }));
-
-        // Update global context
-        updateUser(response.data.user);
-        toast.success("Profile picture removed successfully!");
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to remove profile picture",
-      );
-    } finally {
-      setSaving(false);
+    if (response.data.success) {
+      setImage(null);
+      setUserData((prev) => ({ ...prev, image: "" }));
+      updateUser(response.data.user);
+      toast.success("Profile picture removed");
     }
-  };
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Failed to remove photo");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const updateUserProfileData = async () => {
     try {
