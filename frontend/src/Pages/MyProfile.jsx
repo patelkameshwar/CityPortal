@@ -248,17 +248,17 @@ const MyProfile = () => {
 
           {/* Subtext indication */}
           {isEdit && !saving && (
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-3 font-semibold">
-              {userData.image ? "Hover to remove" : "Click to upload"}
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-3 font-bold">
+              {userData.image ? "Hover to remove" : "Click camera to upload"}
             </p>
           )}
         </div>
 
         {/* Name */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-4">
           {isEdit ? (
             <input
-              className="bg-gray-50 text-3xl font-medium max-w-60 mt-4 text-center"
+              className="bg-gray-50 text-3xl font-medium max-w-64 mt-4 text-center border-b-2 border-blue-400 focus:outline-none"
               type="text"
               value={userData.name}
               onChange={(e) =>
@@ -266,25 +266,25 @@ const MyProfile = () => {
               }
             />
           ) : (
-            <p className="font-medium text-3xl text-neutral-800 mt-4 text-center">
+            <p className="font-medium text-3xl text-neutral-800 text-center">
               {userData.name}
             </p>
           )}
         </div>
 
-        <hr className="bg-zinc-400 h-[1px] border-none my-4" />
+        <hr className="bg-zinc-400 h-px border-none my-4" />
 
         {/* Contact Information */}
         <div>
           <p className="text-neutral-500 underline mt-3">CONTACT INFORMATION</p>
-          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700">
+          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-2 text-neutral-700">
             <p className="font-medium">Email id:</p>
             <p className="text-blue-500">{userData.email}</p>
 
             <p className="font-medium">Phone:</p>
             {isEdit ? (
               <input
-                className="bg-gray-100 max-w-52"
+                className="bg-gray-100 max-w-52 px-3 py-1  rounded text-sm mt-1"
                 type="text"
                 value={userData.phone}
                 onChange={(e) => {
@@ -295,14 +295,14 @@ const MyProfile = () => {
                 maxLength={10}
               />
             ) : (
-              <p className="text-blue-400">{userData.phone || "Not set"}</p>
+              <p className="text-blue-500">{userData.phone || "Not set"}</p>
             )}
 
             <p className="font-medium">Address:</p>
             {isEdit ? (
               <div>
                 <input
-                  className="bg-gray-50 w-full"
+                  className="bg-gray-100 w-full px-3 py-1 rounded text-sm"
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
@@ -315,7 +315,7 @@ const MyProfile = () => {
                 />
                 <br />
                 <input
-                  className="bg-gray-50 w-full mt-1"
+                  className="bg-gray-100 w-full px-3 py-1 rounded text-sm mt-1"
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
@@ -345,12 +345,12 @@ const MyProfile = () => {
 
         {/* Basic Information */}
         <div>
-          <p className="text-neutral-500 underline mt-3">BASIC INFORMATION</p>
+          <p className="text-neutral-500 underline mt-2">BASIC INFORMATION</p>
           <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700">
             <p className="font-medium">Gender:</p>
             {isEdit ? (
               <select
-                className="max-w-24 bg-gray-100"
+                className="max-w-24 bg-gray-100 px-3 py-1 rounded text-sm"
                 onChange={(e) =>
                   setUserData((prev) => ({ ...prev, gender: e.target.value }))
                 }
@@ -373,7 +373,7 @@ const MyProfile = () => {
             <p className="font-medium">Birthday:</p>
             {isEdit ? (
               <input
-                className="max-w-28 bg-gray-100"
+                className="max-w-32 bg-gray-100 px-3 py-1 rounded text-sm"
                 type="date"
                 onChange={(e) =>
                   setUserData((prev) => ({ ...prev, dob: e.target.value }))
@@ -418,7 +418,7 @@ const MyProfile = () => {
           )}
         </div>
 
-        <hr className="bg-zinc-400 h-[1px] border-none mt-8" />
+        <hr className="bg-zinc-400 h-px border-none mt-8" />
 
         {/* Logout Button */}
         <div className="pt-6 flex justify-center">
@@ -426,7 +426,7 @@ const MyProfile = () => {
             onClick={handleLogout}
             className="text-red-500 hover:text-red-700 text-sm font-medium"
           >
-            Logout
+            Logout Account
           </button>
         </div>
       </div>
