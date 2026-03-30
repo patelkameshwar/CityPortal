@@ -101,10 +101,11 @@ const Login = () => {
               />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
-            <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
               Forgot password?
-            </a>
+            </Link>
           </div>
+
 
           <button
             type="submit"

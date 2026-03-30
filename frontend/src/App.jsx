@@ -15,9 +15,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MyProfile from "./pages/MyProfile";
 import MyBookings from "./pages/MyBookings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { ToastContainer } from "react-toastify";
+
 
 const App = () => {
   return (
@@ -38,9 +41,12 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
+
         <Footer />
       </div>
     </AuthProvider>

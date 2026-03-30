@@ -45,7 +45,10 @@ export const authAPI = {
       'Content-Type': 'multipart/form-data',
     },
   }),
+  forgotPassword: (data) => api.post('/auth/forgot-password', data),
 };
+
+
 
 // Hotel APIs
 export const hotelAPI = {

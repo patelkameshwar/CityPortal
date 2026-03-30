@@ -202,3 +202,123 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// FORGOT PASSWORD
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+
+    // Generate reset token
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
+
+
+    await user.save();
+
+    // Construct reset URL
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    // Send real email with nodemailer
+    const nodemailer = require('nodemailer');
+
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'CityPortal Password Reset',
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <a href="${resetUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+        <p>This link expires in 1 hour.</p>
+        <p>If you didn't request this, ignore this email.</p>
+      `
+    });
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Password reset link sent to your email!' 
+    });
+  } catch (error) {
+    console.error('Email error:', error);
+    res.status(500).json({ message: 'Failed to send email. Please try again.' });
+  }
+};
+
+  // RESET PASSWORD VERIFY
+  exports.resetPasswordVerify = async (req, res) => {
+    try {
+      const { token } = req.params;
+
+      const user = await User.findOne({ 
+        resetToken: token, 
+        resetTokenExpiry: { $gt: Date.now() } 
+      });
+
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      res.status(200).json({ 
+        success: true, 
+        message: "Token is valid" 
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+  // RESET PASSWORD
+  exports.resetPassword = async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const user = await User.findOne({ 
+        resetToken: token, 
+        resetTokenExpiry: { $gt: Date.now() } 
+      });
+
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      // Hash new password
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+      user.resetToken = undefined;
+      user.resetTokenExpiry = undefined;
+
+      await user.save();
+
+      res.status(200).json({ 
+        success: true, 
+        message: "Password reset successful" 
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+
