@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
   LineChart,
+  Area,
   Line,
   XAxis,
   YAxis,
@@ -302,7 +303,7 @@ const ClientDashboard = () => {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 bg-white shadow rounded-lg">
               <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg font-medium text-gray-900">
                     Bookings & Revenue
                   </h3>
@@ -330,7 +331,7 @@ const ClientDashboard = () => {
                       : "Last 5 years"}
                 </p>
 
-                <div style={{ width: "100%", height: 300 }}>
+                <div style={{ width: "100%", height: 350 }}>
                   {chartLoading ? (
                     <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
                       <div className="text-gray-500">Loading chart...</div>
@@ -343,49 +344,169 @@ const ClientDashboard = () => {
                       </div>
                     </div>
                   ) : (
-                    <ResponsiveContainer>
-                      <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis
-                          className="text-xs font-medium"
-                          dataKey="month"
-                          tickFormatter={
-                            currentPeriod === "day"
-                              ? formatDayMonth
-                              : formatMonthYear
-                          }
-                        />
-                        <YAxis
-                          yAxisId="left"
-                          orientation="left"
-                          stroke="#2563eb"
-                        />
-                        <YAxis
-                          yAxisId="right"
-                          orientation="right"
-                          stroke="#059669"
-                          tickFormatter={formatRevenue}
-                        />
-                        <Tooltip />
-                        <Legend />
-                        <Line
-                          yAxisId="left"
-                          type="monotone"
-                          dataKey="activeBookings"
-                          stroke="#2563eb"
-                          name="Bookings"
-                          strokeWidth={3}
-                        />
-                        <Line
-                          yAxisId="right"
-                          type="monotone"
-                          dataKey="revenue"
-                          stroke="#059669"
-                          name="Revenue (₹)"
-                          strokeWidth={3}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <div className=" py-6 bg-white/80 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm">
+                      {/* Chart goes here */}
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={chartData} margin={{ top: 20 }}>
+                          <defs>
+                            <linearGradient
+                              id="bookingFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#3b82f6"
+                                stopOpacity={0.2}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#3b82f6"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="revenueFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#10b981"
+                                stopOpacity={0.2}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#10b981"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Grid */}
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#e2e8f0"
+                            opacity={0.6}
+                          />
+
+                          {/* X Axis */}
+                          <XAxis
+                            dataKey="month"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#64748b", fontSize: 12 }}
+                            dy={10}
+                            tickFormatter={
+                              currentPeriod === "day"
+                                ? formatDayMonth
+                                : formatMonthYear
+                            }
+                          />
+
+                          {/* Y Axis */}
+                          <YAxis
+                            yAxisId="left"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                          />
+
+                          <YAxis
+                            yAxisId="right"
+                            orientation="right"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                            tickFormatter={formatRevenue}
+                          />
+
+                          {/* Tooltip (clean SaaS style) */}
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#ffffff",
+                              borderRadius: "14px",
+                              border: "1px solid #f1f5f9",
+                              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                              padding: "10px 14px",
+                            }}
+                            labelStyle={{ fontSize: 12, color: "#64748b" }}
+                            itemStyle={{ fontSize: 14, fontWeight: 500 }}
+                            cursor={{ stroke: "#cbd5f5", strokeWidth: 1 }}
+                          />
+
+                          {/* Legend (minimal) */}
+                          <Legend
+                            wrapperStyle={{
+                              fontSize: "14px",
+                              paddingTop: "10px",
+                            }}
+                          />
+
+                          {/* 🔵 Area (Bookings) */}
+                          <Area
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="activeBookings"
+                            stroke="none"
+                            fill="url(#bookingFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+
+                          {/* 🟢 Area (Revenue) */}
+                          <Area
+                            yAxisId="right"
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="none"
+                            fill="url(#revenueFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+
+                          {/* 🔵 Line (Bookings) */}
+                          <Line
+                            yAxisId="left"
+                            type="natural"
+                            dataKey="activeBookings"
+                            stroke="#3b82f6"
+                            strokeWidth={2.5}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                            name="Bookings"
+                            animationDuration={900}
+                            style={{
+                              filter:
+                                "drop-shadow(0 4px 8px rgba(59,130,246,0.25))",
+                            }}
+                          />
+
+                          {/* 🟢 Line (Revenue) */}
+                          <Line
+                            yAxisId="right"
+                            type="natural"
+                            dataKey="revenue"
+                            stroke="#10b981"
+                            strokeWidth={2.5}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                            name="Revenue (₹)"
+                            animationDuration={900}
+                            style={{
+                              filter:
+                                "drop-shadow(0 4px 8px rgba(16,185,129,0.25))",
+                            }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                   )}
                 </div>
               </div>

@@ -1,11 +1,25 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import api from '../../services/api.js';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import api from "../../services/api.js";
 
-import { FaUsers, FaHotel, FaMapMarkedAlt, FaCalendarAlt, FaChartBar, FaSignOutAlt, FaEye, FaEdit, FaUserEdit, FaTrash, FaTheaterMasks, FaAlignLeft } from 'react-icons/fa';
+import {
+  FaUsers,
+  FaHotel,
+  FaMapMarkedAlt,
+  FaCalendarAlt,
+  FaChartBar,
+  FaSignOutAlt,
+  FaEye,
+  FaEdit,
+  FaUserEdit,
+  FaTrash,
+  FaTheaterMasks,
+  FaAlignLeft,
+} from "react-icons/fa";
 import {
   LineChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,15 +27,25 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const AdminDashboard = () => {
   const [stats, setStats] = React.useState([
-    { name: 'Total Clients', value: '0', icon: FaUsers, color: 'bg-blue-500' },
-    { name: 'Hotels', value: '0', icon: FaHotel, color: 'bg-emerald-500' },
-    { name: 'Tourism Spots', value: '0', icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-    { name: 'Events', value: '0', icon: FaTheaterMasks, color: 'bg-orange-500' },
+    { name: "Total Clients", value: "0", icon: FaUsers, color: "bg-blue-500" },
+    { name: "Hotels", value: "0", icon: FaHotel, color: "bg-emerald-500" },
+    {
+      name: "Tourism Spots",
+      value: "0",
+      icon: FaMapMarkedAlt,
+      color: "bg-purple-500",
+    },
+    {
+      name: "Events",
+      value: "0",
+      icon: FaTheaterMasks,
+      color: "bg-orange-500",
+    },
   ]);
   const [loading, setLoading] = React.useState(true);
 
@@ -38,18 +62,38 @@ const AdminDashboard = () => {
   React.useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get('/admin/stats');
-        console.log('Stats response:', response.data);
+        const response = await api.get("/admin/stats");
+        console.log("Stats response:", response.data);
         if (response.data.success) {
           setStats([
-            { name: 'Total Clients', value: (response.data.stats?.totalClients || 0).toLocaleString(), icon: FaUsers, color: 'bg-blue-500' },
-            { name: 'Hotels', value: (response.data.stats?.totalHotels || 0).toLocaleString(), icon: FaHotel, color: 'bg-emerald-500' },
-            { name: 'Tourism Spots', value: (response.data.stats?.totalTourism || 0).toLocaleString(), icon: FaMapMarkedAlt, color: 'bg-purple-500' },
-            { name: 'Events', value: (response.data.stats?.totalEvents || 0).toLocaleString(), icon: FaCalendarAlt, color: 'bg-orange-500' },
+            {
+              name: "Total Clients",
+              value: (response.data.stats?.totalClients || 0).toLocaleString(),
+              icon: FaUsers,
+              color: "bg-blue-500",
+            },
+            {
+              name: "Hotels",
+              value: (response.data.stats?.totalHotels || 0).toLocaleString(),
+              icon: FaHotel,
+              color: "bg-emerald-500",
+            },
+            {
+              name: "Tourism Spots",
+              value: (response.data.stats?.totalTourism || 0).toLocaleString(),
+              icon: FaMapMarkedAlt,
+              color: "bg-purple-500",
+            },
+            {
+              name: "Events",
+              value: (response.data.stats?.totalEvents || 0).toLocaleString(),
+              icon: FaCalendarAlt,
+              color: "bg-orange-500",
+            },
           ]);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       } finally {
         setLoading(false);
       }
@@ -64,21 +108,37 @@ const AdminDashboard = () => {
     setRecentLoading(true);
     try {
       const [clientsRes, hotelsRes, eventsRes, tourismRes] = await Promise.all([
-        api.get('/admin/clients'),
-        api.get('/hotels'),
-        api.get('/events'),
-        api.get('/tourism')
+        api.get("/admin/clients"),
+        api.get("/hotels"),
+        api.get("/events"),
+        api.get("/tourism"),
       ]);
 
-      const sortRecent = (items) => (items || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
+      const sortRecent = (items) =>
+        (items || [])
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3);
 
       setRecentClients(sortRecent(clientsRes.data.data));
-      setRecentHotels(sortRecent(hotelsRes.data.hotels || hotelsRes.data.data || []));
-      setRecentEvents(sortRecent(eventsRes.data.events || eventsRes.data.data || eventsRes.data || []));
-      setRecentTourism(sortRecent(tourismRes.data.tourism || tourismRes.data.tourismPlaces || tourismRes.data.data || []));
+      setRecentHotels(
+        sortRecent(hotelsRes.data.hotels || hotelsRes.data.data || []),
+      );
+      setRecentEvents(
+        sortRecent(
+          eventsRes.data.events || eventsRes.data.data || eventsRes.data || [],
+        ),
+      );
+      setRecentTourism(
+        sortRecent(
+          tourismRes.data.tourism ||
+            tourismRes.data.tourismPlaces ||
+            tourismRes.data.data ||
+            [],
+        ),
+      );
     } catch (error) {
-      console.error('Failed to fetch recent data:', error);
-      toast.error('Failed to load recent additions - check backend endpoints');
+      console.error("Failed to fetch recent data:", error);
+      toast.error("Failed to load recent additions - check backend endpoints");
     } finally {
       setRecentLoading(false);
     }
@@ -97,7 +157,9 @@ const AdminDashboard = () => {
   const fetchAnalytics = async () => {
     try {
       setChartLoading(true);
-      const response = await api.get(`/admin/analytics?period=${currentPeriod}`);
+      const response = await api.get(
+        `/admin/analytics?period=${currentPeriod}`,
+      );
       console.log("Admin analytics response:", response.data);
       if (response.data.success) {
         setChartData(response.data.data || []);
@@ -120,10 +182,10 @@ const AdminDashboard = () => {
   };
 
   const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -180,8 +242,11 @@ const AdminDashboard = () => {
       <div className="bg-white shadow rounded-lg divide-y divide-gray-200">
         {recentLoading ? (
           <div className="p-6 space-y-3">
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="h-4 bg-gray-200 rounded animate-pulse w-3/4"
+              />
             ))}
           </div>
         ) : items.length === 0 ? (
@@ -193,12 +258,24 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Address
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Phone
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -207,35 +284,55 @@ const AdminDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>{item.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.address || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.phone || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.address || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.phone || "N/A"}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Intl.DateTimeFormat('en-GB', { 
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric' 
+                      {new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
                       }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <Link to={`/admin/view/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
+                      <Link
+                        to={`/admin/view/client/${item._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/client/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
+                      <Link
+                        to={`/admin/edit/client/${item._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-yellow-600 hover:text-yellow-900"
+                      >
                         <FaUserEdit className="h-4 w-4 inline" />
                       </Link>
-                      <button 
+                      <button
                         onClick={async () => {
-                          if (window.confirm('Delete this client?')) {
+                          if (window.confirm("Delete this client?")) {
                             try {
                               await api.delete(`/admin/clients/${item._id}`);
-                              toast.success('Client deleted');
+                              toast.success("Client deleted");
                               window.location.reload();
                             } catch (error) {
-                              toast.error('Delete failed');
+                              toast.error("Delete failed");
                             }
                           }
-                        }} 
+                        }}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FaTrash className="h-4 w-4 inline" />
@@ -251,31 +348,53 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Dates</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Available Dates
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Time
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Seats
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {items.map((event) => (
                   <tr key={event._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {event.title}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.eventDate 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-purple-100 text-purple-800'
-                      }`}>
-                        {event.eventDate ? 'One day' : 'Multi-day'}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          event.eventDate
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-purple-100 text-purple-800"
+                        }`}
+                      >
+                        {event.eventDate ? "One day" : "Multi-day"}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.location}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {event.location}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
                         ₹ {event.price}
@@ -283,36 +402,54 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                       {event.eventDate
-                        ? new Intl.DateTimeFormat('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
+                        ? new Intl.DateTimeFormat("en-GB", {
+                            day: "numeric",
+                            month: "short",
                           }).format(new Date(event.eventDate))
-                        : `${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(event.bookingToDate))}`}
+                        : `${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingFromDate))} - ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(event.bookingToDate))}`}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.eventTime}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{event.totalSeats || 'N/A'}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {event.eventTime}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {event.totalSeats || "N/A"}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(event.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-<Link to={`/admin/view/event/${event._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
+                      <Link
+                        to={`/admin/view/event/${event._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/event/${event._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
+                      <Link
+                        to={`/admin/edit/event/${event._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-yellow-600 hover:text-yellow-900"
+                      >
                         <FaEdit className="h-4 w-4 inline" />
                       </Link>
-                      <button 
+                      <button
                         onClick={async () => {
-                          if (window.confirm('Delete this event?')) {
+                          if (window.confirm("Delete this event?")) {
                             try {
                               await api.delete(`/events/${event._id}`);
-                              toast.success('Event deleted');
+                              toast.success("Event deleted");
                               window.location.reload();
                             } catch (error) {
-                              toast.error('Delete failed');
+                              toast.error("Delete failed");
                             }
                           }
-                        }} 
+                        }}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FaTrash className="h-4 w-4 inline" />
@@ -328,55 +465,99 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entry Fee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Limit</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Entry Fee
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Dates
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Time
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Limit
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {items.map((spot) => (
                   <tr key={spot._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{spot.name}</td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{spot.location}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {spot.name}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {spot.location}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
                         ₹{spot.entryFee || 0}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(spot.bookingFromDate))} - {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(spot.bookingToDate))}
+                      {new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      }).format(new Date(spot.bookingFromDate))}{" "}
+                      -{" "}
+                      {new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      }).format(new Date(spot.bookingToDate))}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                       {spot.openTime}-{spot.closeTime}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{spot.totalVisitors || 'N/A'}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {spot.totalVisitors || "N/A"}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(spot.createdAt)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-<Link to={`/admin/view/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
+                      <Link
+                        to={`/admin/view/tourism/${spot._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/tourism/${spot._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
+                      <Link
+                        to={`/admin/edit/tourism/${spot._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-yellow-600 hover:text-yellow-900"
+                      >
                         <FaEdit className="h-4 w-4 inline" />
                       </Link>
-                      <button 
+                      <button
                         onClick={async () => {
-                          if (window.confirm('Delete this tourism spot?')) {
+                          if (window.confirm("Delete this tourism spot?")) {
                             try {
                               await api.delete(`/tourism/${spot._id}`);
-                              toast.success('Tourism spot deleted');
+                              toast.success("Tourism spot deleted");
                               window.location.reload();
                             } catch (error) {
-                              toast.error('Delete failed');
+                              toast.error("Delete failed");
                             }
                           }
-                        }} 
+                        }}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FaTrash className="h-4 w-4 inline" />
@@ -392,54 +573,92 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rooms</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rooms
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {items.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.location || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">₹ {item.pricePerNight || 'N/A'}</span></td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {item.status || 'Active'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {item.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.location || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        ₹ {item.pricePerNight || "N/A"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.totalRooms || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {item.status || "Active"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.totalRooms || "N/A"}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Intl.DateTimeFormat('en-GB', { 
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric' 
+                      {new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
                       }).format(new Date(item.createdAt))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-<Link to={`/admin/view/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-indigo-600 hover:text-indigo-900">
+                      <Link
+                        to={`/admin/view/hotel/${item._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
                         <FaEye className="h-4 w-4 inline" />
                       </Link>
-<Link to={`/admin/edit/hotel/${item._id}`} state={{from: '/admin-dashboard', fromLabel: 'Dashboard'}} className="text-yellow-600 hover:text-yellow-900">
+                      <Link
+                        to={`/admin/edit/hotel/${item._id}`}
+                        state={{
+                          from: "/admin-dashboard",
+                          fromLabel: "Dashboard",
+                        }}
+                        className="text-yellow-600 hover:text-yellow-900"
+                      >
                         <FaEdit className="h-4 w-4 inline" />
                       </Link>
-                      <button 
+                      <button
                         onClick={async () => {
-                          if (window.confirm('Delete this hotel?')) {
+                          if (window.confirm("Delete this hotel?")) {
                             try {
                               await api.delete(`/hotels/${item._id}`);
-                              toast.success('Hotel deleted');
+                              toast.success("Hotel deleted");
                               // Refresh data
                               window.location.reload();
                             } catch (error) {
-                              toast.error('Delete failed');
+                              toast.error("Delete failed");
                             }
                           }
-                        }} 
+                        }}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FaTrash className="h-4 w-4 inline" />
@@ -452,27 +671,34 @@ const AdminDashboard = () => {
           </div>
         ) : (
           items.map((item) => (
-            <div key={item._id} className="p-4 hover:bg-gray-50 transition-colors">
+            <div
+              key={item._id}
+              className="p-4 hover:bg-gray-50 transition-colors"
+            >
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {item.title || item.name || 'Untitled'}
+                    {item.title || item.name || "Untitled"}
                   </p>
                   <p className="text-xs text-gray-500 truncate mt-1">
-                    {item.location || 'No location'} • {formatDate(item.createdAt)}
+                    {item.location || "No location"} •{" "}
+                    {formatDate(item.createdAt)}
                   </p>
                 </div>
               </div>
             </div>
           ))
         )}
-
       </div>
     </div>
   );
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">Loading dashboard...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        Loading dashboard...
+      </div>
+    );
   }
 
   return (
@@ -482,8 +708,12 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Welcome back, Admin! Manage CityPortal.</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Admin Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Welcome back, Admin! Manage CityPortal.
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">Admin Mode</span>
@@ -505,7 +735,10 @@ const AdminDashboard = () => {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
+              <div
+                key={stat.name}
+                className="bg-white overflow-hidden shadow rounded-lg"
+              >
                 <div className="p-6">
                   <div className="flex items-center">
                     <div className={`p-3 rounded-lg ${stat.color}`}>
@@ -513,8 +746,12 @@ const AdminDashboard = () => {
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
-                        <dt className="text-sm font-medium text-gray-500 truncate">{stat.name}</dt>
-                        <dd className="text-lg font-bold text-gray-900">{stat.value}</dd>
+                        <dt className="text-sm font-medium text-gray-500 truncate">
+                          {stat.name}
+                        </dt>
+                        <dd className="text-lg font-bold text-gray-900">
+                          {stat.value}
+                        </dd>
                       </dl>
                     </div>
                   </div>
@@ -525,183 +762,412 @@ const AdminDashboard = () => {
         </div>
 
         {/* Charts & Main Content */}
-        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Analytics Chart */}
-          <div className="lg:col-span-2 bg-white shadow rounded-lg">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Platform Analytics
-                </h3>
-                <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
-                  {["day", "month", "year"].map((period) => (
-                    <button
-                      key={period}
-                      onClick={() => setCurrentPeriod(period)}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        currentPeriod === period
-                          ? "bg-white shadow-sm text-gray-900"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      {period.charAt(0).toUpperCase() + period.slice(1)}
-                    </button>
-                  ))}
+        <div className="mt-12 space-y-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Analytics Chart */}
+            <div className="lg:col-span-2 bg-white shadow rounded-lg">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Platform Analytics
+                  </h3>
+                  <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                    {["day", "month", "year"].map((period) => (
+                      <button
+                        key={period}
+                        onClick={() => setCurrentPeriod(period)}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          currentPeriod === period
+                            ? "bg-white shadow-sm text-gray-900"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        {period.charAt(0).toUpperCase() + period.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mb-4">
+                  {currentPeriod === "day"
+                    ? "Last 30 days"
+                    : currentPeriod === "month"
+                      ? "Last 12 months"
+                      : "Last 5 years"}
+                </p>
+
+                <div style={{ width: "100%", height: 350 }}>
+                  {chartLoading ? (
+                    <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                      <div className="text-gray-500">Loading chart...</div>
+                    </div>
+                  ) : chartData.length === 0 ? (
+                    <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
+                      <div className="text-center text-gray-500">
+                        <FaChartBar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No analytics data available</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className=" py-6 bg-white/80 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm">
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={chartData} margin={{ top: 20 }}>
+                          {/* 🌈 Gradients */}
+                          <defs>
+                            <linearGradient
+                              id="clientsFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#3b82f6"
+                                stopOpacity={0.18}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#3b82f6"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="revenueFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#059669"
+                                stopOpacity={0.18}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#059669"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="hotelsFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#059669"
+                                stopOpacity={0.18}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#059669"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="eventsFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#059669"
+                                stopOpacity={0.18}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#059669"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="tourismFill"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor="#059669"
+                                stopOpacity={0.18}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="#059669"
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Grid */}
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#f1f5f9"
+                          />
+
+                          {/* X Axis */}
+                          <XAxis
+                            dataKey="month"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#64748b", fontSize: 12 }}
+                            tickFormatter={
+                              currentPeriod === "day"
+                                ? formatDayMonth
+                                : formatMonthYear
+                            }
+                          />
+
+                          {/* Y Axis */}
+                          <YAxis
+                            yAxisId="left"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                          />
+
+                          <YAxis
+                            yAxisId="right"
+                            orientation="right"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                            tickFormatter={formatRevenue}
+                          />
+
+                          {/* Tooltip */}
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#fff",
+                              borderRadius: "12px",
+                              border: "1px solid #f1f5f9",
+                              boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                              padding: "10px 14px",
+                            }}
+                            labelStyle={{ fontSize: 12, color: "#64748b" }}
+                            itemStyle={{ fontSize: 13, fontWeight: 500 }}
+                            cursor={{
+                              stroke: "#cbd5f5",
+                              strokeDasharray: "4 4",
+                            }}
+                            formatter={(value, name) => {
+                              if (name.includes("Revenue")) {
+                                return [
+                                  `₹${value.toLocaleString()}`,
+                                  "Revenue",
+                                ];
+                              }
+                              return [value, name];
+                            }}
+                          />
+
+                          {/* Legend */}
+                          <Legend
+                            iconSize={8}
+                            wrapperStyle={{
+                              fontSize: "14px",
+                              paddingTop: "10px",
+                              color: "#64748b",
+                            }}
+                          />
+
+                          {/* 🔵 New Clients (primary focus) */}
+                          <Area
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="newClients"
+                            stroke="none"
+                            fill="url(#clientsFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+                          <Line
+                            yAxisId="left"
+                            type="natural"
+                            dataKey="newClients"
+                            stroke="#3b82f6"
+                            strokeWidth={2.5}
+                            dot={false}
+                            name="New Clients"
+                          />
+
+                          {/* 🔵 Events Bookings (primary focus) */}
+                          <Area
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="eventsBookings"
+                            stroke="none"
+                            fill="url(#eventsFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+                          <Line
+                            yAxisId="left"
+                            type="natural"
+                            dataKey="eventsBookings"
+                            stroke="#FFA500"
+                            strokeWidth={2.5}
+                            dot={false}
+                            name="Events Bookings"
+                          />
+
+                          {/* 🔵 Hotels Bookings (primary focus) */}
+                          <Area
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="hotelsBookings"
+                            stroke="none"
+                            fill="url(#hotelsFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+                          <Line
+                            yAxisId="left"
+                            type="natural"
+                            dataKey="hotelsBookings"
+                            stroke="#059669"
+                            strokeWidth={2.5}
+                            dot={false}
+                            name="Hotels Bookings"
+                          />
+
+                          {/* 🟢 Tourism Bookings */}
+                          <Area
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="tourismBookings"
+                            stroke="none"
+                            fill="url(#tourismFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+                          <Line
+                            yAxisId="left"
+                            type="natural"
+                            dataKey="tourismBookings"
+                            stroke="#9333EA"
+                            strokeWidth={2.5}
+                            dot={false}
+                            name="Tourism Bookings"
+                          />
+
+                          {/* 🟢 Revenue */}
+                          <Area
+                            yAxisId="right"
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="none"
+                            fill="url(#revenueFill)"
+                            tooltipType="none"
+                            legendType="none"
+                          />
+                          <Line
+                            yAxisId="right"
+                            type="natural"
+                            dataKey="revenue"
+                            stroke="#22C55E"
+                            strokeWidth={2.5}
+                            dot={false}
+                            name="Revenue (₹)"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mb-4">
-                {currentPeriod === "day"
-                  ? "Last 30 days"
-                  : currentPeriod === "month"
-                  ? "Last 12 months"
-                  : "Last 5 years"}
-              </p>
+            </div>
 
-              <div style={{ width: "100%", height: 300 }}>
-                {chartLoading ? (
-                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
-                    <div className="text-gray-500">Loading chart...</div>
-                  </div>
-                ) : chartData.length === 0 ? (
-                  <div className="h-full flex items-center justify-center bg-gray-50 rounded-lg">
-                    <div className="text-center text-gray-500">
-                      <FaChartBar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No analytics data available</p>
-                    </div>
-                  </div>
-                ) : (
-                  <ResponsiveContainer>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis
-                        className="text-xs font-medium"
-                        dataKey="month"
-                        tickFormatter={
-                          currentPeriod === "day"
-                            ? formatDayMonth
-                            : formatMonthYear
-                        }
-                      />
-                      <YAxis
-                        yAxisId="left"
-                        orientation="left"
-                        stroke="#2563eb"
-                      />
-                      <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        stroke="#059669"
-                        tickFormatter={formatRevenue}
-                      />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="newClients"
-                        stroke="#3B82F6"
-                        name="New Clients"
-                        strokeWidth={3}
-                      />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="hotelsBookings"
-                        stroke="#10B981"
-                        name="Hotel Bookings"
-                        strokeWidth={3}
-                      />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="eventsBookings"
-                        stroke="#F59E0B"
-                        name="Event Bookings"
-                        strokeWidth={3}
-                      />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="tourismBookings"
-                        stroke="#8B5CF6"
-                        name="Tourism Bookings"
-                        strokeWidth={3}
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="revenue"
-                        stroke="#059669"
-                        name="Revenue (₹)"
-                        strokeWidth={3}
-                      />
-
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
+            {/* Quick Actions */}
+            <div className="bg-white shadow rounded-lg">
+              <div className="p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-6">
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <Link
+                    to="/admin/clients"
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <FaUsers className="h-5 w-5 text-blue-600 mr-3" />
+                    Manage Clients
+                  </Link>
+                  <Link
+                    to="/admin/blogs"
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <FaAlignLeft className="h-5 w-5 text-indigo-600 mr-3" />
+                    Manage Blogs
+                  </Link>
+                  <Link
+                    to="/admin/hotels"
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <FaHotel className="h-5 w-5 text-emerald-600 mr-3" />
+                    Manage Hotels
+                  </Link>
+                  <Link
+                    to="/admin/tourism"
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <FaMapMarkedAlt className="h-5 w-5 text-purple-600 mr-3" />
+                    Tourism Management
+                  </Link>
+                  <Link
+                    to="/admin/events"
+                    className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <FaCalendarAlt className="h-5 w-5 text-orange-600 mr-3" />
+                    Events Dashboard
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-6">Quick Actions</h3>
-              <div className="space-y-3">
-                <Link to="/admin/clients" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaUsers className="h-5 w-5 text-blue-600 mr-3" />
-                  Manage Clients
-                </Link>
-                <Link to="/admin/blogs" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaAlignLeft className="h-5 w-5 text-indigo-600 mr-3" />
-                  Manage Blogs
-                </Link>
-                <Link to="/admin/hotels" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaHotel className="h-5 w-5 text-emerald-600 mr-3" />
-                  Manage Hotels
-                </Link>
-                <Link to="/admin/tourism" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaMapMarkedAlt className="h-5 w-5 text-purple-600 mr-3" />
-                  Tourism Management
-                </Link>
-                <Link to="/admin/events" className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                  <FaCalendarAlt className="h-5 w-5 text-orange-600 mr-3" />
-                  Events Dashboard
-                </Link>
+          {/* Recent Additions Section */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              Recent Additions
+            </h2>
+            <div className="grid grid-cols-1 gap-8">
+              <RecentList
+                title="Recent Clients"
+                items={recentClients}
+                icon={FaUsers}
+                color="bg-blue-500"
+              />
+              <div className="space-y-6">
+                <RecentList
+                  title="Recent Hotels"
+                  items={recentHotels}
+                  icon={FaHotel}
+                  color="bg-emerald-500"
+                />
+                <RecentList
+                  title="Recent Tourism"
+                  items={recentTourism}
+                  icon={FaMapMarkedAlt}
+                  color="bg-purple-500"
+                />
+                <RecentList
+                  title="Recent Events"
+                  items={recentEvents}
+                  icon={FaCalendarAlt}
+                  color="bg-orange-500"
+                />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Additions Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Recent Additions</h2>
-          <div className="grid grid-cols-1 gap-8">
-            <RecentList 
-              title="Recent Clients" 
-              items={recentClients} 
-              icon={FaUsers} 
-              color="bg-blue-500" 
-            />
-            <div className="space-y-6">
-              <RecentList 
-                title="Recent Hotels" 
-                items={recentHotels} 
-                icon={FaHotel} 
-                color="bg-emerald-500" 
-              />
-              <RecentList 
-                title="Recent Tourism" 
-                items={recentTourism} 
-                icon={FaMapMarkedAlt} 
-                color="bg-purple-500" 
-              />
-              <RecentList 
-                title="Recent Events" 
-                items={recentEvents} 
-                icon={FaCalendarAlt} 
-                color="bg-orange-500" 
-              />
             </div>
           </div>
         </div>
@@ -711,4 +1177,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
