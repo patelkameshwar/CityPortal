@@ -948,6 +948,14 @@ const AdminDashboard = () => {
 
                           {/* Tooltip */}
                           <Tooltip
+                          itemSorter={(item) => {
+    // If the name matches your Revenue Line name, give it a high sort value
+    if (item.name === "Revenue (₹)") {
+      return 99; 
+    }
+    // Return a low value for everything else to keep them at the top
+    return 1;
+  }}
                             contentStyle={{
                               backgroundColor: "#fff",
                               borderRadius: "12px",
