@@ -113,6 +113,10 @@ const MyProfile = () => {
 };
 
   const updateUserProfileData = async () => {
+    if (!userData.phone.trim() || userData.phone.replace(/\D/g, '').length !== 10) {
+      toast.error('Phone number must be exactly 10 digits.');
+      return;
+    }
     try {
       setSaving(true);
       const response = await authAPI.updateProfile({
@@ -292,6 +296,8 @@ const MyProfile = () => {
                   setUserData((prev) => ({ ...prev, phone: val }));
                 }}
                 placeholder="10-digit phone number"
+                minLength={10}
+                required
                 maxLength={10}
               />
             ) : (

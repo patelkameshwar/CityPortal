@@ -12,6 +12,8 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('empty');
+  const [showStrength, setShowStrength] = useState(false);
   
   // Status State
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,22 @@ const ResetPassword = () => {
 
   // Derived State for Validation
   const isMatching = password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
+
+  const isStrong = (pwd) => {
+    if (pwd.length < 8) return false;
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasLower = /[a-z]/.test(pwd);
+    const hasDigit = /\d/.test(pwd);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    return hasUpper && hasLower && hasDigit && hasSpecial;
+  };
+
+  const getStrength = (pwd) => {
+    if (pwd.length === 0) return 'empty';
+    if (pwd.length < 6) return 'weak';
+    if (isStrong(pwd)) return 'strong';
+    return 'medium';
+  };
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -42,8 +60,8 @@ const ResetPassword = () => {
     if (password !== confirmPassword) {
       return toast.error('Passwords do not match');
     }
-    if (password.length < 8) {
-      return toast.error('Password must be at least 8 characters long');
+    if (!isStrong(password)) {
+      return toast.error('Password must be strong: Min 8 chars, uppercase, lowercase, number, and special character (!@#$%^&*)');
     }
 
     setLoading(true);
@@ -115,8 +133,21 @@ const ResetPassword = () => {
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setPassword(val);
+                  setPasswordStrength(getStrength(val));
+                  setShowStrength(val.length > 0);
+                }}
+                className={`block w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all placeholder:text-slate-400 ${
+                  passwordStrength === 'strong' 
+                    ? 'border-emerald-300 ring-2 ring-emerald-200/50 bg-emerald-50/30' 
+                    : passwordStrength === 'medium'
+                    ? 'border-yellow-200 ring-2 ring-yellow-200/50 bg-yellow-50/20'
+                    : passwordStrength === 'weak'
+                    ? 'border-red-200 ring-2 ring-red-200/50 bg-red-50/20'
+                    : 'border-slate-200 focus:ring-indigo-500'
+                }`}
                 placeholder="Enter new password"
               />
               <button
@@ -158,14 +189,50 @@ const ResetPassword = () => {
             </div>
           </div>
 
+          {/* Password Strength Indicator */}
+          {showStrength && (
+            <div className="pt-3 space-y-2">
+              {/* Strength Progress Bar */}
+              <div className="flex rounded-full h-2 bg-slate-200 overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 rounded-full ${
+                    passwordStrength === 'strong' ? 'bg-emerald-500 w-[100%]' :
+                    passwordStrength === 'medium' ? 'bg-yellow-500 w-[60%]' :
+                    passwordStrength === 'weak' ? 'bg-red-500 w-[30%]' :
+                    'bg-slate-300 w-0'
+                  }`}
+                />
+              </div>
+              <div className="flex text-xs space-x-2 text-slate-600">
+                <span className={`font-medium ${passwordStrength === 'strong' ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {passwordStrength === 'strong' ? 'Strong' : passwordStrength.charAt(0).toUpperCase() + passwordStrength.slice(1)}
+                </span>
+              </div>
+              {/* Criteria Checkmarks */}
+              <div className="grid grid-cols-2 gap-1 text-xs">
+                <div className={`flex items-center gap-1 ${/[A-Z]/.test(password) ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  <CheckCircle2 className={`w-3 h-3 ${/[A-Z]/.test(password) ? '' : 'opacity-50'}`} /> Uppercase
+                </div>
+                <div className={`flex items-center gap-1 ${/[a-z]/.test(password) ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  <CheckCircle2 className={`w-3 h-3 ${/[a-z]/.test(password) ? '' : 'opacity-50'}`} /> Lowercase
+                </div>
+                <div className={`flex items-center gap-1 ${/\d/.test(password) ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  <CheckCircle2 className={`w-3 h-3 ${/\d/.test(password) ? '' : 'opacity-50'}`} /> Number
+                </div>
+                <div className={`flex items-center gap-1 ${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  <CheckCircle2 className={`w-3 h-3 ${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? '' : 'opacity-50'}`} /> Special Char
+                </div>
+              </div>
+            </div>
+          )}
           {/* Password Requirements hint */}
-          <p className="text-xs text-slate-400 px-1">
-            Minimum 8 characters with letters and numbers recommended.
+          <p className="text-xs text-slate-400 px-1 mt-2">
+            Min 8 chars: Uppercase, lowercase, number, special char (!@#$%^&*)
           </p>
 
           <button
             type="submit"
-            disabled={loading || !isMatching}
+            disabled={loading || !isMatching || !isStrong(password)}
             className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-md shadow-indigo-100 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-2"
           >
             {loading ? (
