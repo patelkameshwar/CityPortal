@@ -162,11 +162,9 @@ const Register = () => {
             </div>
           </div>
 
+          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
             <div className="relative">
@@ -180,20 +178,14 @@ const Register = () => {
                 onChange={(e) => {
                   const val = e.target.value;
                   setPassword(val);
-                  const strength = getStrength(val);
-                  setPasswordStrength(strength);
+                  setPasswordStrength(getStrength(val));
                   setShowHints(val.length > 0);
                 }}
                 required
-                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
-                  passwordStrength === "strong"
-                    ? "border-emerald-300 ring-emerald-200/50 bg-emerald-50/30"
-                    : passwordStrength === "medium"
-                      ? "border-gray-300 ring-gray-200/50"
-                      : passwordStrength === "weak" ||
-                          passwordStrength === "empty"
-                        ? "border-gray-300 ring-gray-200/50"
-                        : "border-gray-300"
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 outline-none transition ${
+                  isStrong(password)
+                    ? "border-emerald-500 ring-2 ring-emerald-100 bg-emerald-50/20"
+                    : "border-gray-300 focus:ring-blue-500"
                 }`}
                 placeholder="••••••••"
               />
@@ -206,38 +198,32 @@ const Register = () => {
               </button>
             </div>
 
-            {/* Password Hints - Only unmet criteria */}
+            {/* Single Line Example Hint */}
             {showHints && !isStrong(password) && (
-              <div className="pt-2 pb-4 space-y-1">
-                <p className="text-xs font-medium text-red-600 mb-2">
-                  Password requirements not met:
+              <div className="mt-2 p-3 bg-slate-50 rounded-lg border border-slate-200 animate-in fade-in slide-in-from-top-1">
+                <p className="text-xs text-slate-600 flex items-center gap-2">
+                  <FaExclamationTriangle className="text-amber-500 shrink-0" />
+                  Password must be at least 8 characters and include an uppercase letter, a digit, and a special character.
                 </p>
-                <div className="grid grid-cols-1 gap-1 text-xs text-red-500">
-                  {getMissingHints(password).map((hint, index) => (
-                    <div key={index} className="flex items-center gap-1">
-                      <FaExclamationTriangle className="w-3 h-3 shrink-0" />
-                      <span>{hint}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-[12px] text-slate-400 mt-2 italic">
+                  example:{" "}
+                  <span className="font-mono select-none">Secure@2026</span>
+                </p>
               </div>
             )}
 
-            {showHints && isStrong(password) && (
-              <div className="pt-2 pb-4">
-                <p className="text-xs font-medium text-emerald-600 flex items-center gap-1">
-                  <FaCheckCircle className="w-4 h-4" />
-                  Strong password ✓
-                </p>
+            {/* Strong Password Success Message */}
+            {isStrong(password) && (
+              <div className="mt-2 flex items-center gap-1 text-emerald-600 animate-in zoom-in duration-300">
+                <FaCheckCircle className="w-3 h-3" />
+                <span className="text-xs font-medium">Strong password ✓</span>
               </div>
             )}
           </div>
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+          {/* Confirm Password Input */}
+          <div className="mt-5">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Confirm Password
             </label>
             <div className="relative">
@@ -250,10 +236,10 @@ const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition ${
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 outline-none transition ${
                   isMatching
-                    ? "border-emerald-300 focus:ring-emerald-500 bg-emerald-50/30"
-                    : "border-gray-300"
+                    ? "border-emerald-500 ring-2 ring-emerald-100 bg-emerald-50/20"
+                    : "border-gray-300 focus:ring-blue-500"
                 }`}
                 placeholder="••••••••"
               />
@@ -265,18 +251,14 @@ const Register = () => {
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
+
             {isMatching && (
-              <div className="pt-2 pb-4">
-                <p className="text-xs font-medium text-emerald-600 flex items-center gap-1">
-                  <FaCheckCircle className="w-4 h-4" />
-                  {isStrong(password)
-                    ? "password matched ✓"
-                    : "Passwords not match"}
-                </p>
+              <div className="mt-2 flex items-center gap-1 text-emerald-600 animate-in slide-in-from-left-2">
+                <FaCheckCircle className="w-3 h-3" />
+                <span className="text-xs font-medium">Password matched ✓</span>
               </div>
             )}
           </div>
-
           <button
             type="submit"
             disabled={
