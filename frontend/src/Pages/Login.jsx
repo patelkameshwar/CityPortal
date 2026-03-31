@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../services/api';
-import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from 'react-icons/fa';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
+import { authAPI } from "../services/api";
+import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -23,16 +24,44 @@ const Login = () => {
       const response = await authAPI.login({ email, password });
       if (response.data.success) {
         login(response.data.user, response.data.token, rememberMe);
-        toast.success('Login successful!');
-        navigate('/');
+        toast.success("Login successful!");
+        navigate("/");
       } else {
-        toast.error(response.data.message || 'Login failed');
+        toast.error(response.data.message || "Login failed");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'An error occurred. Please try again.');
+      toast.error(
+        err.response?.data?.message || "An error occurred. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    if (credentialResponse?.credential) {
+      setLoading(true);
+      try {
+        const response = await authAPI.googleLogin({
+          token: credentialResponse.credential,
+        });
+        if (response.data.success) {
+          login(response.data.user, response.data.token, rememberMe);
+          toast.success("Google login successful!");
+          navigate("/");
+        } else {
+          toast.error(response.data.message || "Google login failed");
+        }
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Google login error");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login cancelled");
   };
 
   return (
@@ -40,12 +69,17 @@ const Login = () => {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-          <p className="text-gray-600 mt-2">Sign in to continue to CityPortal</p>
+          <p className="text-gray-600 mt-2">
+            Sign in to continue to CityPortal
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -65,7 +99,10 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
             <div className="relative">
@@ -101,24 +138,55 @@ const Login = () => {
               />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-700"
+            >
               Forgot password?
             </Link>
           </div>
-
 
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
+        <div className="mt-8">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-4 text-gray-400 font-semibold tracking-widest">
+                OR
+              </span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="outline" 
+              size="large" 
+              shape="rectangular" 
+              width="384" 
+              logo_alignment="center" 
+              text="signin_with" 
+            />
+          </div>
+        </div>
+
         <p className="mt-6 text-center text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
             Create Account
           </Link>
         </p>
@@ -128,4 +196,3 @@ const Login = () => {
 };
 
 export default Login;
-

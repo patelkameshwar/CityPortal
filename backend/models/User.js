@@ -11,9 +11,14 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    googleId: {
+      type: String,
+    },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.googleId;
+      },
     },
     phone: {
       type: String,
@@ -48,7 +53,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("User", userSchema);

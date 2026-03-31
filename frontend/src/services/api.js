@@ -39,6 +39,7 @@ if (error.response?.status === 401) {
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
+  googleLogin: (data) => api.post('/auth/google', data),
   updateProfile: (data) => api.put('/auth/profile', data),
   uploadProfilePicture: (formData) => api.post('/auth/profile-picture', formData, {
     headers: {

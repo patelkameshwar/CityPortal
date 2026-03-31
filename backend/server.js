@@ -21,6 +21,16 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
+const helmet = require("helmet");
+
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: {
+      policy: "same-origin-allow-popups",
+    },
+  })
+);
+
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/test", require("./routes/testRoutes"));
 app.use("/api/hotels", require("./routes/hotelRoutes"));
