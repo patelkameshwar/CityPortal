@@ -47,6 +47,8 @@ const HotelDetails = () => {
     checkOut: "",
     rooms: 1,
   });
+  const [bookingType, setBookingType] = useState("night");
+  const [selectedHours, setSelectedHours] = useState(3);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -59,6 +61,21 @@ const HotelDetails = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (bookingType === "hour" && bookingData.checkIn) {
+      const checkInDate = new Date(bookingData.checkIn);
+
+      const checkOut = new Date(
+        checkInDate.getTime() + selectedHours * 60 * 60 * 1000,
+      );
+
+      setBookingData((prev) => ({
+        ...prev,
+        checkOut: checkOut.toISOString(),
+      }));
+    }
+  }, [bookingType, selectedHours, bookingData.checkIn]);
 
   useEffect(() => {
     fetchHotel();
@@ -149,18 +166,39 @@ const HotelDetails = () => {
     setBookingSuccess("");
 
     try {
-      const fromDate = new Date(bookingData.checkIn);
-      const toDate = new Date(bookingData.checkOut);
-      const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-      const totalPrice = hotel.pricePerNight * days * bookingData.rooms;
+      let totalPrice = 0;
+      let checkOutDate = bookingData.checkOut;
 
+      if (bookingType === "night") {
+        const fromDate = new Date(bookingData.checkIn);
+        const toDate = new Date(bookingData.checkOut);
+
+        const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+
+        totalPrice = hotel.pricePerNight * days * bookingData.rooms;
+      } else {
+        const checkInDate = new Date(bookingData.checkIn);
+
+        const checkOut = new Date(
+          checkInDate.getTime() + selectedHours * 60 * 60 * 1000,
+        );
+
+        checkOutDate = checkOut.toISOString();
+
+        const pricePerHour = hotel.pricePerNight / 24;
+        totalPrice = pricePerHour * selectedHours * bookingData.rooms;
+      }
       await bookingAPI.create({
         itemType: "Hotel",
         itemId: hotel._id,
-        bookingFromDate: bookingData.checkIn,
-        bookingToDate: bookingData.checkOut,
+
+        bookingType, // ✅ MUST
+        hours: bookingType === "hour" ? selectedHours : null, // ✅ MUST
+
+        bookingFromDate: bookingData.checkIn, // ✅ MUST
+        bookingToDate: bookingData.checkOut, // ✅ MUST
+
         totalQuantity: bookingData.rooms,
-        totalPrice,
       });
 
       toast.success("Hotel booked successfully!");
@@ -173,14 +211,28 @@ const HotelDetails = () => {
     } finally {
       setBookingLoading(false);
     }
+    console.log({
+  bookingType,
+  selectedHours,
+  bookingData,
+});
   };
 
   const calculateTotal = () => {
-    if (!hotel || !bookingData.checkIn || !bookingData.checkOut) return 0;
-    const fromDate = new Date(bookingData.checkIn);
-    const toDate = new Date(bookingData.checkOut);
-    const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-    return hotel.pricePerNight * days * bookingData.rooms;
+    if (!hotel || !bookingData.checkIn) return 0;
+
+    if (bookingType === "night") {
+      if (!bookingData.checkOut) return 0;
+
+      const days =
+        (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) /
+        (1000 * 60 * 60 * 24);
+
+      return Math.ceil(days) * hotel.pricePerNight * bookingData.rooms;
+      } else {
+        const pricePerHour = hotel.pricePerHour || (hotel.pricePerNight / 24);
+        return pricePerHour * selectedHours * bookingData.rooms;
+      }
   };
 
   const openDirections = () => {
@@ -319,22 +371,26 @@ const HotelDetails = () => {
                 Non-Refundable
               </div>
 
-              <div className="flex items-baseline justify-between mb-4">
-                <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
-                  <FiUser className="h-4 w-4" />
-                  2 Guests |
-                  <MdOutlineBed className="h-4 w-4" /> 1 Room
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-gray-800 text-2xl font-bold">
-                    <span>₹</span>
-                    {hotel.pricePerNight}
+                  <div className="flex items-baseline justify-between mb-4">
+                    <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
+                      <FiUser className="h-4 w-4" />
+                      2 Guests |
+                      <MdOutlineBed className="h-4 w-4" /> 1 Room
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="text-gray-800 text-2xl font-bold">
+                        <span>₹</span>
+                        {hotel.pricePerNight}
+                      </div>
+                      <div className="text-gray-600 text-sm font-semibold">
+                        Per Night
+                      </div>
+                      <div className="text-emerald-600 text-sm font-semibold mt-1">
+                        Hourly: ₹
+                        {(hotel.pricePerHour || (hotel.pricePerNight / 24)).toFixed(0)}/hr
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-gray-600 text-sm font-semibold">
-                    Per Night
-                  </div>
-                </div>
-              </div>
 
               <button
                 onClick={handleBookNow}
@@ -479,7 +535,7 @@ const HotelDetails = () => {
                                 key={`basic-${index}`}
                                 className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm"
                               >
-                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
                                 <span className="text-sm bg-gray-100 text-gray-600">
                                   {item}
                                 </span>
@@ -509,7 +565,7 @@ const HotelDetails = () => {
                                 key={`room-${index}`}
                                 className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm"
                               >
-                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
                                 <span className="text-sm bg-gray-100 text-gray-600">
                                   {item}
                                 </span>
@@ -542,7 +598,7 @@ const HotelDetails = () => {
                                 key={`health-${index}`}
                                 className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm"
                               >
-                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
                                 <span className="text-sm bg-gray-100 text-gray-600">
                                   {item}
                                 </span>
@@ -575,7 +631,7 @@ const HotelDetails = () => {
                                 key={`safety-${index}`}
                                 className="flex items-center p-2 bg-gray-100 rounded-2xl shadow-sm"
                               >
-                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 flex-shrink-0"></div>
+                                <div className="w-2 h-2 bg-gray-600 rounded-full mr-3 shrink-0"></div>
                                 <span className="text-sm bg-gray-100 text-gray-600">
                                   {item}
                                 </span>
@@ -776,43 +832,114 @@ const HotelDetails = () => {
                 </div>
               )}
 
+              {/* Booking Type Toggle */}
+              <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setBookingType("night")}
+                  className={`flex-1 py-2 rounded-lg ${
+                    bookingType === "night"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Nightly
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBookingType("hour")}
+                  className={`flex-1 py-2 rounded-lg ${
+                    bookingType === "hour"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Hourly
+                </button>
+              </div>
+
               <form onSubmit={handleBookingSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Check-in Date
-                  </label>
-                  <input
-                    type="date"
-                    value={bookingData.checkIn}
-                    onChange={(e) =>
-                      setBookingData({
-                        ...bookingData,
-                        checkIn: e.target.value,
-                      })
-                    }
-                    required
-                    min={getTodayDate()}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Check-out Date
-                  </label>
-                  <input
-                    type="date"
-                    value={bookingData.checkOut}
-                    onChange={(e) =>
-                      setBookingData({
-                        ...bookingData,
-                        checkOut: e.target.value,
-                      })
-                    }
-                    required
-                    min={bookingData.checkIn || getTodayDate()}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
+                {bookingType === "night" ? (
+                  <>
+                    {/* Night Booking */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Check-in Date
+                      </label>
+                      <input
+                        type="date"
+                        value={bookingData.checkIn}
+                        onChange={(e) =>
+                          setBookingData({
+                            ...bookingData,
+                            checkIn: e.target.value,
+                          })
+                        }
+                        min={getTodayDate()}
+                        required
+                        className="w-full px-4 py-2 border rounded-lg"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Check-out Date
+                      </label>
+                      <input
+                        type="date"
+                        value={bookingData.checkOut}
+                        onChange={(e) =>
+                          setBookingData({
+                            ...bookingData,
+                            checkOut: e.target.value,
+                          })
+                        }
+                        min={bookingData.checkIn || getTodayDate()}
+                        required
+                        className="w-full px-4 py-2 border rounded-lg"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Hourly Booking */}
+                    <div className="flex gap-2">
+                      {[3, 6, 9].map((hrs) => (
+                        <button
+                          key={hrs}
+                          type="button"
+                          onClick={() => setSelectedHours(hrs)}
+                          className={`flex-1 py-2 rounded-lg border ${
+                            selectedHours === hrs
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-700"
+                          }`}
+                        >
+                          {hrs} Hours
+                        </button>
+                      ))}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 mt-2">
+                        Check-in Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={bookingData.checkIn}
+                        onChange={(e) =>
+                          setBookingData({
+                            ...bookingData,
+                            checkIn: e.target.value,
+                          })
+                        }
+                        required
+                        className="w-full px-4 py-2 border rounded-lg"
+                      />
+                    </div>
+                  </>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Number of Rooms
@@ -909,7 +1036,7 @@ const HotelDetails = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
+                      className={`shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
                         index === currentImageIndex
                           ? "border-blue-500"
                           : "border-transparent"

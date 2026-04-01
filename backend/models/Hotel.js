@@ -38,6 +38,12 @@ const hotelSchema = new mongoose.Schema(
       min: 0,
     },
 
+    pricePerHour: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+
     images: {
       type: [String],
       default: [],

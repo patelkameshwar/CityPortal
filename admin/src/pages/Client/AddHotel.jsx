@@ -23,6 +23,7 @@ const [formData, setFormData] = useState({
     lat: "",
     lng: "",
     pricePerNight: "",
+    pricePerHour: "",
     totalRooms: "",
     amenities: [],
     basicFacilities: [],
@@ -506,6 +507,9 @@ const [formData, setFormData] = useState({
       submitData.append("lng", formData.lng);
     }
     submitData.append("pricePerNight", formData.pricePerNight);
+    if (formData.pricePerHour) {
+      submitData.append("pricePerHour", formData.pricePerHour);
+    }
     submitData.append("totalRooms", formData.totalRooms);
     if (formData.amenities.length > 0) {
       submitData.append("amenities", JSON.stringify(formData.amenities));
@@ -698,6 +702,22 @@ const [formData, setFormData] = useState({
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="500"
                     required
+                  />
+                </div>
+                <label className="block text-sm font-semibold text-gray-700 mt-3 mb-3">
+                  Price per Hour (₹) <span className="text-xs text-gray-500">(optional)</span>
+                </label>
+                <div className="relative">
+                  <FaDollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="number"
+                    name="pricePerHour"
+                    value={formData.pricePerHour}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="10"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="25"
                   />
                 </div>
               </div>

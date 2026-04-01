@@ -182,8 +182,11 @@ const Hotels = () => {
                     <FiHome className="h-16 w-16" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  ${hotel.pricePerNight}/night
+                <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                  ₹{hotel.pricePerNight}/night
+                </div>
+                <div className="absolute top-2 left-2 bg-emerald-600 text-white px-2 py-1 rounded-full text-xs">
+                  Hourly: ₹{Math.round(hotel.pricePerHour || (hotel.pricePerNight / 24))}/hr
                 </div>
               </div>
 

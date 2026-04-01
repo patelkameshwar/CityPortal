@@ -216,9 +216,14 @@ const MyHotels = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          ₹ {hotel.pricePerNight}/
-                        </span>
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full block">
+                            ₹{hotel.pricePerNight}/night
+                          </span>
+                          <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                            Hourly: ₹{Math.round(hotel.pricePerHour || (hotel.pricePerNight / 24))}/hr
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <b>{hotel.bookingsCount || 0}</b> bookings

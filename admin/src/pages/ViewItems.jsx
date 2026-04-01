@@ -2,31 +2,31 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import api, { hotelAPI, eventAPI } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { 
-  FaArrowLeft, 
-  FaCalendarAlt, 
-  FaHotel, 
-  FaMapMarkerAlt, 
-  FaImage, 
-  FaRupeeSign, 
-  FaClock, 
-  FaUsers, 
-  FaBed, 
+import {
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaHotel,
+  FaMapMarkerAlt,
+  FaImage,
+  FaRupeeSign,
+  FaClock,
+  FaUsers,
+  FaBed,
   FaUtensils,
   FaSpinner,
-  FaUser 
+  FaUser,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const ViewItems = () => {
   const { type, id } = useParams();
-  const itemType = type || 'event'; 
-  const isHotel = itemType === 'hotel';
+  const itemType = type || "event";
+  const isHotel = itemType === "hotel";
   const apiService = isHotel ? hotelAPI : eventAPI;
-  const backPath = isHotel ? '/client/my-hotels' : '/client/my-events';
-  const pageTitle = isHotel ? 'Hotel Details' : 'Event Details';
+  const backPath = isHotel ? "/client/my-hotels" : "/client/my-events";
+  const pageTitle = isHotel ? "Hotel Details" : "Event Details";
   const icon = isHotel ? FaHotel : FaCalendarAlt;
-  const capacityLabel = isHotel ? 'Total Rooms' : 'Total Pass';
+  const capacityLabel = isHotel ? "Total Rooms" : "Total Pass";
   const Icon = icon;
 
   const [itemData, setItemData] = useState(null);
@@ -38,20 +38,20 @@ const ViewItems = () => {
 
   const fieldMap = {
     hotel: {
-      title: 'name',
-      price: 'pricePerNight',
-      capacity: 'totalRooms',
-      extra: 'amenities'
+      title: "name",
+      price: "pricePerNight",
+      capacity: "totalRooms",
+      extra: "amenities",
     },
     event: {
-      title: 'title', 
-      price: 'price',
-      capacity: 'totalSeats',
-      extra: null
-    }
+      title: "title",
+      price: "price",
+      capacity: "totalSeats",
+      extra: null,
+    },
   };
 
-const mapApiDataToView = (apiData) => {
+  const mapApiDataToView = (apiData) => {
     const map = fieldMap[itemType];
     return {
       title: apiData[map.title] || "",
@@ -60,15 +60,24 @@ const mapApiDataToView = (apiData) => {
       lat: apiData.coordinates?.lat ? apiData.coordinates.lat.toString() : "",
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
+      pricePerHour: itemType === "hotel" ? apiData.pricePerHour || "" : "",
       capacity: apiData[map.capacity] || "",
       amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
       policies: Array.isArray(apiData.policies) ? apiData.policies : [],
       // Sub-amenities for hotels
-      basicFacilities: Array.isArray(apiData.basicFacilities) ? apiData.basicFacilities : [],
-      roomAmenities: Array.isArray(apiData.roomAmenities) ? apiData.roomAmenities : [],
-      healthWellness: Array.isArray(apiData.healthWellness) ? apiData.healthWellness : [],
-      safetySecurity: Array.isArray(apiData.safetySecurity) ? apiData.safetySecurity : [],
-      ...(itemType === 'event' && {
+      basicFacilities: Array.isArray(apiData.basicFacilities)
+        ? apiData.basicFacilities
+        : [],
+      roomAmenities: Array.isArray(apiData.roomAmenities)
+        ? apiData.roomAmenities
+        : [],
+      healthWellness: Array.isArray(apiData.healthWellness)
+        ? apiData.healthWellness
+        : [],
+      safetySecurity: Array.isArray(apiData.safetySecurity)
+        ? apiData.safetySecurity
+        : [],
+      ...(itemType === "event" && {
         artist: apiData.artist || "",
         eventType: apiData.eventDate ? "one-day" : "multi-day",
         eventTime: apiData.eventTime || "",
@@ -82,10 +91,10 @@ const mapApiDataToView = (apiData) => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString('en-GB', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
@@ -99,16 +108,17 @@ const mapApiDataToView = (apiData) => {
     const fetchItem = async () => {
       try {
         const response = await apiService.getById(id);
-        const apiItem = response.data.event || response.data.hotel || response.data;
+        const apiItem =
+          response.data.event || response.data.hotel || response.data;
         const viewData = mapApiDataToView(apiItem);
         setItemData(viewData);
-        
+
         if (apiItem.images?.length > 0) {
           setImagePreviews(apiItem.images);
         }
       } catch (error) {
         console.error(`Failed to load ${itemType}:`, error);
-        toast.error(`Failed to load ${isHotel ? 'hotel' : 'event'} data`);
+        toast.error(`Failed to load ${isHotel ? "hotel" : "event"} data`);
         navigate(backPath);
       } finally {
         setLoading(false);
@@ -131,8 +141,13 @@ const mapApiDataToView = (apiData) => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center p-8">
           <FaHotel className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Item not found</h2>
-          <Link to={backPath} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Item not found
+          </h2>
+          <Link
+            to={backPath}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
             Back to List
           </Link>
         </div>
@@ -150,19 +165,25 @@ const mapApiDataToView = (apiData) => {
               className="flex items-center text-gray-600 hover:text-gray-900 p-3 rounded-xl hover:bg-gray-100 transition-all"
             >
               <FaArrowLeft className="mr-2 h-5 w-5" />
-              Back to {isHotel ? 'My Hotels' : 'My Events'}
+              Back to {isHotel ? "My Hotels" : "My Events"}
             </Link>
             <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-emerald-100 border-2 border-emerald-200">
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={user.profilePicture}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-xs">
-                    {user?.name?.[0] || 'C'}
+                    {user?.name?.[0] || "C"}
                   </div>
                 )}
               </div>
-              <span className="font-semibold text-gray-900 hidden sm:inline">{user?.name}</span>
+              <span className="font-semibold text-gray-900 hidden sm:inline">
+                {user?.name}
+              </span>
             </div>
           </div>
         </div>
@@ -173,50 +194,72 @@ const mapApiDataToView = (apiData) => {
           <div className="px-8 py-8 border-b border-gray-200 bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/80 rounded-2xl shadow-lg border">
-<Icon className="h-10 w-10 text-emerald-600" />
+                <Icon className="h-10 w-10 text-emerald-600" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
                   {pageTitle}
                 </h1>
-                <p className="text-lg text-gray-600 mt-1">View details of your {isHotel ? 'hotel' : 'event'}</p>
+                <p className="text-lg text-gray-600 mt-1">
+                  View details of your {isHotel ? "hotel" : "event"}
+                </p>
               </div>
             </div>
           </div>
 
           <div className="p-8 space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              {/* Row 1: Title (Always Full Width) */}
               <div>
                 <label className="block text-base font-semibold text-gray-800 mb-3">
-                  {isHotel ? 'Hotel Name' : 'Event Title'}
+                  {isHotel ? "Hotel Name" : "Event Title"}
                 </label>
                 <div className="px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-base text-gray-900">
                   {itemData.title}
                 </div>
               </div>
-              <div>
-                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                  <FaRupeeSign className="mr-2 text-emerald-600" />
-                  Price {isHotel ? 'per Night' : 'per Pass'}
-                </label>
-                <div className="px-5 py-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-base font-semibold text-emerald-800 flex items-center">
-                   {itemData.price}
+
+              {/* Row 2: Adaptive Grid (2 columns horizontally) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Side A: Main Price (Nightly or Pass) */}
+                <div>
+                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                    <FaRupeeSign className="mr-2 text-emerald-600" />
+                    Price {isHotel ? "per Night" : "per Pass"}
+                  </label>
+                  <div className="px-5 py-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-base font-semibold text-emerald-800 flex items-center">
+                    {itemData.price}
+                  </div>
                 </div>
+
+                {/* Side B: Adaptive Column (Hourly if Hotel, Artist if Event) */}
+                {isHotel ? (
+                  <div>
+                    <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                      <FaClock className="mr-2 text-orange-600" />
+                      Price per Hour
+                    </label>
+                    <div className="px-5 py-4 bg-orange-50 border-2 border-orange-200 rounded-2xl text-base font-semibold text-orange-800 flex items-center">
+                      {itemData.pricePerHour
+                        ? `₹${itemData.pricePerHour}`
+                        : "Not set"}
+                    </div>
+                  </div>
+                ) : (
+                  itemData.artist && (
+                    <div>
+                      <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <FaUser className="mr-2 text-indigo-600" />
+                        Artist
+                      </label>
+                      <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base font-semibold text-indigo-800">
+                        {itemData.artist}
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
             </div>
-
-            {/* Artist Section for Events */}
-            {itemType === 'event' && itemData.artist && (
-              <div>
-                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                  <FaUser className="mr-2 text-indigo-600" />
-                  Artist
-                </label>
-                <div className="px-5 py-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-base font-semibold text-indigo-800">
-                  {itemData.artist}
-                </div>
-              </div>
-            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
@@ -230,7 +273,8 @@ const mapApiDataToView = (apiData) => {
                   </div>
                   {itemData.lat && itemData.lng && (
                     <div className="text-xs text-blue-700 font-mono bg-blue-100 px-3 py-1 rounded-lg border">
-                      📍 {parseFloat(itemData.lat).toFixed(6)}, {parseFloat(itemData.lng).toFixed(6)}
+                      📍 {parseFloat(itemData.lat).toFixed(6)},{" "}
+                      {parseFloat(itemData.lng).toFixed(6)}
                     </div>
                   )}
                 </div>
@@ -260,7 +304,9 @@ const mapApiDataToView = (apiData) => {
                 Amenities
               </label>
               <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl mb-4">
-{itemData.amenities && Array.isArray(itemData.amenities) && itemData.amenities.length > 0 ? (
+                {itemData.amenities &&
+                Array.isArray(itemData.amenities) &&
+                itemData.amenities.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {itemData.amenities.map((amenity, index) => (
                       <span
@@ -272,11 +318,12 @@ const mapApiDataToView = (apiData) => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic text-base">No amenities listed</p>
+                  <p className="text-gray-500 italic text-base">
+                    No amenities listed
+                  </p>
                 )}
               </div>
 
-            
               {/* Sub-Amenities Section for Hotels */}
               {isHotel && (
                 <div>
@@ -287,7 +334,10 @@ const mapApiDataToView = (apiData) => {
                     <div className="flex border-b border-gray-200 mb-4">
                       <button
                         type="button"
-                        onClick={() => setActiveSubAmenityTab?.("basic") || setActiveSubAmenityTab("basic")}
+                        onClick={() =>
+                          setActiveSubAmenityTab?.("basic") ||
+                          setActiveSubAmenityTab("basic")
+                        }
                         className={`px-4 py-2 font-medium text-sm -mb-px ${
                           activeSubAmenityTab === "basic"
                             ? "text-indigo-600 border-b-2 border-indigo-600"
@@ -298,7 +348,10 @@ const mapApiDataToView = (apiData) => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setActiveSubAmenityTab?.("room") || setActiveSubAmenityTab("room")}
+                        onClick={() =>
+                          setActiveSubAmenityTab?.("room") ||
+                          setActiveSubAmenityTab("room")
+                        }
                         className={`px-4 py-2 font-medium text-sm -mb-px ${
                           activeSubAmenityTab === "room"
                             ? "text-purple-600 border-b-2 border-purple-600"
@@ -309,7 +362,10 @@ const mapApiDataToView = (apiData) => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setActiveSubAmenityTab?.("health") || setActiveSubAmenityTab("health")}
+                        onClick={() =>
+                          setActiveSubAmenityTab?.("health") ||
+                          setActiveSubAmenityTab("health")
+                        }
                         className={`px-4 py-2 font-medium text-sm -mb-px ${
                           activeSubAmenityTab === "health"
                             ? "text-green-600 border-b-2 border-green-600"
@@ -320,7 +376,10 @@ const mapApiDataToView = (apiData) => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setActiveSubAmenityTab?.("safety") || setActiveSubAmenityTab("safety")}
+                        onClick={() =>
+                          setActiveSubAmenityTab?.("safety") ||
+                          setActiveSubAmenityTab("safety")
+                        }
                         className={`px-4 py-2 font-medium text-sm -mb-px ${
                           activeSubAmenityTab === "safety"
                             ? "text-red-600 border-b-2 border-red-600"
@@ -336,7 +395,9 @@ const mapApiDataToView = (apiData) => {
                   <div className="space-y-4">
                     {activeSubAmenityTab === "basic" && (
                       <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
-                        {itemData.basicFacilities && Array.isArray(itemData.basicFacilities) && itemData.basicFacilities.length > 0 ? (
+                        {itemData.basicFacilities &&
+                        Array.isArray(itemData.basicFacilities) &&
+                        itemData.basicFacilities.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {itemData.basicFacilities.map((facility, index) => (
                               <span
@@ -348,14 +409,18 @@ const mapApiDataToView = (apiData) => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic text-base">No basic facilities listed</p>
+                          <p className="text-gray-500 italic text-base">
+                            No basic facilities listed
+                          </p>
                         )}
                       </div>
                     )}
 
                     {activeSubAmenityTab === "room" && (
                       <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl">
-                        {itemData.roomAmenities && Array.isArray(itemData.roomAmenities) && itemData.roomAmenities.length > 0 ? (
+                        {itemData.roomAmenities &&
+                        Array.isArray(itemData.roomAmenities) &&
+                        itemData.roomAmenities.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {itemData.roomAmenities.map((amenity, index) => (
                               <span
@@ -367,14 +432,18 @@ const mapApiDataToView = (apiData) => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic text-base">No room amenities listed</p>
+                          <p className="text-gray-500 italic text-base">
+                            No room amenities listed
+                          </p>
                         )}
                       </div>
                     )}
 
                     {activeSubAmenityTab === "health" && (
                       <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl">
-                        {itemData.healthWellness && Array.isArray(itemData.healthWellness) && itemData.healthWellness.length > 0 ? (
+                        {itemData.healthWellness &&
+                        Array.isArray(itemData.healthWellness) &&
+                        itemData.healthWellness.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {itemData.healthWellness.map((item, index) => (
                               <span
@@ -386,14 +455,18 @@ const mapApiDataToView = (apiData) => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic text-base">No health & wellness features listed</p>
+                          <p className="text-gray-500 italic text-base">
+                            No health & wellness features listed
+                          </p>
                         )}
                       </div>
                     )}
 
                     {activeSubAmenityTab === "safety" && (
                       <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl">
-                        {itemData.safetySecurity && Array.isArray(itemData.safetySecurity) && itemData.safetySecurity.length > 0 ? (
+                        {itemData.safetySecurity &&
+                        Array.isArray(itemData.safetySecurity) &&
+                        itemData.safetySecurity.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {itemData.safetySecurity.map((item, index) => (
                               <span
@@ -405,7 +478,9 @@ const mapApiDataToView = (apiData) => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic text-base">No safety & security features listed</p>
+                          <p className="text-gray-500 italic text-base">
+                            No safety & security features listed
+                          </p>
                         )}
                       </div>
                     )}
@@ -415,28 +490,31 @@ const mapApiDataToView = (apiData) => {
             </div>
 
             {/* Policies Section */}
-              <div>
-                <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
-                  Policies
-                </label>
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl mb-4">
-                  {itemData.policies && Array.isArray(itemData.policies) && itemData.policies.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {itemData.policies.map((policy, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-medium shadow-sm border border-blue-200"
-                        >
-                          {policy}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 italic text-base">No policies listed</p>
-                  )}
-                </div>
+            <div>
+              <label className="text-base font-semibold text-gray-800 mb-2 flex items-center">
+                Policies
+              </label>
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl mb-4">
+                {itemData.policies &&
+                Array.isArray(itemData.policies) &&
+                itemData.policies.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {itemData.policies.map((policy, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                      >
+                        {policy}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic text-base">
+                    No policies listed
+                  </p>
+                )}
               </div>
-
+            </div>
 
             {itemData.eventType && (
               <>
@@ -444,17 +522,21 @@ const mapApiDataToView = (apiData) => {
                   <label className="block text-base font-semibold text-gray-800 mb-3">
                     Event Type
                   </label>
-                  <div className={`px-4 py-3 rounded-2xl font-semibold shadow-sm ${
-                    itemData.eventType === 'one-day' 
-                      ? 'bg-blue-100 border-2 border-blue-300 text-blue-800' 
-                      : 'bg-purple-100 border-2 border-purple-300 text-purple-800'
-                  }`}>
-                    {itemData.eventType === 'one-day' ? 'One Day Event' : 'Multi-Day Event'}
+                  <div
+                    className={`px-4 py-3 rounded-2xl font-semibold shadow-sm ${
+                      itemData.eventType === "one-day"
+                        ? "bg-blue-100 border-2 border-blue-300 text-blue-800"
+                        : "bg-purple-100 border-2 border-purple-300 text-purple-800"
+                    }`}
+                  >
+                    {itemData.eventType === "one-day"
+                      ? "One Day Event"
+                      : "Multi-Day Event"}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {itemData.eventType === 'one-day' ? (
+                  {itemData.eventType === "one-day" ? (
                     <div>
                       <label className="font-semibold text-gray-800 mb-3 flex items-center">
                         <FaCalendarAlt className="mr-2 text-orange-500" />
@@ -497,18 +579,24 @@ const mapApiDataToView = (apiData) => {
               </>
             )}
 
-
-
             {imagePreviews.length > 0 && (
               <div>
                 <label className="text-base font-semibold text-gray-800 mb-5 flex items-center">
                   <FaImage className="mr-3 h-7 w-7 text-blue-500" />
-                  {isHotel ? 'Hotel Images' : 'Event Images'} ({imagePreviews.length})
+                  {isHotel ? "Hotel Images" : "Event Images"} (
+                  {imagePreviews.length})
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {imagePreviews.map((imgSrc, idx) => (
-                    <div key={idx} className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all">
-                      <img src={imgSrc} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div
+                      key={idx}
+                      className="group relative overflow-hidden rounded-2xl shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 aspect-square hover:shadow-2xl transition-all"
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={`Image ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>
@@ -520,7 +608,7 @@ const mapApiDataToView = (apiData) => {
                 to={backPath}
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-4 px-12 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl hover:-translate-y-0.5 transition-all flex items-center space-x-3"
               >
-                Back to {isHotel ? 'Hotels' : 'Events'}
+                Back to {isHotel ? "Hotels" : "Events"}
               </Link>
             </div>
           </div>
@@ -531,4 +619,3 @@ const mapApiDataToView = (apiData) => {
 };
 
 export default ViewItems;
-

@@ -20,6 +20,19 @@ const bookingSchema = new mongoose.Schema(
       refPath: "itemType",
     },
 
+    bookingType: {
+      type: String,
+      enum: ["night", "hour"],
+      default: "night",
+    },
+
+    // ✅ NEW FIELD (ONLY FOR HOURLY)
+    hours: {
+      type: Number,
+      enum: [3, 6, 9],
+      default: null,
+    },
+
     bookingFromDate: Date,
     bookingFromTime: String,
     bookingToDate: Date,

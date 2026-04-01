@@ -23,6 +23,7 @@ exports.createHotel = async (req, res) => {
       lng,
       description,
       pricePerNight,
+      pricePerHour,
       totalRooms,
       amenities,
       basicFacilities,
@@ -58,6 +59,7 @@ exports.createHotel = async (req, res) => {
       coordinates: lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : undefined,
       description,
       pricePerNight,
+      pricePerHour: pricePerHour ? parseFloat(pricePerHour) : undefined,
       totalRooms,
       amenities: parsedAmenities,
       basicFacilities: parsedBasicFacilities,
@@ -180,6 +182,7 @@ exports.updateHotel = async (req, res) => {
     }
     hotel.description = req.body.description || hotel.description;
     hotel.pricePerNight = req.body.pricePerNight || hotel.pricePerNight;
+    hotel.pricePerHour = req.body.pricePerHour ? parseFloat(req.body.pricePerHour) : hotel.pricePerHour;
     hotel.totalRooms = req.body.totalRooms || hotel.totalRooms;
     
     // Parse and update amenities/sub-amenities/policies (matches createHotel)

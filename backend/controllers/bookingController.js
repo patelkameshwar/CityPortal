@@ -9,16 +9,17 @@ const Tourism = require("../models/Tourism");
  */
 exports.createBooking = async (req, res) => {
   try {
+    console.log("Incoming Booking Data:", req.body);
     const {
       itemType,
       itemId,
-      bookingDate,        // Event / Tourism
-      bookingTime,        // Event / Tourism
-      bookingFromDate,    // Hotel
-      bookingFromTime,    // Hotel
-      bookingToDate,      // Hotel
-      bookingToTime,      // Hotel
-      totalQuantity,      // Rooms or seats
+      bookingDate, // Event / Tourism
+      bookingTime, // Event / Tourism
+      bookingFromDate, // Hotel
+      bookingFromTime, // Hotel
+      bookingToDate, // Hotel
+      bookingToTime, // Hotel
+      totalQuantity, // Rooms or seats
     } = req.body;
 
     if (!itemType || !itemId || !totalQuantity) {
@@ -33,91 +34,139 @@ exports.createBooking = async (req, res) => {
     let item;
     let totalPrice = 0;
 
-    
-   // ================= EVENT BOOKING =================
-if (itemType === "Event") {
-  item = await Event.findById(itemId);
-  if (!item) return res.status(404).json({ message: "Event not found" });
+    // ================= EVENT BOOKING =================
+    if (itemType === "Event") {
+      item = await Event.findById(itemId);
+      if (!item) return res.status(404).json({ message: "Event not found" });
 
-  if (!bookingDate) {
-    return res.status(400).json({ message: "Booking date required for Event" });
-  }
+      if (!bookingDate) {
+        return res
+          .status(400)
+          .json({ message: "Booking date required for Event" });
+      }
 
-  const date = new Date(bookingDate);
-  const from = new Date(item.bookingFromDate);
-  const to = new Date(item.bookingToDate);
+      const date = new Date(bookingDate);
+      const from = new Date(item.bookingFromDate);
+      const to = new Date(item.bookingToDate);
 
-  // Validate bookingDate is within event date range
-  if (date < from || date > to) {
-    return res.status(400).json({
-      message: "Booking date must be within event dates",
-    });
-  }
+      // Validate bookingDate is within event date range
+      if (date < from || date > to) {
+        return res.status(400).json({
+          message: "Booking date must be within event dates",
+        });
+      }
 
-  // Calculate seats already booked for that day
-  const bookedSeats = item.bookings
-    .filter(b => b.bookingDate.toDateString() === date.toDateString())
-    .reduce((sum, b) => sum + b.seats, 0);
+      // Calculate seats already booked for that day
+      const bookedSeats = item.bookings
+        .filter((b) => b.bookingDate.toDateString() === date.toDateString())
+        .reduce((sum, b) => sum + b.seats, 0);
 
-  if (bookedSeats + totalQuantity > item.totalSeats) {
-    return res.status(400).json({
-      message: "Not enough seats available on this date",
-    });
-  }
+      if (bookedSeats + totalQuantity > item.totalSeats) {
+        return res.status(400).json({
+          message: "Not enough seats available on this date",
+        });
+      }
 
-  totalPrice = item.price * totalQuantity;
+      totalPrice = item.price * totalQuantity;
 
-  // Add booking entry to event bookings array
-  item.bookings.push({ user: req.user.id, seats: totalQuantity, bookingDate: date });
+      // Add booking entry to event bookings array
+      item.bookings.push({
+        user: req.user.id,
+        seats: totalQuantity,
+        bookingDate: date,
+      });
 
-  await item.save();
-}
-
+      await item.save();
+    }
 
     // ================= HOTEL BOOKING =================
+    // ================= HOTEL BOOKING =================
     if (itemType === "Hotel") {
-  item = await Hotel.findById(itemId);
-  if (!item) {
-    return res.status(404).json({ message: "Hotel not found" });
+      const { bookingType = "night", hours } = req.body; // ✅ NEW
+
+      item = await Hotel.findById(itemId);
+      if (!item) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // ================= NIGHT BOOKING =================
+      if (bookingType === "night") {
+        if (!bookingFromDate || !bookingToDate) {
+          return res.status(400).json({
+            message: "Check-in and check-out dates required for Hotel",
+          });
+        }
+
+        const from = new Date(bookingFromDate);
+        const to = new Date(bookingToDate);
+
+        from.setHours(0, 0, 0, 0);
+        to.setHours(0, 0, 0, 0);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (from >= to) {
+          return res
+            .status(400)
+            .json({ message: "Invalid hotel booking dates" });
+        }
+
+        if (from < today) {
+          return res.status(400).json({ message: "Cannot book past dates" });
+        }
+
+        // Availability check
+        const existingBookings = await Booking.find({
+          itemType: "Hotel",
+          itemId: itemId,
+          status: "Confirmed",
+          bookingFromDate: { $lt: to },
+          bookingToDate: { $gt: from },
+        });
+
+        let roomsBooked = 0;
+        existingBookings.forEach((b) => {
+          roomsBooked += b.totalQuantity;
+        });
+
+        if (roomsBooked + totalQuantity > item.totalRooms) {
+          return res.status(400).json({
+            message: "Not enough rooms available for selected dates",
+          });
+        }
+
+        const nights = Math.ceil(
+          (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        totalPrice = nights * item.pricePerNight * totalQuantity;
+      }
+
+      // ================= HOURLY BOOKING =================
+      // ================= HOURLY BOOKING =================
+if (bookingType === "hour") {
+  if (!bookingFromDate || !hours) {
+    console.log("❌ Hourly booking missing:", {
+      bookingFromDate,
+      hours,
+      bookingType,
+    });
+
+    return res.status(400).json({
+      message: "Check-in time and hours required for hourly booking",
+    });
   }
 
-  if (!bookingFromDate || !bookingToDate) {
-    return res
-      .status(400)
-      .json({ message: "Check-in and check-out dates required for Hotel" });
+  if (![3, 6, 9].includes(hours)) {
+    return res.status(400).json({
+      message: "Invalid hours selection",
+    });
   }
 
-  // Normalize dates (remove time)
   const from = new Date(bookingFromDate);
-  const to = new Date(bookingToDate);
-  from.setHours(0, 0, 0, 0);
-  to.setHours(0, 0, 0, 0);
+  const to = new Date(from.getTime() + hours * 60 * 60 * 1000);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Validate dates
-  if (from >= to) {
-    return res.status(400).json({ message: "Invalid hotel booking dates" });
-  }
-
-  if (from < today) {
-    return res.status(400).json({ message: "Cannot book past dates" });
-  }
-
-  // Hotel availability window
-  const hotelFrom = new Date(item.bookingFromDate);
-  const hotelTo = new Date(item.bookingToDate);
-  hotelFrom.setHours(0, 0, 0, 0);
-  hotelTo.setHours(0, 0, 0, 0);
-
-  if (from < hotelFrom || to > hotelTo) {
-    return res
-      .status(400)
-      .json({ message: "Hotel not available for selected dates" });
-  }
-
-  // ✅ Correct overlap logic
   const existingBookings = await Booking.find({
     itemType: "Hotel",
     itemId: itemId,
@@ -127,24 +176,22 @@ if (itemType === "Event") {
   });
 
   let roomsBooked = 0;
-  existingBookings.forEach(b => {
+  existingBookings.forEach((b) => {
     roomsBooked += b.totalQuantity;
   });
 
   if (roomsBooked + totalQuantity > item.totalRooms) {
-    return res
-      .status(400)
-      .json({ message: "Not enough rooms available for selected dates" });
+    return res.status(400).json({
+      message: "Not enough rooms available for selected time",
+    });
   }
 
-  // Calculate total nights
-  const nights = Math.ceil(
-    (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const pricePerHour = item.pricePerHour || (item.pricePerNight / 24);
+  totalPrice = pricePerHour * hours * totalQuantity;
 
-  totalPrice = nights * item.pricePerNight * totalQuantity;
+  req.body.bookingToDate = to;
 }
-
+    }
 
     // ================= TOURISM BOOKING =================
     if (itemType === "Tourism") {
@@ -153,12 +200,16 @@ if (itemType === "Event") {
         return res.status(404).json({ message: "Tourism place not found" });
 
       if (!bookingDate || !bookingTime) {
-        return res.status(400).json({ message: "Booking date & time required for Tourism" });
+        return res
+          .status(400)
+          .json({ message: "Booking date & time required for Tourism" });
       }
 
       const tourDate = new Date(bookingDate);
       if (tourDate < item.bookingFromDate || tourDate > item.bookingToDate) {
-        return res.status(400).json({ message: "Tourism place not available on this date" });
+        return res
+          .status(400)
+          .json({ message: "Tourism place not available on this date" });
       }
 
       if (item.availableVisitors < totalQuantity) {
@@ -177,11 +228,15 @@ if (itemType === "Event") {
       user: req.user.id,
       itemType,
       itemId,
+
+      bookingType: req.body.bookingType || "night",
+      hours: req.body.hours || null,
+
       bookingDate,
       bookingTime,
       bookingFromDate,
       bookingFromTime,
-      bookingToDate,
+      bookingToDate: req.body.bookingToDate,
       bookingToTime,
       totalQuantity,
       totalPrice,
@@ -237,7 +292,7 @@ exports.getClientBookings = async (req, res) => {
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
-    const filtered = bookings.filter(b => b.itemId); // remove nulls
+    const filtered = bookings.filter((b) => b.itemId); // remove nulls
     res.json(filtered);
   } catch (error) {
     console.error("Get Client Bookings Error:", error);
@@ -275,10 +330,12 @@ exports.updateBookingStatus = async (req, res) => {
     }
 
     const booking = await Booking.findById(req.params.id).populate("itemId");
-    if (!booking)
-      return res.status(404).json({ message: "Booking not found" });
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    if (req.user.role !== "admin" && booking.itemId.owner.toString() !== req.user.id) {
+    if (
+      req.user.role !== "admin" &&
+      booking.itemId.owner.toString() !== req.user.id
+    ) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -299,8 +356,7 @@ exports.updateBookingStatus = async (req, res) => {
 exports.cancelBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id).populate("itemId");
-    if (!booking)
-      return res.status(404).json({ message: "Booking not found" });
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     if (booking.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized" });

@@ -64,6 +64,7 @@ const EditItems = () => {
     healthWellness: [],
     safetySecurity: [],
     pricePerNight: "",
+    pricePerHour: "",
     totalRooms: "",
     name: "",
   });
@@ -168,6 +169,7 @@ const [newAmenity, setNewAmenity] = useState("");
       lat: apiData.coordinates?.lat ? apiData.coordinates.lat.toString() : "",
       lng: apiData.coordinates?.lng ? apiData.coordinates.lng.toString() : "",
       price: apiData[map.price] || "",
+      pricePerHour: isHotel ? (apiData.pricePerHour || "") : "",
       capacity: apiData[map.capacity] || "",
       artist: itemType === 'event' ? (apiData.artist || "") : "",
       amenities: Array.isArray(apiData.amenities) ? apiData.amenities : [],
@@ -196,6 +198,7 @@ const [newAmenity, setNewAmenity] = useState("");
       description: formData.description,
       location: formData.location,
       [map.price]: formData.price,
+      ...(isHotel && { pricePerHour: formData.pricePerHour }),
       [map.capacity]: formData.capacity,
       ...(itemType === 'event' && { artist: formData.artist }),
       ...(isHotel && { 
@@ -737,59 +740,89 @@ const [newAmenity, setNewAmenity] = useState("");
 
           <form onSubmit={handleSubmit} className="p-8 space-y-8">
             {/* Basic Info */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <label className="block text-base font-semibold text-gray-800 mb-3">
-                  {isHotel ? 'Hotel Name' : 'Event Title'} *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleCommonChange}
-                  className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                  placeholder={isHotel ? "Grand Palace Hotel" : "Summer Music Festival 2025"}
-                  required
-                />
-              </div>
+            <div className="space-y-8">
+  {/* Row 1: Title (Separate & Full Width) */}
+  <div>
+    <label className="block text-base font-semibold text-gray-800 mb-3">
+      {isHotel ? "Hotel Name" : "Event Title"} *
+    </label>
+    <input
+      type="text"
+      name="title"
+      value={formData.title}
+      onChange={handleCommonChange}
+      className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+      placeholder={isHotel ? "Grand Palace Hotel" : "Summer Music Festival 2025"}
+      required
+    />
+  </div>
 
-              <div>
-                <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                  <FaRupeeSign className="mr-2 text-emerald-600" />
-                  Price {isHotel ? 'per Night' : 'per Seat'} *
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleCommonChange}
-                  min="0"
-                  step="50"
-                  className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                  placeholder="1500"
-                  required
-                />
-              </div>
-            </div>
+  {/* Row 2: Grid for Pricing and Artist (Aligned Horizontally) */}
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {/* Side A: Price per Night / Seat */}
+    <div>
+      <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+        <FaRupeeSign className="mr-2 text-emerald-600" />
+        Price {isHotel ? "per Night" : "per Seat"} *
+      </label>
+      <input
+        type="number"
+        name="price"
+        value={formData.price}
+        onChange={handleCommonChange}
+        min="0"
+        step="50"
+        className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+        placeholder="1500"
+        required
+      />
+    </div>
+
+    {/* Side B: Price per Hour (Hotel) OR Artist (Event) */}
+    <div className="flex flex-col">
+      {isHotel ? (
+        <div>
+          <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+            <FaClock className="mr-2 text-orange-600" />
+            Price per Hour (optional)
+          </label>
+          <input
+            type="number"
+            name="pricePerHour"
+            value={formData.pricePerHour}
+            onChange={handleCommonChange}
+            min="0"
+            step="10"
+            className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+            placeholder="500"
+          />
+        </div>
+      ) : (
+        itemType === "event" &&
+        formData.artist && (
+          <div>
+            <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
+              <FaUser className="mr-2 text-indigo-600" />
+              Artist
+            </label>
+            <input
+              type="text"
+              name="artist"
+              value={formData.artist}
+              onChange={handleCommonChange}
+              className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="Artist Name"
+            />
+          </div>
+        )
+      )}
+    </div>
+  </div>
+</div>
 
             {/* Location & Capacity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {itemType === 'event' && (
-                <div className="lg:col-span-2">
-                  <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                    <FaUser className="mr-2 text-indigo-600" />
-                    Artist Name
-                  </label>
-                  <input
-                    type="text"
-                    name="artist"
-                    value={formData.artist}
-                    onChange={handleCommonChange}
-                    className="w-full px-5 py-4 text-base border-2 border-gray-200 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                    placeholder="e.g., Arijit Singh"
-                  />
-                </div>
-              )}
+              
               <div className="lg:col-span-2">
                 <label className="text-base font-semibold text-gray-800 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2 text-blue-600" />
