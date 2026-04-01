@@ -1,21 +1,31 @@
-# TODO: Add Hourly Price Field in EditItems.jsx for Hotels
+# CityPortal - Hourly Booking MUI TimePicker Implementation
 
-## Previous Task Status (ViewItems)
-1. ✅ Analyze files and create edit plan
-2. ✅ Create TODO.md 
-3. ✅ Update mapApiDataToView 
-4. ✅ Add JSX display section
-5. ⬜ Test ViewItems
-6. ✅ Complete
+## Plan Summary
+- Update HotelDetails.jsx: For hourly bookings, replace datetime-local with separate MUI DatePicker + TimePicker.
+- Ensure compatibility with Booking.js model (separate date/time fields).
+- Add MUI date picker dependencies.
 
-## Current Task: EditItems.jsx
-1. ✅ [Complete] Analyze EditItems.jsx and create edit plan
-2. ⬜ Create TODO.md with steps
-3. ⬜ Update formData initial state to include pricePerHour
-4. ⬜ Update mapApiDataToForm to extract pricePerHour
-5. ⬜ Update mapFormDataToApi to send pricePerHour
-6. ⬜ Add JSX input field for pricePerHour (conditional for hotels)
-7. ⬜ Update TODO.md and complete
+Status: 🚀 In Progress
 
-**Current Step:** Update formData state and mapping functions in EditItems.jsx
+## Steps
 
+### 1. [✅ COMPLETED] Check/install MUI DatePicker dependencies in frontend
+   - Check frontend/package.json for @mui/x-date-pickers, @mui/material, date-fns.
+   - Install: `cd frontend && npm i @mui/x-date-pickers @mui/material @emotion/react @emotion/styled date-fns @date-io/date-fns`
+
+### 2. [✅ COMPLETED] Update HotelDetails.jsx with MUI TimePicker/DatePicker
+   - Add MUI imports and LocalizationProvider.
+   - Hourly section: separate state for checkInDate (Date), checkInTime (Date).
+   - Use DatePicker for date, TimePicker for time.
+   - Combine for API: new Date(date, time) -> ISO strings.
+   - Update useEffect for checkOut calc.
+
+### 3. [✅ COMPLETED] Verify Backend Booking.js model
+   - Model supports separate fields; frontend sends ISO to Date fields (backend parses OK, time strings optional).
+
+### 4. [PENDING] Test
+   - Toggle hourly/nightly.
+   - Pick date + time, submit.
+   - Check MyBookings display.
+
+### 5. [COMPLETED] Run `npm run dev` to test.

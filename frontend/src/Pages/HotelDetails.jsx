@@ -27,6 +27,13 @@ import {
   FiZap,
 } from "react-icons/fi";
 import { MdOutlineBed } from "react-icons/md";
+import {
+  LocalizationProvider,
+  DatePicker,
+  TimePicker,
+} from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { useTheme } from "@mui/material/styles";
 
 const getTodayDate = () => {
   const today = new Date();
@@ -39,6 +46,7 @@ const getTodayDate = () => {
 const HotelDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -49,6 +57,10 @@ const HotelDetails = () => {
   });
   const [bookingType, setBookingType] = useState("night");
   const [selectedHours, setSelectedHours] = useState(3);
+  // New for hourly MUI pickers
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkInTime, setCheckInTime] = useState(null);
+  const [nightCheckInTime, setNightCheckInTime] = useState(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -63,19 +75,51 @@ const HotelDetails = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (bookingType === "hour" && bookingData.checkIn) {
-      const checkInDate = new Date(bookingData.checkIn);
+    if (bookingType === "hour" && checkInDate && checkInTime) {
+      const checkInFull = new Date(checkInDate);
+      checkInFull.setHours(checkInTime.getHours(), checkInTime.getMinutes());
 
-      const checkOut = new Date(
-        checkInDate.getTime() + selectedHours * 60 * 60 * 1000,
+      const checkOutFull = new Date(
+        checkInFull.getTime() + selectedHours * 60 * 60 * 1000,
+      );
+
+      // Update bookingData for consistency
+      setBookingData((prev) => ({
+        ...prev,
+        checkIn: checkInFull.toISOString(),
+        checkOut: checkOutFull.toISOString(),
+      }));
+    }
+  }, [bookingType, selectedHours, checkInDate, checkInTime]);
+
+  useEffect(() => {
+    if (
+      bookingType === "night" &&
+      bookingData.checkIn &&
+      bookingData.checkOut &&
+      nightCheckInTime
+    ) {
+      const checkInDate = new Date(bookingData.checkIn);
+      const checkOutDate = new Date(bookingData.checkOut);
+
+      // ✅ ONLY sync time (NOT date)
+      checkInDate.setHours(
+        nightCheckInTime.getHours(),
+        nightCheckInTime.getMinutes(),
+      );
+
+      checkOutDate.setHours(
+        nightCheckInTime.getHours(),
+        nightCheckInTime.getMinutes(),
       );
 
       setBookingData((prev) => ({
         ...prev,
-        checkOut: checkOut.toISOString(),
+        checkIn: checkInDate.toISOString(),
+        checkOut: checkOutDate.toISOString(),
       }));
     }
-  }, [bookingType, selectedHours, bookingData.checkIn]);
+  }, [bookingType, nightCheckInTime]);
 
   useEffect(() => {
     fetchHotel();
@@ -110,6 +154,14 @@ const HotelDetails = () => {
     }
   }, [hotel]);
 
+  useEffect(() => {
+    if (bookingType === "hour") {
+      const now = new Date();
+      setCheckInDate(now);
+      setCheckInTime(now);
+    }
+  }, [bookingType]);
+
   const fetchHotel = async () => {
     try {
       const response = await hotelAPI.getById(id);
@@ -143,21 +195,22 @@ const HotelDetails = () => {
     }
 
     const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
+    const formatDate = (date) => date.toISOString().split("T")[0];
+
+    const now = new Date();
+
+    setNightCheckInTime(now); // ✅ set default time
 
     setBookingData({
       checkIn: formatDate(today),
       checkOut: formatDate(tomorrow),
       rooms: 1,
     });
+
+    setShowBookingModal(true);
   };
 
   const handleBookingSubmit = async (e) => {
@@ -165,16 +218,22 @@ const HotelDetails = () => {
     setBookingLoading(true);
     setBookingSuccess("");
 
+    if (bookingType === "hour" && (!checkInDate || !checkInTime)) {
+      toast.error("Please select date & time");
+      return;
+    }
+
     try {
       let totalPrice = 0;
-      let checkOutDate = bookingData.checkOut;
+
+      let bookingFromDate = bookingData.checkIn;
+      let bookingToDate = bookingData.checkOut;
 
       if (bookingType === "night") {
         const fromDate = new Date(bookingData.checkIn);
         const toDate = new Date(bookingData.checkOut);
 
         const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-
         totalPrice = hotel.pricePerNight * days * bookingData.rooms;
       } else {
         const checkInDate = new Date(bookingData.checkIn);
@@ -183,7 +242,7 @@ const HotelDetails = () => {
           checkInDate.getTime() + selectedHours * 60 * 60 * 1000,
         );
 
-        checkOutDate = checkOut.toISOString();
+        bookingToDate = checkOut.toISOString();
 
         const pricePerHour = hotel.pricePerNight / 24;
         totalPrice = pricePerHour * selectedHours * bookingData.rooms;
@@ -192,11 +251,11 @@ const HotelDetails = () => {
         itemType: "Hotel",
         itemId: hotel._id,
 
-        bookingType, // ✅ MUST
+        bookingType,
         hours: bookingType === "hour" ? selectedHours : null, // ✅ MUST
 
-        bookingFromDate: bookingData.checkIn, // ✅ MUST
-        bookingToDate: bookingData.checkOut, // ✅ MUST
+        bookingFromDate,
+        bookingToDate,
 
         totalQuantity: bookingData.rooms,
       });
@@ -204,6 +263,7 @@ const HotelDetails = () => {
       toast.success("Hotel booked successfully!");
       setTimeout(() => {
         setBookingSuccess("");
+        setShowBookingModal(false);
         navigate("/my-bookings");
       }, 2000);
     } catch (err) {
@@ -212,10 +272,10 @@ const HotelDetails = () => {
       setBookingLoading(false);
     }
     console.log({
-  bookingType,
-  selectedHours,
-  bookingData,
-});
+      bookingType,
+      selectedHours,
+      bookingData,
+    });
   };
 
   const calculateTotal = () => {
@@ -229,10 +289,10 @@ const HotelDetails = () => {
         (1000 * 60 * 60 * 24);
 
       return Math.ceil(days) * hotel.pricePerNight * bookingData.rooms;
-      } else {
-        const pricePerHour = hotel.pricePerHour || (hotel.pricePerNight / 24);
-        return pricePerHour * selectedHours * bookingData.rooms;
-      }
+    } else {
+      const pricePerHour = hotel.pricePerHour || hotel.pricePerNight / 24;
+      return Math.ceil(pricePerHour * selectedHours * bookingData.rooms);
+    }
   };
 
   const openDirections = () => {
@@ -240,7 +300,7 @@ const HotelDetails = () => {
 
     const { lat, lng } = mapCenter;
 
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
     window.open(url, "_blank");
   };
 
@@ -371,26 +431,29 @@ const HotelDetails = () => {
                 Non-Refundable
               </div>
 
-                  <div className="flex items-baseline justify-between mb-4">
-                    <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
-                      <FiUser className="h-4 w-4" />
-                      2 Guests |
-                      <MdOutlineBed className="h-4 w-4" /> 1 Room
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="text-gray-800 text-2xl font-bold">
-                        <span>₹</span>
-                        {hotel.pricePerNight}
-                      </div>
-                      <div className="text-gray-600 text-sm font-semibold">
-                        Per Night
-                      </div>
-                      <div className="text-emerald-600 text-sm font-semibold mt-1">
-                        Hourly: ₹
-                        {(hotel.pricePerHour || (hotel.pricePerNight / 24)).toFixed(0)}/hr
-                      </div>
-                    </div>
+              <div className="flex items-baseline justify-between mb-4">
+                <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
+                  <FiUser className="h-4 w-4" />
+                  2 Guests |
+                  <MdOutlineBed className="h-4 w-4" /> 1 Room
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-gray-800 text-2xl font-bold">
+                    <span>₹</span>
+                    {hotel.pricePerNight}
                   </div>
+                  <div className="text-gray-600 text-sm font-semibold">
+                    Per Night
+                  </div>
+                  <div className="text-emerald-600 text-sm font-semibold mt-1">
+                    Hourly: ₹
+                    {(hotel.pricePerHour || hotel.pricePerNight / 24).toFixed(
+                      0,
+                    )}
+                    /hr
+                  </div>
+                </div>
+              </div>
 
               <button
                 onClick={handleBookNow}
@@ -809,7 +872,7 @@ const HotelDetails = () => {
           </div>
         </div>
 
-        {bookingData.checkIn && (
+        {showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
@@ -817,9 +880,10 @@ const HotelDetails = () => {
                   Book {hotel.name}
                 </h3>
                 <button
-                  onClick={() =>
-                    setBookingData({ checkIn: "", checkOut: "", rooms: 1 })
-                  }
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingData({ checkIn: "", checkOut: "", rooms: 1 });
+                  }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <FiX className="h-6 w-6" />
@@ -869,7 +933,7 @@ const HotelDetails = () => {
                       </label>
                       <input
                         type="date"
-                        value={bookingData.checkIn}
+                        value={bookingData.checkIn?.split("T")[0] || ""}
                         onChange={(e) =>
                           setBookingData({
                             ...bookingData,
@@ -888,17 +952,46 @@ const HotelDetails = () => {
                       </label>
                       <input
                         type="date"
-                        value={bookingData.checkOut}
+                        value={bookingData.checkOut?.split("T")[0] || ""}
                         onChange={(e) =>
                           setBookingData({
                             ...bookingData,
                             checkOut: e.target.value,
                           })
                         }
-                        min={bookingData.checkIn || getTodayDate()}
+                        min={
+                          bookingData.checkIn
+                            ? new Date(
+                                new Date(bookingData.checkIn).setDate(
+                                  new Date(bookingData.checkIn).getDate() + 1,
+                                ),
+                              )
+                                .toISOString()
+                                .split("T")[0]
+                            : new Date(
+                                new Date().setDate(new Date().getDate() + 1),
+                              )
+                                .toISOString()
+                                .split("T")[0]
+                        }
                         required
                         className="w-full px-4 py-2 border rounded-lg"
                       />
+                    </div>
+                    <div>
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <TimePicker
+                          label="Check-in Time"
+                          value={nightCheckInTime}
+                          onChange={(newValue) => setNightCheckInTime(newValue)}
+                          renderInput={(params) => (
+                            <input
+                              {...params.inputProps}
+                              className="w-full border p-2 rounded"
+                            />
+                          )}
+                        />
+                      </LocalizationProvider>
                     </div>
                   </>
                 ) : (
@@ -913,30 +1006,44 @@ const HotelDetails = () => {
                           className={`flex-1 py-2 rounded-lg border ${
                             selectedHours === hrs
                               ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-700"
+                              : "bg-white text-gray-700 hover:bg-gray-100"
                           }`}
                         >
-                          {hrs} Hours
+                          {hrs}h
                         </button>
                       ))}
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1 mt-2">
-                        Check-in Time
+                        Check-in Date & Time
                       </label>
-                      <input
-                        type="datetime-local"
-                        value={bookingData.checkIn}
-                        onChange={(e) =>
-                          setBookingData({
-                            ...bookingData,
-                            checkIn: e.target.value,
-                          })
-                        }
-                        required
-                        className="w-full px-4 py-2 border rounded-lg"
-                      />
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <div className="grid grid-cols-2 gap-2">
+                          <DatePicker
+                            label="Date"
+                            value={checkInDate}
+                            onChange={setCheckInDate}
+                            format="dd/MM/yyyy"
+                            minDate={new Date()}
+                            slotProps={{
+                              textField: {
+                                className: "w-full",
+                              },
+                            }}
+                          />
+                          <TimePicker
+                            label="Time"
+                            value={checkInTime}
+                            onChange={setCheckInTime}
+                            slotProps={{
+                              textField: {
+                                className: "w-full",
+                              },
+                            }}
+                          />
+                        </div>
+                      </LocalizationProvider>
                     </div>
                   </>
                 )}

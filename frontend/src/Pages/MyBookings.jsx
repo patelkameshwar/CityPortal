@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { bookingAPI } from '../services/api';
@@ -10,6 +9,8 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelLoading, setCancelLoading] = useState(null);
+  const [editingBookingId, setEditingBookingId] = useState(null);
+  const [tempTimes, setTempTimes] = useState({});
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -44,6 +45,44 @@ const MyBookings = () => {
     }
   };
 
+  const toggleEditTime = (bookingId) => {
+    if (editingBookingId === bookingId) {
+      setEditingBookingId(null);
+    } else {
+      setEditingBookingId(bookingId);
+      setTempTimes(prev => ({
+        ...prev,
+        [bookingId]: {
+          bookingTime: prev[bookingId]?.bookingTime || booking.bookingTime || booking.bookingFromTime,
+        }
+      }));
+    }
+  };
+
+  const handleTimeChange = (newTime, bookingId) => {
+    const formattedTime = newTime.format('HH:mm');
+    setTempTimes(prev => ({
+      ...prev,
+      [bookingId]: {
+        ...prev[bookingId],
+        bookingTime: formattedTime
+      }
+    }));
+  };
+
+  const saveTime = (bookingId) => {
+    setBookings(prevBookings => 
+      prevBookings.map(b => 
+        b._id === bookingId 
+          ? { ...b, bookingTime: tempTimes[bookingId]?.bookingTime }
+          : b
+      )
+    );
+    setEditingBookingId(null);
+    toast.success('Time updated locally');
+    // TODO: bookingAPI.updateTime(bookingId, tempTimes[bookingId])
+  };
+
   const getItemIcon = (itemType) => {
     switch (itemType) {
       case 'Hotel':
@@ -64,6 +103,16 @@ const MyBookings = () => {
       day: 'numeric',
     });
   };
+
+  const formatTime = (time) => {
+  if (!time) return "";
+
+  return new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true, // ✅ AM/PM format
+  });
+};
 
   if (!isAuthenticated) {
     return (
@@ -113,15 +162,62 @@ const MyBookings = () => {
                   {getItemIcon(booking.itemType)}
                   {booking.itemType}
                 </p>
-                <p className='text-zinc-700 font-medium mt-1'>Booking Date:</p>
-                <p className='text-xs'>
-                  {formatDate(booking.bookingDate || booking.bookingFromDate)}
-                  {booking.bookingToDate && ` - ${formatDate(booking.bookingToDate)}`}
-                </p>
-                {booking.bookingTime && (
-                  <p className='text-xs mt-1'>
-                    <span className='text-sm text-neutral-700 font-medium'>Time:</span> {booking.bookingTime}
-                  </p>
+                {booking.itemType === 'Hotel' && booking.bookingType && (
+                  <>
+                    <p className='text-zinc-700 font-medium mt-1'>
+                      {booking.bookingType === 'hour' 
+                        ? `Hourly (${booking.hours || 0} hours)` 
+                        : 'Nightly'
+                      }
+                    </p>
+                    {booking.bookingType === 'hour' ? (
+                      <>
+                        <p className='text-zinc-700 font-medium mt-1'>Booking Date & Time:</p>
+                        <p className='text-xs'>
+                          {formatDate(booking.bookingDate || booking.bookingFromDate)}
+                          {booking.bookingTime || booking.bookingFromTime ? ` - ${booking.bookingTime || booking.bookingFromTime}` : ''}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className='text-zinc-700 font-medium mt-1'>Booking Date:</p>
+
+                        <p className='text-xs'>
+  {formatDate(booking.bookingFromDate)}
+  {" | "}
+  {formatTime(
+    booking.checkInTime ||
+    booking.bookingTime ||
+    booking.bookingFromTime ||
+    booking.bookingFromDate?.split("T")[1]?.slice(0,5)
+  )}
+  {" → "}
+  {formatDate(booking.bookingToDate)}
+  {" | "}
+  {formatTime(
+    booking.checkOutTime ||
+    booking.bookingToTime ||
+    booking.bookingFromTime ||
+    booking.bookingToDate?.split("T")[1]?.slice(0,5)
+  )}
+</p>
+                      </>
+                    )}
+                  </>
+                )}
+                {booking.itemType !== 'Hotel' && (
+                  <>
+                    <p className='text-zinc-700 font-medium mt-1'>Booking Date:</p>
+                    <p className='text-xs'>
+                      {formatDate(booking.bookingDate || booking.bookingFromDate)}
+                      {booking.bookingToDate && ` - ${formatDate(booking.bookingToDate)}`}
+                    </p>
+                    {booking.bookingTime && (
+                      <p className='text-xs mt-1'>
+                        <span className='text-sm text-neutral-700 font-medium'>Time:</span> {booking.bookingTime}
+                      </p>
+                    )}
+                  </>
                 )}
                 <p className='text-xs mt-1'>
                   <span className='text-sm text-neutral-700 font-medium'>Quantity:</span> {booking.totalQuantity} {booking.itemType === 'Hotel' ? 'room(s)' : 'ticket(s)'}
