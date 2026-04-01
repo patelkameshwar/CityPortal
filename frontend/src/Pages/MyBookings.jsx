@@ -35,8 +35,8 @@ const MyBookings = () => {
         bookings.map((booking) =>
           booking._id === bookingId
             ? { ...booking, status: "Cancelled" }
-            : booking
-        )
+            : booking,
+        ),
       );
       toast.success("Booking cancelled successfully");
     } catch (err) {
@@ -71,22 +71,43 @@ const MyBookings = () => {
   const formatTime = (time) => {
     if (!time) return "";
 
-    // If time includes 'T', treat as full ISO datetime
-    if (time.includes("T")) {
-      const t = new Date(time);
-      return t.toLocaleTimeString([], {
+    // If time is a Date object, format it directly
+    if (time instanceof Date) {
+      return time.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
     }
 
-    // Otherwise, assume it's "HH:mm" format
-    return new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    // If time is a string
+    if (typeof time === "string") {
+      if (time.includes("T")) {
+        const t = new Date(time);
+        return t.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+      // Otherwise, assume it's "HH:mm" format
+      return new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+    // If time is a number (timestamp), convert to Date
+    if (typeof time === "number") {
+      return new Date(time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+    return "";
   };
 
   if (!isAuthenticated) {
@@ -126,7 +147,9 @@ const MyBookings = () => {
                   <img
                     className="w-32 bg-indigo-50 object-cover rounded"
                     src={booking.itemId.images[0]}
-                    alt={booking.itemId?.name || booking.itemId?.title || "Booking"}
+                    alt={
+                      booking.itemId?.name || booking.itemId?.title || "Booking"
+                    }
                   />
                 ) : (
                   <div className="w-32 h-32 bg-indigo-50 flex items-center justify-center">
@@ -139,7 +162,9 @@ const MyBookings = () => {
               <div className="flex-1 text-sm text-zinc-600">
                 {/* Item name | type */}
                 <p className="text-neutral-800 font-semibold flex items-center gap-2">
-                  {booking.itemId?.name || booking.itemId?.title || "Unknown Item"}
+                  {booking.itemId?.name ||
+                    booking.itemId?.title ||
+                    "Unknown Item"}
                   <span className="text-zinc-500">|</span>
                   <span className="text-xs bg-gray-200 px-2 py-0.5 rounded">
                     {booking.itemType}
@@ -148,28 +173,53 @@ const MyBookings = () => {
 
                 {/* BookingType + Date & Time */}
                 {booking.itemType === "Hotel" && booking.bookingType && (
-  <>
-    <p className="text-zinc-700 font-medium mt-1">
-      Booking ({booking.bookingType === "hour"
-        ? `Hourly (${booking.hours || 0} hours)`
-        : "Nightly"}):
-    </p>
+                  <>
+                    <p className="text-zinc-700 font-medium mt-1">
+                      Booking (
+                      {booking.bookingType === "hour" ? (
+                        <>
+                          Hourly (
+                          <span className="text-gray-500 font-semibold">
+                            {booking.hours || 0} hours
+                          </span>
+                          )
+                        </>
+                      ) : (
+                        "Nightly"
+                      )}
+                      ):
+                    </p>
 
-    <p className="text-xs text-zinc-600 mt-1">
-      {formatDate(booking.bookingFromDate)}
-      {" | "}
-      {formatTime(
-        booking.bookingFromTime || booking.checkInTime || booking.bookingTime || booking.bookingFromDate
-      )}
-      {" → "}
-      {formatDate(booking.bookingToDate || booking.bookingFromDate)}
-      {" | "}
-      {formatTime(
-        booking.bookingToTime || booking.checkOutTime || booking.bookingFromTime || booking.bookingToDate || booking.bookingFromDate
-      )}
-    </p>
-  </>
-)}
+                    <p className="text-xs text-zinc-600 mt-1">
+                      {formatDate(booking.bookingFromDate)}
+                      {" | "}
+                      {formatTime(
+                        booking.bookingFromTime ||
+                          booking.checkInTime ||
+                          booking.bookingTime ||
+                          booking.bookingFromDate,
+                      )}
+                      {" → "}
+                      {formatDate(
+                        booking.bookingToDate ||
+                          (booking.bookingType === "hour"
+                            ? booking.bookingFromDate
+                            : null),
+                      )}
+                      {" | "}
+                      {formatTime(
+                        booking.bookingToTime ||
+                          booking.checkOutTime ||
+                          (booking.bookingType === "hour"
+                            ? new Date(
+                                new Date(booking.bookingFromDate).getTime() +
+                                  (booking.hours || 0) * 60 * 60 * 1000,
+                              )
+                            : booking.bookingToDate),
+                      )}
+                    </p>
+                  </>
+                )}
 
                 {/* Non-Hotel Booking */}
                 {booking.itemType !== "Hotel" && (
@@ -178,7 +228,9 @@ const MyBookings = () => {
                       Booking Date:
                     </p>
                     <p className="text-xs">
-                      {formatDate(booking.bookingDate || booking.bookingFromDate)}
+                      {formatDate(
+                        booking.bookingDate || booking.bookingFromDate,
+                      )}
                       {booking.bookingToDate &&
                         ` - ${formatDate(booking.bookingToDate)}`}
                     </p>
@@ -207,12 +259,11 @@ const MyBookings = () => {
                     <span className="text-sm text-neutral-700 font-medium">
                       Price:
                     </span>{" "}
-                    ${booking.totalPrice}
+                    <span className="font-medium">₹</span>
+                    {booking.totalPrice}
                   </p>
                 </div>
               </div>
-
-              <div></div>
 
               {/* Action Buttons Section */}
               <div className="flex flex-col gap-2 justify-end">
