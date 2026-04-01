@@ -11,6 +11,12 @@ import {
   FiCalendar,
   FiUsers,
 } from "react-icons/fi";
+import {
+  LocalizationProvider,
+  DatePicker,
+  TimePicker,
+} from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const getTodayDate = () => {
   const today = new Date();
@@ -27,6 +33,12 @@ const Hotels = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedHotel, setSelectedHotel] = useState(null);
+  const [bookingType, setBookingType] = useState("night");
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedHours, setSelectedHours] = useState(3);
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkInTime, setCheckInTime] = useState(null);
+  const [nightCheckInTime, setNightCheckInTime] = useState(null);
   const [bookingData, setBookingData] = useState({
     checkIn: "",
     checkOut: "",
@@ -40,6 +52,49 @@ const Hotels = () => {
   useEffect(() => {
     fetchHotels();
   }, []);
+
+  useEffect(() => {
+    if (bookingType === "hour" && checkInDate && checkInTime) {
+      const checkInFull = new Date(checkInDate);
+      checkInFull.setHours(checkInTime.getHours(), checkInTime.getMinutes());
+
+      const checkOutFull = new Date(
+        checkInFull.getTime() + selectedHours * 60 * 60 * 1000,
+      );
+
+      setBookingData((prev) => ({
+        ...prev,
+        checkIn: checkInFull.toISOString(),
+        checkOut: checkOutFull.toISOString(),
+      }));
+    }
+  }, [bookingType, selectedHours, checkInDate, checkInTime]);
+
+  useEffect(() => {
+    if (bookingType === "night") {
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+
+      const formatDate = (date) => date.toLocaleDateString("en-CA");
+
+      setBookingData((prev) => ({
+        ...prev,
+        checkIn: formatDate(today),
+        checkOut: formatDate(tomorrow),
+      }));
+
+      setNightCheckInTime(new Date());
+    }
+  }, [bookingType]);
+
+  useEffect(() => {
+    if (bookingType === "hour") {
+      const now = new Date();
+      setCheckInDate(now);
+      setCheckInTime(now);
+    }
+  }, [bookingType]);
 
   const fetchHotels = async () => {
     try {
@@ -81,6 +136,8 @@ const Hotels = () => {
       checkOut: formatDate(tomorrow),
       rooms: 1,
     });
+
+    setShowBookingModal(true);
   };
 
   const handleBookingSubmit = async (e) => {
@@ -88,26 +145,80 @@ const Hotels = () => {
     setBookingLoading(true);
     setBookingSuccess("");
 
+    if (bookingType === "hour" && (!checkInDate || !checkInTime)) {
+      toast.error("Please select date & time");
+      setBookingLoading(false);
+      return;
+    }
+
     try {
-      const fromDate = new Date(bookingData.checkIn);
-      const toDate = new Date(bookingData.checkOut);
-      const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-      const totalPrice = selectedHotel.pricePerNight * days * bookingData.rooms;
+      let totalPrice = 0;
+
+      let bookingFromDate = bookingData.checkIn;
+      let bookingToDate = bookingData.checkOut;
+
+      if (bookingType === "night") {
+        const fromDate = new Date(bookingData.checkIn);
+
+        if (nightCheckInTime) {
+          fromDate.setHours(
+            nightCheckInTime.getHours(),
+            nightCheckInTime.getMinutes(),
+          );
+        }
+
+        const toDate = new Date(bookingData.checkOut);
+
+        // ✅ apply SAME time to checkout
+        if (nightCheckInTime) {
+          toDate.setHours(
+            nightCheckInTime.getHours(),
+            nightCheckInTime.getMinutes(),
+          );
+        }
+
+        const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+
+        totalPrice = selectedHotel.pricePerNight * days * bookingData.rooms;
+
+        // ✅ FIX: update BOTH dates
+        bookingFromDate = fromDate.toISOString();
+        bookingToDate = toDate.toISOString(); // ⭐ THIS WAS MISSING
+      } else {
+        const checkIn = new Date(bookingData.checkIn);
+
+        const checkOut = new Date(
+          checkIn.getTime() + selectedHours * 60 * 60 * 1000,
+        );
+
+        bookingToDate = checkOut.toISOString();
+
+        const pricePerHour =
+          selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
+
+        totalPrice = pricePerHour * selectedHours * bookingData.rooms;
+      }
 
       await bookingAPI.create({
         itemType: "Hotel",
         itemId: selectedHotel._id,
-        bookingFromDate: bookingData.checkIn,
-        bookingToDate: bookingData.checkOut,
+
+        bookingType,
+        hours: bookingType === "hour" ? selectedHours : null,
+
+        bookingFromDate,
+        bookingToDate,
+
         totalQuantity: bookingData.rooms,
-        totalPrice,
       });
 
       toast.success("Hotel booked successfully!");
+
       setTimeout(() => {
         setSelectedHotel(null);
         setBookingSuccess("");
-      }, 2000);
+        navigate("/my-bookings");
+      }, 1500);
     } catch (err) {
       toast.error(err.response?.data?.message || "Booking failed");
     } finally {
@@ -116,12 +227,22 @@ const Hotels = () => {
   };
 
   const calculateTotal = () => {
-    if (!selectedHotel || !bookingData.checkIn || !bookingData.checkOut)
-      return 0;
-    const fromDate = new Date(bookingData.checkIn);
-    const toDate = new Date(bookingData.checkOut);
-    const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
-    return selectedHotel.pricePerNight * days * bookingData.rooms;
+    if (!selectedHotel || !bookingData.checkIn) return 0;
+
+    if (bookingType === "night") {
+      if (!bookingData.checkOut) return 0;
+
+      const days =
+        (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) /
+        (1000 * 60 * 60 * 24);
+
+      return Math.ceil(days) * selectedHotel.pricePerNight * bookingData.rooms;
+    } else {
+      const pricePerHour =
+        selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
+
+      return Math.ceil(pricePerHour * selectedHours * bookingData.rooms);
+    }
   };
 
   if (loading) {
@@ -186,7 +307,9 @@ const Hotels = () => {
                   ₹{hotel.pricePerNight}/night
                 </div>
                 <div className="absolute top-2 left-2 bg-emerald-600 text-white px-2 py-1 rounded-full text-xs">
-                  Hourly: ₹{Math.round(hotel.pricePerHour || (hotel.pricePerNight / 24))}/hr
+                  Hourly: ₹
+                  {Math.round(hotel.pricePerHour || hotel.pricePerNight / 24)}
+                  /hr
                 </div>
               </div>
 
@@ -236,7 +359,7 @@ const Hotels = () => {
         </div>
       )}
 
-      {selectedHotel && (
+      {showBookingModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
@@ -244,7 +367,10 @@ const Hotels = () => {
                 Book {selectedHotel.name}
               </h3>
               <button
-                onClick={() => setSelectedHotel(null)}
+                onClick={() => {
+                  setShowBookingModal(false);
+                  setBookingData({ checkIn: "", checkOut: "", rooms: 1 });
+                }}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <FiX className="h-6 w-6" />
@@ -257,37 +383,153 @@ const Hotels = () => {
               </div>
             )}
 
+            {/* Booking Type Toggle */}
+            <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
+              <button
+                type="button"
+                onClick={() => setBookingType("night")}
+                className={`flex-1 py-2 rounded-lg ${
+                  bookingType === "night"
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-600"
+                }`}
+              >
+                Nightly
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBookingType("hour")}
+                className={`flex-1 py-2 rounded-lg ${
+                  bookingType === "hour"
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-600"
+                }`}
+              >
+                Hourly
+              </button>
+            </div>
+
             <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Check-in Date
-                </label>
-                <input
-                  type="date"
-                  value={bookingData.checkIn}
-                  onChange={(e) =>
-                    setBookingData({ ...bookingData, checkIn: e.target.value })
-                  }
-                  required
-                  min={getTodayDate()}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Check-out Date
-                </label>
-                <input
-                  type="date"
-                  value={bookingData.checkOut}
-                  onChange={(e) =>
-                    setBookingData({ ...bookingData, checkOut: e.target.value })
-                  }
-                  required
-                  min={bookingData.checkIn || getTodayDate()}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
+              {bookingType === "night" ? (
+                <>
+                  {/* Night Booking */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Check-in Date
+                    </label>
+                    <input
+                      type="date"
+                      value={bookingData.checkIn?.split("T")[0] || ""}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          checkIn: e.target.value,
+                        })
+                      }
+                      min={getTodayDate()}
+                      required
+                      className="w-full px-4 py-2 border rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Check-out Date
+                    </label>
+                    <input
+                      type="date"
+                      value={bookingData.checkOut?.split("T")[0] || ""}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          checkOut: e.target.value,
+                        })
+                      }
+                      min={
+                        bookingData.checkIn
+                          ? new Date(
+                              new Date(bookingData.checkIn).setDate(
+                                new Date(bookingData.checkIn).getDate() + 1,
+                              ),
+                            ).toLocaleDateString("en-CA")
+                          : new Date(
+                              new Date().setDate(new Date().getDate() + 1),
+                            ).toLocaleDateString("en-CA")
+                      }
+                      required
+                      className="w-full px-4 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <TimePicker
+                        label="Check-in Time"
+                        value={nightCheckInTime}
+                        onChange={(newValue) => setNightCheckInTime(newValue)}
+                        renderInput={(params) => (
+                          <input
+                            {...params.inputProps}
+                            className="w-full border p-2 rounded"
+                          />
+                        )}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Hourly Booking */}
+                  <div className="flex gap-2">
+                    {[3, 6, 9].map((hrs) => (
+                      <button
+                        key={hrs}
+                        type="button"
+                        onClick={() => setSelectedHours(hrs)}
+                        className={`flex-1 py-2 rounded-lg border ${
+                          selectedHours === hrs
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        {hrs}h
+                      </button>
+                    ))}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1 mt-2">
+                      Check-in Date & Time
+                    </label>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <div className="grid grid-cols-2 gap-2">
+                        <DatePicker
+                          label="Date"
+                          value={checkInDate}
+                          onChange={setCheckInDate}
+                          format="dd/MM/yyyy"
+                          minDate={new Date()}
+                          slotProps={{
+                            textField: {
+                              className: "w-full",
+                            },
+                          }}
+                        />
+                        <TimePicker
+                          label="Time"
+                          value={checkInTime}
+                          onChange={setCheckInTime}
+                          slotProps={{
+                            textField: {
+                              className: "w-full",
+                            },
+                          }}
+                        />
+                      </div>
+                    </LocalizationProvider>
+                  </div>
+                </>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Number of Rooms
