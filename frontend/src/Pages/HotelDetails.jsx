@@ -93,33 +93,23 @@ const HotelDetails = () => {
   }, [bookingType, selectedHours, checkInDate, checkInTime]);
 
   useEffect(() => {
-    if (
-      bookingType === "night" &&
-      bookingData.checkIn &&
-      bookingData.checkOut &&
-      nightCheckInTime
-    ) {
-      const checkInDate = new Date(bookingData.checkIn);
-      const checkOutDate = new Date(bookingData.checkOut);
+  if (bookingType === "night") {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
 
-      // ✅ ONLY sync time (NOT date)
-      checkInDate.setHours(
-        nightCheckInTime.getHours(),
-        nightCheckInTime.getMinutes(),
-      );
+    const formatDate = (date) =>
+      date.toLocaleDateString("en-CA");
 
-      checkOutDate.setHours(
-        nightCheckInTime.getHours(),
-        nightCheckInTime.getMinutes(),
-      );
+    setBookingData((prev) => ({
+      ...prev,
+      checkIn: formatDate(today),
+      checkOut: formatDate(tomorrow),
+    }));
 
-      setBookingData((prev) => ({
-        ...prev,
-        checkIn: checkInDate.toISOString(),
-        checkOut: checkOutDate.toISOString(),
-      }));
-    }
-  }, [bookingType, nightCheckInTime]);
+    setNightCheckInTime(new Date());
+  }
+}, [bookingType]);
 
   useEffect(() => {
     fetchHotel();
@@ -198,7 +188,7 @@ const HotelDetails = () => {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
 
-    const formatDate = (date) => date.toISOString().split("T")[0];
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
 
     const now = new Date();
 
@@ -965,14 +955,10 @@ const HotelDetails = () => {
                                 new Date(bookingData.checkIn).setDate(
                                   new Date(bookingData.checkIn).getDate() + 1,
                                 ),
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                              ).toLocaleDateString("en-CA")
                             : new Date(
                                 new Date().setDate(new Date().getDate() + 1),
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                              ).toLocaleDateString("en-CA")
                         }
                         required
                         className="w-full px-4 py-2 border rounded-lg"
