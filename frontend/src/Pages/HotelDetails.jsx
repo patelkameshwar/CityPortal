@@ -73,6 +73,9 @@ const HotelDetails = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
   useEffect(() => {
     if (bookingType === "hour" && checkInDate && checkInTime) {
@@ -752,11 +755,11 @@ const HotelDetails = () => {
                     </div>
                   </div>
                   {mapCenter ? (
-                    <LoadScript
-                      googleMapsApiKey={
-                        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-                      }
-                    >
+                    !isLoaded ? (
+                      <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                        <p className="text-gray-600">Loading map...</p>
+                      </div>
+                    ) : (
                       <div className="relative">
                         <GoogleMap
                           mapContainerStyle={mapContainerStyle}
@@ -784,7 +787,7 @@ const HotelDetails = () => {
                           <FiNavigation className="h-4.5 w-4.5" />
                         </button>
                       </div>
-                    </LoadScript>
+                    )
                   ) : (
                     <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
                       <p className="text-gray-600">Loading map...</p>
