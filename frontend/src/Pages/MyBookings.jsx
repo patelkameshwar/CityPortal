@@ -138,7 +138,7 @@ const MyBookings = () => {
         {bookings.length > 0 ? (
           bookings.map((booking, index) => (
             <div
-              className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b"
+              className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-4 border-b"
               key={index}
             >
               {/* Image Section */}
@@ -270,7 +270,7 @@ const MyBookings = () => {
                 {booking.status === "Confirmed" && (
                   <>
                     <button
-                      className="text-sm bg-green-600 text-white text-center sm:min-w-48 py-2 border rounded hover:bg-green-700 transition-all duration-300"
+                      className="text-sm bg-green-600 text-white text-center sm:min-w-32 w-fit py-2 border rounded-3xl hover:bg-green-700 transition-all duration-300"
                       onClick={() =>
                         toast.info("Payment gateway integration coming soon")
                       }
@@ -280,7 +280,7 @@ const MyBookings = () => {
                     <button
                       onClick={() => handleCancelBooking(booking._id)}
                       disabled={cancelLoading === booking._id}
-                      className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300"
+                      className="text-sm text-stone-500 text-center sm:min-w-32 w-fit py-2 border rounded-3xl hover:bg-red-600 hover:text-white transition-all duration-300"
                     >
                       {cancelLoading === booking._id
                         ? "Cancelling..."
