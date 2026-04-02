@@ -549,39 +549,54 @@ const Hotels = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <div className="bg-gray-100 p-4 rounded-xl border">
-                {/* Price per unit */}
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>
-                    {bookingType === "hour"
-                      ? "Price per hour:"
-                      : "Price per night:"}
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    ₹
-                    {bookingType === "hour"
-                      ? Math.round(
-                          selectedHotel.pricePerHour ||
-                            selectedHotel.pricePerNight / 24,
-                        )
-                      : selectedHotel.pricePerNight}
-                  </span>
-                </div>
+              <div className="bg-gray-50 border rounded-xl p-4 space-y-2">
+                {bookingType === "night" && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Price per night:</span>
+                    <span className="font-medium text-gray-800">
+                      ₹{selectedHotel.pricePerNight}
+                    </span>
+                  </div>
+                )}
 
-                {/* Total section */}
-                <div className="flex justify-between items-center mt-3">
+                {bookingType === "hour" && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Hourly price:</span>
+                    <span className="font-medium text-gray-800">
+                      ₹
+                      {(
+                        selectedHotel.pricePerHour ||
+                        selectedHotel.pricePerNight / 24
+                      ).toFixed(0)}
+                      /hr
+                    </span>
+                  </div>
+                )}
+
+                <div className="border-t pt-2 flex justify-between items-center">
                   <span className="text-gray-700 font-medium">Total:</span>
 
                   {bookingType === "hour" &&
                   (selectedHours === 6 || selectedHours === 9) ? (
                     <div className="text-right">
-                      {/* Discounted Price */}
+                      {/* Original price */}
+                      <div className="text-sm text-gray-400 line-through">
+                        ₹
+                        {Math.ceil(
+                          (selectedHotel.pricePerHour ||
+                            selectedHotel.pricePerNight / 24) *
+                            selectedHours *
+                            bookingData.rooms,
+                        )}
+                      </div>
+
+                      {/* Discounted price */}
                       <div className="text-lg font-bold text-gray-600">
                         ₹{calculateTotal()}
                       </div>
                     </div>
                   ) : (
-                    <span className="text-lg font-bold text-gray-600">
+                    <span className="text-lg font-bold text-gray-800">
                       ₹{calculateTotal()}
                     </span>
                   )}
