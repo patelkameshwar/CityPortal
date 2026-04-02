@@ -82,7 +82,8 @@ const Tourism = () => {
       setTimeout(() => {
         setSelectedSpot(null);
         setBookingSuccess('');
-      }, 2000);
+        navigate("/my-bookings");
+      }, 1500);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Booking failed');
     } finally {

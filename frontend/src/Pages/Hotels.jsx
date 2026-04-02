@@ -3,14 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { hotelAPI, bookingAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import {
-  FiSearch,
-  FiMapPin,
-  FiHome,
-  FiX,
-  FiCalendar,
-  FiUsers,
-} from "react-icons/fi";
+import { FiSearch, FiMapPin, FiHome, FiX } from "react-icons/fi";
 import {
   LocalizationProvider,
   DatePicker,
@@ -57,7 +50,6 @@ const Hotels = () => {
     if (bookingType === "hour" && checkInDate && checkInTime) {
       const checkInFull = new Date(checkInDate);
       checkInFull.setHours(checkInTime.getHours(), checkInTime.getMinutes());
-
       const checkOutFull = new Date(
         checkInFull.getTime() + selectedHours * 60 * 60 * 1000,
       );
@@ -159,7 +151,6 @@ const Hotels = () => {
 
       if (bookingType === "night") {
         const fromDate = new Date(bookingData.checkIn);
-
         if (nightCheckInTime) {
           fromDate.setHours(
             nightCheckInTime.getHours(),
@@ -168,8 +159,6 @@ const Hotels = () => {
         }
 
         const toDate = new Date(bookingData.checkOut);
-
-        // ✅ apply SAME time to checkout
         if (nightCheckInTime) {
           toDate.setHours(
             nightCheckInTime.getHours(),
@@ -180,13 +169,10 @@ const Hotels = () => {
         const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
 
         totalPrice = selectedHotel.pricePerNight * days * bookingData.rooms;
-
-        // ✅ FIX: update BOTH dates
         bookingFromDate = fromDate.toISOString();
-        bookingToDate = toDate.toISOString(); // ⭐ THIS WAS MISSING
+        bookingToDate = toDate.toISOString();
       } else {
         const checkIn = new Date(bookingData.checkIn);
-
         const checkOut = new Date(
           checkIn.getTime() + selectedHours * 60 * 60 * 1000,
         );
@@ -195,20 +181,16 @@ const Hotels = () => {
 
         const pricePerHour =
           selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
-
         totalPrice = pricePerHour * selectedHours * bookingData.rooms;
       }
 
       await bookingAPI.create({
         itemType: "Hotel",
         itemId: selectedHotel._id,
-
         bookingType,
         hours: bookingType === "hour" ? selectedHours : null,
-
         bookingFromDate,
         bookingToDate,
-
         totalQuantity: bookingData.rooms,
       });
 
@@ -231,16 +213,13 @@ const Hotels = () => {
 
     if (bookingType === "night") {
       if (!bookingData.checkOut) return 0;
-
       const days =
         (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) /
         (1000 * 60 * 60 * 24);
-
       return Math.ceil(days) * selectedHotel.pricePerNight * bookingData.rooms;
     } else {
       const pricePerHour =
         selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
-
       return Math.ceil(pricePerHour * selectedHours * bookingData.rooms);
     }
   };
