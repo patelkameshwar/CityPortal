@@ -144,53 +144,61 @@ exports.createBooking = async (req, res) => {
       }
 
       // ================= HOURLY BOOKING =================
-      // ================= HOURLY BOOKING =================
-if (bookingType === "hour") {
-  if (!bookingFromDate || !hours) {
-    console.log("❌ Hourly booking missing:", {
-      bookingFromDate,
-      hours,
-      bookingType,
-    });
+      if (bookingType === "hour") {
+        if (!bookingFromDate || !hours) {
+          console.log("❌ Hourly booking missing:", {
+            bookingFromDate,
+            hours,
+            bookingType,
+          });
 
-    return res.status(400).json({
-      message: "Check-in time and hours required for hourly booking",
-    });
-  }
+          return res.status(400).json({
+            message: "Check-in time and hours required for hourly booking",
+          });
+        }
 
-  if (![3, 6, 9].includes(hours)) {
-    return res.status(400).json({
-      message: "Invalid hours selection",
-    });
-  }
+        if (![3, 6, 9].includes(hours)) {
+          return res.status(400).json({
+            message: "Invalid hours selection",
+          });
+        }
 
-  const from = new Date(bookingFromDate);
-  const to = new Date(from.getTime() + hours * 60 * 60 * 1000);
+        const from = new Date(bookingFromDate);
+        const to = new Date(from.getTime() + hours * 60 * 60 * 1000);
 
-  const existingBookings = await Booking.find({
-    itemType: "Hotel",
-    itemId: itemId,
-    status: "Confirmed",
-    bookingFromDate: { $lt: to },
-    bookingToDate: { $gt: from },
-  });
+        const existingBookings = await Booking.find({
+          itemType: "Hotel",
+          itemId: itemId,
+          status: "Confirmed",
+          bookingFromDate: { $lt: to },
+          bookingToDate: { $gt: from },
+        });
 
-  let roomsBooked = 0;
-  existingBookings.forEach((b) => {
-    roomsBooked += b.totalQuantity;
-  });
+        let roomsBooked = 0;
+        existingBookings.forEach((b) => {
+          roomsBooked += b.totalQuantity;
+        });
 
-  if (roomsBooked + totalQuantity > item.totalRooms) {
-    return res.status(400).json({
-      message: "Not enough rooms available for selected time",
-    });
-  }
+        if (roomsBooked + totalQuantity > item.totalRooms) {
+          return res.status(400).json({
+            message: "Not enough rooms available for selected time",
+          });
+        }
 
-  const pricePerHour = item.pricePerHour || (item.pricePerNight / 24);
-  totalPrice = pricePerHour * hours * totalQuantity;
+        const pricePerHour = item.pricePerHour || item.pricePerNight / 24;
 
-  req.body.bookingToDate = to;
-}
+        const discountMap = {
+          6: 0.1,
+          9: 0.2,
+        };
+
+        let basePrice = pricePerHour * hours;
+        let discount = discountMap[hours] || 0;
+
+        totalPrice = (basePrice - basePrice * discount) * totalQuantity;
+
+        req.body.bookingToDate = to;
+      }
     }
 
     // ================= TOURISM BOOKING =================

@@ -242,7 +242,7 @@ const HotelDetails = () => {
         itemId: hotel._id,
 
         bookingType,
-        hours: bookingType === "hour" ? selectedHours : null, // ✅ MUST
+        hours: bookingType === "hour" ? selectedHours : null, 
 
         bookingFromDate,
         bookingToDate,

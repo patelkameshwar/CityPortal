@@ -181,7 +181,18 @@ const Hotels = () => {
 
         const pricePerHour =
           selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
-        totalPrice = pricePerHour * selectedHours * bookingData.rooms;
+
+        let basePrice = pricePerHour * selectedHours;
+        let discount = 0;
+
+        if (selectedHours === 6) {
+          discount = 0.1; // 10%
+        } else if (selectedHours === 9) {
+          discount = 0.2; // 20%
+        }
+        const discountedPrice = basePrice - basePrice * discount;
+
+        totalPrice = discountedPrice * bookingData.rooms;
       }
 
       await bookingAPI.create({
@@ -192,6 +203,7 @@ const Hotels = () => {
         bookingFromDate,
         bookingToDate,
         totalQuantity: bookingData.rooms,
+        totalPrice,
       });
 
       toast.success("Hotel booked successfully!");
@@ -220,7 +232,16 @@ const Hotels = () => {
     } else {
       const pricePerHour =
         selectedHotel.pricePerHour || selectedHotel.pricePerNight / 24;
-      return Math.ceil(pricePerHour * selectedHours * bookingData.rooms);
+
+      let basePrice = pricePerHour * selectedHours;
+      let discount = 0;
+      if (selectedHours === 6) {
+        discount = 0.1;
+      } else if (selectedHours === 9) {
+        discount = 0.2;
+      }
+      const discountedPrice = basePrice - basePrice * discount;
+      return Math.ceil(discountedPrice * bookingData.rooms);
     }
   };
 
@@ -528,16 +549,42 @@ const Hotels = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Price per night:</span>
-                  <span className="font-medium">
-                    ${selectedHotel.pricePerNight}
+              <div className="bg-gray-100 p-4 rounded-xl border">
+                {/* Price per unit */}
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>
+                    {bookingType === "hour"
+                      ? "Price per hour:"
+                      : "Price per night:"}
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    ₹
+                    {bookingType === "hour"
+                      ? Math.round(
+                          selectedHotel.pricePerHour ||
+                            selectedHotel.pricePerNight / 24,
+                        )
+                      : selectedHotel.pricePerNight}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm mt-2">
-                  <span className="text-gray-600">Total:</span>
-                  <span className="font-bold text-lg">${calculateTotal()}</span>
+
+                {/* Total section */}
+                <div className="flex justify-between items-center mt-3">
+                  <span className="text-gray-700 font-medium">Total:</span>
+
+                  {bookingType === "hour" &&
+                  (selectedHours === 6 || selectedHours === 9) ? (
+                    <div className="text-right">
+                      {/* Discounted Price */}
+                      <div className="text-lg font-bold text-gray-600">
+                        ₹{calculateTotal()}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-lg font-bold text-gray-600">
+                      ₹{calculateTotal()}
+                    </span>
+                  )}
                 </div>
               </div>
               <button
