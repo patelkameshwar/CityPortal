@@ -1,37 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import {
-  GoogleMap,
-  LoadScript,
-  useLoadScript,
-  Marker,
-} from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, Marker, } from "@react-google-maps/api";
 import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { hotelAPI, bookingAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import {
-  FiMapPin,
-  FiHome,
-  FiUser,
-  FiArrowLeft,
-  FiX,
-  FiArrowRight,
-  FiClock,
-  FiAlertCircle,
-  FiCircle,
-  FiNavigation,
-  FiChevronLeft,
-  FiChevronRight,
-  FiCoffee,
-  FiZap,
-} from "react-icons/fi";
+import { FiMapPin, FiHome, FiUser, FiArrowLeft, FiX, FiArrowRight, FiClock, FiAlertCircle, FiCircle, FiNavigation, FiChevronLeft, FiChevronRight, FiCoffee, FiZap, } from "react-icons/fi";
 import { MdOutlineBed } from "react-icons/md";
-import {
-  LocalizationProvider,
-  DatePicker,
-  TimePicker,
-} from "@mui/x-date-pickers";
+import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useTheme } from "@mui/material/styles";
 
@@ -129,9 +105,7 @@ const HotelDetails = () => {
         lat: hotel.coordinates.lat,
         lng: hotel.coordinates.lng,
       });
-      console.log("Using precise hotel coordinates:", hotel.coordinates);
     } else if (hotel?.location) {
-      // Fallback mock geocoding
       let lat = 21.7679;
       let lng = 72.1359;
       const hash = hotel.location
@@ -140,9 +114,6 @@ const HotelDetails = () => {
       lat += (hash % 100) / 10000;
       lng += ((hash * 31) % 100) / 10000;
       setMapCenter({ lat, lng });
-      console.log(
-        `Fallback geocoded "${hotel.location}" to [${lat.toFixed(4)}, ${lng.toFixed(4)}]`,
-      );
     }
   }, [hotel]);
 
@@ -301,7 +272,7 @@ const HotelDetails = () => {
 
     const { lat, lng } = mapCenter;
 
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, "_blank");
   };
 
