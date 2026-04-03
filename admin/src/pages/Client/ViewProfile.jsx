@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { authAPI } from "../../services/api.js";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ import {
 } from "react-icons/fi";
 
 const ViewProfile = () => {
+  const navigate = useNavigate();
   const { user, logout, updateUser } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -161,7 +163,7 @@ const ViewProfile = () => {
         {/* Header Navigation */}
         <div className="flex justify-end mb-6">
           <button
-            onClick={() => (window.location.href = "/client-dashboard")}
+            onClick={() => navigate("/client-dashboard")}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all shadow-sm"
           >
             <FiArrowLeft className="mr-2" /> Back to Dashboard
