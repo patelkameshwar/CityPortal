@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    toast.dismiss();
     localStorage.removeItem("token");
     localStorage.removeItem("rememberMe");
     sessionStorage.removeItem("token");

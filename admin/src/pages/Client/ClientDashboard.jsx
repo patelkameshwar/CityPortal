@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api.js";
 import {
@@ -27,8 +27,16 @@ import {
 } from "recharts";
 
 const ClientDashboard = () => {
-
   const navigate = useNavigate();
+
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    fetchStats();
+    fetchRecentBookings();
+  }, [isAuthenticated]);
 
   const [stats, setStats] = React.useState([
     {
@@ -233,9 +241,9 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
-  contextLogout();
-  navigate("/login", { replace: true });
-};
+    contextLogout();
+    navigate("/login", { replace: true });
+  };
 
   if (loading) {
     return (
