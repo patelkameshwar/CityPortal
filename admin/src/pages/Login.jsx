@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
 import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash, FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -149,10 +148,6 @@ const Login = () => {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div className="mt-6 text-center">
-        <ToastContainer position="top-right" theme="colored" />
-      </div>
 
 {role === 'client' && (
           <p className="mt-8 text-center text-sm text-gray-600">
