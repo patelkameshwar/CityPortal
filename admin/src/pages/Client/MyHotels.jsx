@@ -217,10 +217,10 @@ const MyHotels = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded-full block">
-                            ₹{hotel.pricePerNight}/night
+                          <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded block">
+                            Nightly: ₹{hotel.pricePerNight}/night
                           </span>
-                          <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                          <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">
                             Hourly: ₹{Math.round(hotel.pricePerHour || (hotel.pricePerNight / 24))}/hr
                           </span>
                         </div>
