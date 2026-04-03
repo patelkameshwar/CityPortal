@@ -12,6 +12,7 @@ import {
   FaMapMarkedAlt,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import {
   LineChart,
@@ -26,6 +27,9 @@ import {
 } from "recharts";
 
 const ClientDashboard = () => {
+
+  const navigate = useNavigate();
+
   const [stats, setStats] = React.useState([
     {
       name: "Your Hotels",
@@ -229,8 +233,9 @@ const ClientDashboard = () => {
   };
 
   const handleLogout = () => {
-    contextLogout();
-  };
+  contextLogout();
+  navigate("/login", { replace: true });
+};
 
   if (loading) {
     return (

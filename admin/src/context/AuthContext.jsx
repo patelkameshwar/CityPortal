@@ -107,7 +107,6 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     setRememberMe(false);
     toast.success("Logged out successfully");
-    window.location.replace('/login');
   };
 
   const updateProfile = async (data) => {
