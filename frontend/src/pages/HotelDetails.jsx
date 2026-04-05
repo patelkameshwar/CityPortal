@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { GoogleMap, useLoadScript, Marker, } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { hotelAPI, bookingAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { FiMapPin, FiHome, FiUser, FiArrowLeft, FiX, FiArrowRight, FiClock, FiAlertCircle, FiCircle, FiNavigation, FiChevronLeft, FiChevronRight, FiCoffee, FiZap, } from "react-icons/fi";
+import {
+  FiMapPin, FiHome, FiUser, FiArrowLeft, FiX, FiArrowRight, FiClock, FiAlertCircle, FiNavigation, FiChevronLeft, FiChevronRight, FiCoffee, FiZap, } from "react-icons/fi";
 import { MdOutlineBed } from "react-icons/md";
 import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useTheme } from "@mui/material/styles";
 
 const getTodayDate = () => {
   const today = new Date();
@@ -33,7 +33,6 @@ const HotelDetails = () => {
   });
   const [bookingType, setBookingType] = useState("night");
   const [selectedHours, setSelectedHours] = useState(3);
-  // New for hourly MUI pickers
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkInTime, setCheckInTime] = useState(null);
   const [nightCheckInTime, setNightCheckInTime] = useState(null);
@@ -49,7 +48,7 @@ const HotelDetails = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
-  const { isLoaded, loadError } = useLoadScript({
+  const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
@@ -57,16 +56,13 @@ const HotelDetails = () => {
     if (bookingType === "hour" && checkInDate && checkInTime) {
       const checkInFull = new Date(checkInDate);
       checkInFull.setHours(checkInTime.getHours(), checkInTime.getMinutes());
-
       const checkOutFull = new Date(
         checkInFull.getTime() + selectedHours * 60 * 60 * 1000,
       );
-
-      // Update bookingData for consistency
       setBookingData((prev) => ({
         ...prev,
-        checkIn: checkInFull.toISOString(),
-        checkOut: checkOutFull.toISOString(),
+        checkIn: checkInFull,
+        checkOut: checkOutFull,
       }));
     }
   }, [bookingType, selectedHours, checkInDate, checkInTime]);
@@ -76,16 +72,17 @@ const HotelDetails = () => {
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
-
-      const formatDate = (date) => date.toLocaleDateString("en-CA");
-
+      const now = new Date();
+      const checkInFull = new Date(today);
+      checkInFull.setHours(now.getHours(), now.getMinutes());
+      const checkOutFull = new Date(tomorrow);
+      checkOutFull.setHours(now.getHours(), now.getMinutes());
       setBookingData((prev) => ({
         ...prev,
-        checkIn: formatDate(today),
-        checkOut: formatDate(tomorrow),
+        checkIn: checkInFull,
+        checkOut: checkOutFull,
       }));
-
-      setNightCheckInTime(new Date());
+      setNightCheckInTime(now);
     }
   }, [bookingType]);
 
@@ -156,23 +153,19 @@ const HotelDetails = () => {
       navigate("/login");
       return;
     }
-
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-
-    const formatDate = (date) => date.toLocaleDateString("en-CA");
-
     const now = new Date();
-
-    setNightCheckInTime(now); // ✅ set default time
-
+    const checkInFull = new Date(today);
+    checkInFull.setHours(now.getHours(), now.getMinutes());
+    const checkOutFull = new Date(tomorrow);
+    checkOutFull.setHours(now.getHours(), now.getMinutes());
     setBookingData({
-      checkIn: formatDate(today),
-      checkOut: formatDate(tomorrow),
+      checkIn: checkInFull,
+      checkOut: checkOutFull,
       rooms: 1,
     });
-
     setShowBookingModal(true);
   };
 
@@ -180,46 +173,35 @@ const HotelDetails = () => {
     e.preventDefault();
     setBookingLoading(true);
     setBookingSuccess("");
-
     if (bookingType === "hour" && (!checkInDate || !checkInTime)) {
       toast.error("Please select date & time");
       return;
     }
-
     try {
       let totalPrice = 0;
-
-      let bookingFromDate = bookingData.checkIn;
-      let bookingToDate = bookingData.checkOut;
-
+      let bookingFromDate = new Date(bookingData.checkIn).toISOString();
+      let bookingToDate = new Date(bookingData.checkOut).toISOString();
       if (bookingType === "night") {
         const fromDate = new Date(bookingData.checkIn);
         const toDate = new Date(bookingData.checkOut);
-
         const days = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
         totalPrice = hotel.pricePerNight * days * bookingData.rooms;
       } else {
         const checkInDate = new Date(bookingData.checkIn);
-
         const checkOut = new Date(
           checkInDate.getTime() + selectedHours * 60 * 60 * 1000,
         );
-
         bookingToDate = checkOut.toISOString();
-
         const pricePerHour = hotel.pricePerNight / 24;
         totalPrice = pricePerHour * selectedHours * bookingData.rooms;
       }
       await bookingAPI.create({
         itemType: "Hotel",
         itemId: hotel._id,
-
         bookingType,
         hours: bookingType === "hour" ? selectedHours : null,
-
         bookingFromDate,
         bookingToDate,
-
         totalQuantity: bookingData.rooms,
       });
 
@@ -243,35 +225,26 @@ const HotelDetails = () => {
 
   const calculateTotal = () => {
     if (!hotel || !bookingData.checkIn) return 0;
-
     if (bookingType === "night") {
       if (!bookingData.checkOut) return 0;
-
       const days =
         (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) /
         (1000 * 60 * 60 * 24);
-
       return Math.ceil(days) * hotel.pricePerNight * bookingData.rooms;
     } else {
       const pricePerHour = hotel.pricePerHour || hotel.pricePerNight / 24;
-
       let basePrice = pricePerHour * selectedHours * bookingData.rooms;
-
       let discount = 0;
       if (selectedHours === 6) discount = 0.1;
       if (selectedHours === 9) discount = 0.2;
-
       const finalPrice = basePrice - basePrice * discount;
-
       return Math.ceil(finalPrice);
     }
   };
 
   const openDirections = () => {
     if (!mapCenter) return;
-
     const { lat, lng } = mapCenter;
-
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, "_blank");
   };
@@ -367,7 +340,6 @@ const HotelDetails = () => {
                   </div>
                 )}
 
-                {/* Property Photos Button */}
                 {hotel.images && hotel.images.length > 0 && (
                   <button
                     onClick={openPhotoModal}
@@ -696,7 +668,6 @@ const HotelDetails = () => {
                   <h2 className="text-xl font-bold text-gray-800 mb-4">
                     Property Policies
                   </h2>
-
                   {hotel.policies && hotel.policies.length > 0 ? (
                     <ul className="list-[circle] pl-5 space-y-2">
                       {hotel.policies.map((policy, index) => (
@@ -905,13 +876,23 @@ const HotelDetails = () => {
                       </label>
                       <input
                         type="date"
-                        value={bookingData.checkIn?.split("T")[0] || ""}
-                        onChange={(e) =>
+                        value={
+                          bookingData.checkIn
+                            ? new Date(bookingData.checkIn).toLocaleDateString(
+                                "en-CA",
+                              )
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const date = new Date(e.target.value);
+                          const time = nightCheckInTime || new Date();
+
+                          date.setHours(time.getHours(), time.getMinutes());
                           setBookingData({
                             ...bookingData,
-                            checkIn: e.target.value,
-                          })
-                        }
+                            checkIn: date,
+                          });
+                        }}
                         min={getTodayDate()}
                         required
                         className="w-full px-4 py-2 border rounded-lg"
@@ -924,13 +905,23 @@ const HotelDetails = () => {
                       </label>
                       <input
                         type="date"
-                        value={bookingData.checkOut?.split("T")[0] || ""}
-                        onChange={(e) =>
+                        value={
+                          bookingData.checkOut
+                            ? new Date(bookingData.checkOut).toLocaleDateString(
+                                "en-CA",
+                              )
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const date = new Date(e.target.value);
+                          const time = nightCheckInTime || new Date();
+
+                          date.setHours(time.getHours(), time.getMinutes());
                           setBookingData({
                             ...bookingData,
-                            checkOut: e.target.value,
-                          })
-                        }
+                            checkOut: date,
+                          });
+                        }}
                         min={
                           bookingData.checkIn
                             ? new Date(
@@ -951,7 +942,33 @@ const HotelDetails = () => {
                         <TimePicker
                           label="Check-in Time"
                           value={nightCheckInTime}
-                          onChange={(newValue) => setNightCheckInTime(newValue)}
+                          onChange={(newValue) => {
+                            setNightCheckInTime(newValue);
+
+                            if (!newValue) return;
+
+                            setBookingData((prev) => {
+                              const updatedCheckIn = new Date(prev.checkIn);
+                              const updatedCheckOut = new Date(prev.checkOut);
+
+                              // ✅ apply selected time
+                              updatedCheckIn.setHours(
+                                newValue.getHours(),
+                                newValue.getMinutes(),
+                              );
+
+                              updatedCheckOut.setHours(
+                                newValue.getHours(),
+                                newValue.getMinutes(),
+                              );
+
+                              return {
+                                ...prev,
+                                checkIn: updatedCheckIn,
+                                checkOut: updatedCheckOut,
+                              };
+                            });
+                          }}
                           renderInput={(params) => (
                             <input
                               {...params.inputProps}
@@ -1102,7 +1119,6 @@ const HotelDetails = () => {
         {showPhotoModal && hotel && hotel.images && (
           <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
             <div className="relative max-w-4xl w-full">
-              {/* Close Button */}
               <button
                 onClick={closePhotoModal}
                 className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
@@ -1110,7 +1126,6 @@ const HotelDetails = () => {
                 <FiX className="h-8 w-8" />
               </button>
 
-              {/* Main Image */}
               <div className="relative">
                 <img
                   src={hotel.images[currentImageIndex]}
@@ -1118,7 +1133,6 @@ const HotelDetails = () => {
                   className="w-full h-120 object-contain rounded-lg"
                 />
 
-                {/* Previous Button */}
                 {hotel.images.length > 1 && (
                   <button
                     onClick={prevImage}
@@ -1128,7 +1142,6 @@ const HotelDetails = () => {
                   </button>
                 )}
 
-                {/* Next Button */}
                 {hotel.images.length > 1 && (
                   <button
                     onClick={nextImage}
@@ -1139,12 +1152,10 @@ const HotelDetails = () => {
                 )}
               </div>
 
-              {/* Image Counter */}
               <div className="text-center text-white mt-4">
                 {currentImageIndex + 1} / {hotel.images.length}
               </div>
 
-              {/* Thumbnail Strip */}
               {hotel.images.length > 1 && (
                 <div className="flex gap-2 mt-4 overflow-x-auto justify-center ">
                   {hotel.images.map((img, index) => (

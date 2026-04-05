@@ -4,11 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { hotelAPI, bookingAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { FiSearch, FiMapPin, FiHome, FiX } from "react-icons/fi";
-import {
-  LocalizationProvider,
-  DatePicker,
-  TimePicker,
-} from "@mui/x-date-pickers";
+import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const getTodayDate = () => {
