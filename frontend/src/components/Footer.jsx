@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiMapPin, FiPhone, FiMail, FiFacebook, FiTwitter, FiInstagram } from 'react-icons/fi';
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
   return (
@@ -19,11 +20,11 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="/hotels" className="text-gray-600 hover:text-blue-600 transition">Hotels</a></li>
-              <li><a href="/events" className="text-gray-600 hover:text-blue-600 transition">Events</a></li>
-              <li><a href="/tourism" className="text-gray-600 hover:text-blue-600 transition">Tourism</a></li>
-              <li><a href="/about" className="text-gray-600 hover:text-blue-600 transition">About Us</a></li>
-              <li><a href="/contact" className="text-gray-600 hover:text-blue-600 transition">Contact</a></li>
+              <li><Link to="/hotels" className="text-gray-600 hover:text-blue-600 transition">Hotels</Link></li>
+              <li><Link to="/events" className="text-gray-600 hover:text-blue-600 transition">Events</Link></li>
+              <li><Link to="/tourism" className="text-gray-600 hover:text-blue-600 transition">Tourism</Link></li>
+              <li><Link to="/about" className="text-gray-600 hover:text-blue-600 transition">About Us</Link></li>
+              <li><Link to="/contact" className="text-gray-600 hover:text-blue-600 transition">Contact</Link></li>
             </ul>
           </div>
 
