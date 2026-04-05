@@ -18,6 +18,7 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState(null);
 
   useEffect(() => {
     setShowMenu(false);
@@ -100,10 +101,19 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         {isAuthenticated ? (
           <div
-            className="flex items-center gap-2 cursor-pointer relative"
-            onClick={() => setShowDropdown(!showDropdown)}
+            className="hidden relative md:flex items-center gap-2 cursor-pointer"
+            onMouseEnter={() => {
+              if (hoverTimeout) clearTimeout(hoverTimeout);
+              setShowDropdown(true);
+            }}
+            onMouseLeave={() => {
+              const timeout = setTimeout(() => {
+                setShowDropdown(false);
+              }, 200);
+              setHoverTimeout(timeout);
+            }}
           >
-            {/* Profile Avatar */}
+            {/* PROFILE BUTTON */}
             <div className="flex items-center gap-2">
               {user?.profilePicture ? (
                 <img
@@ -116,25 +126,38 @@ const Navbar = () => {
                   <FiUser className="h-4 w-4 text-white" />
                 </div>
               )}
+
               <img
-                className={`w-2.5 transition-transform duration-300 ${showDropdown ? "rotate-180" : ""}`}
+                className={`w-2.5 transition-transform duration-300 ${
+                  showDropdown ? "rotate-180" : ""
+                }`}
                 src={assets.dropdown}
                 alt=""
               />
             </div>
 
-            {/* Dropdown Menu */}
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border z-50">
-                <div className="min-w-52 bg-white rounded-xl shadow-xl border border-gray-100 flex flex-col p-2 overflow-hidden">
+              <div
+                className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-lg"
+                onMouseEnter={() => {
+                  if (hoverTimeout) clearTimeout(hoverTimeout);
+                }}
+                onMouseLeave={() => {
+                  const timeout = setTimeout(() => {
+                    setShowDropdown(false);
+                  }, 200);
+                  setHoverTimeout(timeout);
+                }}
+              >
+                <div className="flex flex-col p-2">
                   <button
                     onClick={() => {
                       navigate("/my-profile");
                       setShowDropdown(false);
                     }}
-                    className="hover:bg-blue-50 hover:text-blue-600 px-4 py-2.5 rounded-lg cursor-pointer flex items-center gap-3 transition-colors text-sm font-medium text-gray-700"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-blue-50 rounded-lg"
                   >
-                    <FiUser className="text-gray-400" size={16} /> My Profile
+                    <FiUser /> My Profile
                   </button>
 
                   <button
@@ -142,22 +165,16 @@ const Navbar = () => {
                       navigate("/my-bookings");
                       setShowDropdown(false);
                     }}
-                    className="hover:bg-blue-50 hover:text-blue-600 px-4 py-2.5 rounded-lg cursor-pointer flex items-center gap-3 transition-colors text-sm font-medium text-gray-700"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-blue-50 rounded-lg"
                   >
-                    <FiCalendar className="text-gray-400" size={16} /> My
-                    Bookings
+                    <FiCalendar /> My Bookings
                   </button>
 
-                  <hr className="my-1 border-gray-200" />
-
                   <button
-                    onClick={() => {
-                      handleLogout();
-                      setShowDropdown(false);
-                    }}
-                    className="hover:bg-red-50 hover:text-red-600 px-4 py-2.5 rounded-lg cursor-pointer flex items-center gap-3 transition-colors text-sm font-medium text-red-500"
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg"
                   >
-                    <FiLogOut size={16} /> Logout
+                    <FiLogOut /> Logout
                   </button>
                 </div>
               </div>
@@ -186,7 +203,6 @@ const Navbar = () => {
 
       {showMenu && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col justify-between p-6 md:hidden">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <img className="w-32" src={assets.logo2} alt="" />
             <button
@@ -197,8 +213,6 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Links */}
-          {/* Links */}
           <div className="flex-1 overflow-y-auto">
             <ul className="flex flex-col gap-6 text-lg font-medium text-gray-800">
               <NavLink to="/" onClick={() => setShowMenu(false)}>
@@ -225,17 +239,14 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* ACCOUNT SECTION */}
           <div className="mt-4 border-t pt-4 relative">
             {isAuthenticated ? (
               <>
-                {/* ✅ ACCOUNT BUTTON */}
                 <button
                   onClick={() => setShowMobileDropdown(!showMobileDropdown)}
-                  className="w-full flex items-center justify-between px-3 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+                  className="w-full flex items-center justify-between px-3 py-3 rounded-lg bg-gray-200 hover:bg-gray-100 transition"
                 >
                   <div className="flex items-center gap-3">
-                    {/* Profile Image */}
                     {user?.profilePicture ? (
                       <img
                         src={user.profilePicture}
@@ -248,7 +259,9 @@ const Navbar = () => {
                       </div>
                     )}
 
-                    <span className="font-medium text-gray-800">Account</span>
+                    <span className="font-medium text-gray-800">
+                      {user?.name ? user.name : "Account"}
+                    </span>
                   </div>
 
                   <span
@@ -258,7 +271,6 @@ const Navbar = () => {
                   </span>
                 </button>
 
-                {/* 🔼 DROPDOWN ABOVE */}
                 {showMobileDropdown && (
                   <div className="absolute bottom-full left-0 w-full mb-2 bg-white rounded-xl shadow-lg border p-3 flex flex-col gap-3">
                     <button
