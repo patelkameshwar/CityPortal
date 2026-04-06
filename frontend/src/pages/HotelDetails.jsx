@@ -6,9 +6,26 @@ import { useParams, useNavigate } from "react-router-dom";
 import { hotelAPI, bookingAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import {
-  FiMapPin, FiHome, FiUser, FiArrowLeft, FiX, FiArrowRight, FiClock, FiAlertCircle, FiNavigation, FiChevronLeft, FiChevronRight, FiCoffee, FiZap, } from "react-icons/fi";
+  FiMapPin,
+  FiHome,
+  FiUser,
+  FiArrowLeft,
+  FiX,
+  FiArrowRight,
+  FiClock,
+  FiAlertCircle,
+  FiNavigation,
+  FiChevronLeft,
+  FiChevronRight,
+  FiCoffee,
+  FiZap,
+} from "react-icons/fi";
 import { MdOutlineBed } from "react-icons/md";
-import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
+import {
+  LocalizationProvider,
+  DatePicker,
+  TimePicker,
+} from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const getTodayDate = () => {
@@ -51,6 +68,8 @@ const HotelDetails = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
+
+  const isMobile = window.innerWidth < 640;
 
   useEffect(() => {
     if (bookingType === "hour" && checkInDate && checkInTime) {
@@ -272,13 +291,10 @@ const HotelDetails = () => {
     setShowPhotoModal(false);
   };
 
-  const mapContainerStyle = useMemo(
-    () => ({
-      height: "400px",
-      width: "100%",
-    }),
-    [],
-  );
+  const mapContainerStyle = {
+    width: "100%",
+    height: "100%",
+  };
 
   const hasMoreAmenities = !!(
     (hotel?.basicFacilities?.length || 0) > 4 ||
@@ -313,26 +329,27 @@ const HotelDetails = () => {
 
   return (
     <div className="py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate("/hotels")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8"
+          className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
         >
           <FiArrowLeft className="h-5 w-5" />
           Back to Hotels
         </button>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{hotel.name}</h1>
-
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="flex flex-row gap-4 p-4 -mb-8">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          {hotel.name}
+        </h1>
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden pb-20 sm:pb-0">
+          <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
             {/* Left Div - Image */}
-            <div className="left-div w-2/3 rounded-xl">
-              <div className="h-90 bg-gray-200 relative rounded-xl">
+            <div className="left-div w-full lg:w-2/3 rounded-xl">
+              <div className="h-52 sm:h-64 md:h-80 lg:h-105 bg-gray-200 relative rounded-xl overflow-hidden">
                 {hotel.images && hotel.images.length > 0 ? (
                   <img
                     src={hotel.images[0]}
                     alt={hotel.name}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-xl transition duration-300 hover:scale-105"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -343,7 +360,7 @@ const HotelDetails = () => {
                 {hotel.images && hotel.images.length > 0 && (
                   <button
                     onClick={openPhotoModal}
-                    className="absolute bottom-4 right-4 bg-gray-800/70 border-2 border-white text-white px-4 py-2 rounded-4xl font-medium flex items-center gap-2 hover:bg-gray-800 transition -mb-2 cursor-pointer"
+                    className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-gray-800/70 border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 hover:bg-gray-800 transition cursor-pointer"
                   >
                     <span>{hotel.images.length}</span>
                     <span>Property Photos</span>
@@ -354,42 +371,43 @@ const HotelDetails = () => {
             </div>
 
             {/* Right Div - Info */}
-            <div className="right-div w-1/3 p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
-              <div className="text-gray-800 text-lg font-bold mb-2">
+            <div className="right-div w-full lg:w-1/3 p-3 sm:p-5 md:p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
+              <div className="text-gray-800 text-base sm:text-lg font-bold mb-2">
                 Deluxe Room
               </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiCoffee className="h-4 w-4 text-gray-700" />
-                Complimentary Meal Upgrade
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiZap className="h-4 w-4 text-gray-700" />
-                Enjoy Happy Hours with 1+1 offer
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiClock className="h-4 w-4 text-gray-700" />
-                Early check-in upto 2 hrs
-              </div>
-              <div className="flex items-center gap-1 text-red-500 text-sm font-medium mb-4">
-                <FiAlertCircle className="h-4 w-4" />
-                Non-Refundable
+              <div className="flex flex-col gap-1 mb-3">
+                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                  <FiCoffee className="h-4 w-4 text-gray-700" />
+                  Complimentary Meal Upgrade
+                </div>
+                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                  <FiZap className="h-4 w-4 text-gray-700" />
+                  Enjoy Happy Hours with 1+1 offer
+                </div>
+                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                  <FiClock className="h-4 w-4 text-gray-700" />
+                  Early check-in upto 2 hrs
+                </div>
+                <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm font-medium">
+                  <FiAlertCircle className="h-4 w-4" />
+                  Non-Refundable
+                </div>
               </div>
 
-              <div className="flex items-baseline justify-between mb-4">
-                <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base font-medium">
                   <FiUser className="h-4 w-4" />
                   2 Guests |
                   <MdOutlineBed className="h-4 w-4" /> 1 Room
                 </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-gray-800 text-2xl font-bold">
-                    <span>₹</span>
-                    {hotel.pricePerNight}
+                <div className="flex flex-col sm:items-end">
+                  <div className="text-gray-800 text-xl sm:text-2xl font-bold">
+                    ₹{hotel.pricePerNight}
                   </div>
-                  <div className="text-gray-600 text-sm font-semibold">
+                  <div className="text-gray-600 text-xs sm:text-sm font-semibold">
                     Per Night
                   </div>
-                  <div className="text-emerald-600 text-sm font-semibold mt-1">
+                  <div className="text-emerald-600 text-xs sm:text-sm font-semibold mt-1">
                     Hourly: ₹
                     {(hotel.pricePerHour || hotel.pricePerNight / 24).toFixed(
                       0,
@@ -401,22 +419,24 @@ const HotelDetails = () => {
 
               <button
                 onClick={handleBookNow}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer"
+                className="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer text-sm sm:text-base"
               >
                 Book Now
               </button>
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* About Properties Section */}
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
-                About Properties
+              <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-2">
+                About Property
               </h2>
               {isDescriptionExpanded ? (
                 <>
-                  <p className="text-gray-600">{hotel.description}</p>
+                  <p className="text-gray-600 leading-relaxed wrap-break-word text-sm sm:text-base">
+                    {hotel.description}
+                  </p>
                   <button
                     onClick={() => setIsDescriptionExpanded(false)}
                     className="mt-2 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
@@ -425,37 +445,48 @@ const HotelDetails = () => {
                   </button>
                 </>
               ) : (
-                <p className="text-gray-600">
-                  {hotel.description
-                    ? hotel.description.slice(0, 320) + "..."
-                    : ""}
-                  <button
-                    onClick={() => setIsDescriptionExpanded(true)}
-                    className="ml-1 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
-                  >
-                    Read more
-                  </button>
-                </p>
+                <div className="text-gray-600 transition-all duration-300 leading-relaxed wrap-break-word text-sm sm:text-base">
+                  {hotel.description ? hotel.description.slice(0, 320) : ""}
+
+                  {hotel.description?.length > 320 && (
+                    <>
+                      ...
+                      <button
+                        onClick={() => setIsDescriptionExpanded(true)}
+                        className="ml-1 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
+                      >
+                        Read more
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
             </div>
 
             {/* Location and Rooms */}
-            <div className="flex items-center justify-start gap-40 text-gray-600 mb-6">
-              <div className="flex items-center gap-2">
-                <FiMapPin className="h-5 w-5 text-blue-500" />
-                <span>{hotel.location}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-gray-600 mb-6">
+              {/* Location */}
+              <div className="flex items-start sm:items-center gap-2 min-w-0">
+                <FiMapPin className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base wrap-break-word line-clamp-1 sm:line-clamp-none">
+                  {hotel.location}
+                </span>
               </div>
+
+              {/* Rooms */}
               <div className="flex items-center gap-2">
-                <FiHome className="h-5 w-5 text-blue-500" />
-                <span>{hotel.totalRooms} Rooms Available</span>
+                <FiHome className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base whitespace-nowrap">
+                  {hotel.totalRooms} Rooms Available
+                </span>
               </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide gap-2 px-1">
               <button
                 onClick={() => setActiveTab("amenities")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${
                   activeTab === "amenities"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-800"
@@ -466,7 +497,7 @@ const HotelDetails = () => {
 
               <button
                 onClick={() => setActiveTab("policies")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${
                   activeTab === "policies"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-800"
@@ -476,7 +507,7 @@ const HotelDetails = () => {
               </button>
               <button
                 onClick={() => setActiveTab("location")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${
                   activeTab === "location"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-800"
@@ -486,7 +517,7 @@ const HotelDetails = () => {
               </button>
               <button
                 onClick={() => setActiveTab("similar")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${
                   activeTab === "similar"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-800"
@@ -501,7 +532,7 @@ const HotelDetails = () => {
               {activeTab === "amenities" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 mb-4">
+                    <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                       Popular Amenities
                     </h2>
                     {hotel.amenities && hotel.amenities.length > 0 ? (
@@ -522,7 +553,7 @@ const HotelDetails = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     <div className=" p-4 rounded-xl">
                       <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
                         🏠 Basic Facilities
@@ -620,7 +651,7 @@ const HotelDetails = () => {
                     </div>
 
                     <div className=" p-4 rounded-xl">
-                      <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center">
+                      <h3 className="text-xs font-bold text-gray-800 mb-3 flex items-center">
                         🛡️ Safety & Security
                       </h3>
                       {hotel.safetySecurity &&
@@ -665,7 +696,7 @@ const HotelDetails = () => {
 
               {activeTab === "policies" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Property Policies
                   </h2>
                   {hotel.policies && hotel.policies.length > 0 ? (
@@ -687,10 +718,10 @@ const HotelDetails = () => {
 
               {activeTab === "location" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Location
                   </h2>
-                  <div className="flex items-start gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-2">
                     <FiMapPin className="h-5 w-5 text-gray-600 mt-0.5" />
                     <div>
                       <p className="text-gray-800">{hotel.location}</p>
@@ -702,12 +733,19 @@ const HotelDetails = () => {
                         <p className="text-gray-600">Loading map...</p>
                       </div>
                     ) : (
-                      <div className="relative">
+                      <div className="relative h-[250px] sm:h-[350px] md:h-[400px]">
                         <GoogleMap
                           mapContainerStyle={mapContainerStyle}
                           center={mapCenter}
                           zoom={14}
                           options={{
+                            streetViewControl: !isMobile,
+                            mapTypeControl: !isMobile,
+                            fullscreenControl: true, // Fullscreen
+                            zoomControl: !isMobile, // Keep zoom (good UX)
+
+                            clickableIcons: false,
+
                             styles: [
                               {
                                 featureType: "poi",
@@ -720,11 +758,10 @@ const HotelDetails = () => {
                           <Marker position={mapCenter} />
                         </GoogleMap>
 
-                        {/* 🧭 Get Directions Button */}
                         <button
                           onClick={openDirections}
                           title="Get Directions"
-                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                          className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-md text-blue-600 p-2.5 sm:p-3 rounded-full shadow-lg hover:bg-blue-500 hover:text-white transition cursor-pointer z-10"
                         >
                           <FiNavigation className="h-4.5 w-4.5" />
                         </button>
@@ -740,7 +777,7 @@ const HotelDetails = () => {
 
               {activeTab === "similar" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Similar Properties
                   </h2>
                   {similarLoading ? (
@@ -750,13 +787,14 @@ const HotelDetails = () => {
                   ) : similarError ? (
                     <p className="text-red-600">{similarError}</p>
                   ) : similarHotels.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto sm:overflow-visible pb-2">
                       {similarHotels.map((hotel) => (
                         <div
                           key={hotel._id}
                           onClick={() => navigate(`/hotels/${hotel._id}`)}
-                          className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+                          className="min-w-[220px] sm:min-w-0 w-full bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
                         >
+                          {/* Image */}
                           <div className="h-40 bg-gray-200 relative">
                             {hotel.images && hotel.images.length > 0 ? (
                               <img
@@ -766,30 +804,39 @@ const HotelDetails = () => {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <FiHome className="h-12 w-12" />
+                                <FiHome className="h-10 w-10" />
                               </div>
                             )}
-                            <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                              ${hotel.pricePerNight}/night
+                            <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium shadow">
+                              ₹{hotel.pricePerNight}
+                              <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
+                                /night
+                              </span>
                             </div>
                           </div>
-                          <div className="p-4">
-                            <h3 className="font-bold text-gray-800 text-md ">
+
+                          {/* Content */}
+                          <div className="p-3">
+                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-1">
                               {hotel.name}
                             </h3>
-                            <div className="flex items-center text-gray-600 text-sm mb-1">
-                              <FiMapPin className="h-3 w-3 mr-1" />
-                              {hotel.location}
+
+                            <div className="flex gap-1 text-gray-600 text-xs sm:text-sm mt-1 min-w-0">
+                              <FiMapPin className="h-3.5 w-3.5 shrink-0 mt-[2px]" />
+                              <span className="break-words line-clamp-1">
+                                {hotel.location}
+                              </span>
                             </div>
-                            <p className="text-gray-600 text-sm line-clamp-2">
+                            <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mt-1">
                               {hotel.description}
                             </p>
+
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/hotels/${hotel._id}`);
                               }}
-                              className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                              className="mt-2 w-full bg-blue-600 text-white py-1.5 rounded-lg hover:bg-blue-700 transition text-xs font-medium"
                             >
                               View Details
                             </button>
@@ -805,21 +852,14 @@ const HotelDetails = () => {
                 </div>
               )}
             </div>
-
-            <button
-              onClick={handleBookNow}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium text-lg mt-6"
-            >
-              Book Now
-            </button>
           </div>
         </div>
 
         {showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                   Book {hotel.name}
                 </h3>
                 <button
@@ -895,7 +935,7 @@ const HotelDetails = () => {
                         }}
                         min={getTodayDate()}
                         required
-                        className="w-full px-4 py-2 border rounded-lg"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
                       />
                     </div>
 
@@ -934,7 +974,7 @@ const HotelDetails = () => {
                               ).toLocaleDateString("en-CA")
                         }
                         required
-                        className="w-full px-4 py-2 border rounded-lg"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
                       />
                     </div>
                     <div>
@@ -988,13 +1028,13 @@ const HotelDetails = () => {
                           key={hrs}
                           type="button"
                           onClick={() => setSelectedHours(hrs)}
-                          className={`flex-1 py-2 rounded-lg border ${
+                          className={`flex-1 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg border ${
                             selectedHours === hrs
                               ? "bg-blue-600 text-white"
                               : "bg-white text-gray-700 hover:bg-gray-100"
                           }`}
                         >
-                          {hrs}h
+                          {hrs} hours
                         </button>
                       ))}
                     </div>
@@ -1051,7 +1091,7 @@ const HotelDetails = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
-                <div className="bg-gray-50 border rounded-xl p-4 space-y-2">
+                <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                   {bookingType === "night" && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Price per night:</span>
@@ -1106,7 +1146,7 @@ const HotelDetails = () => {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+                  className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
                 >
                   {bookingLoading ? "Processing..." : "Confirm Booking"}
                 </button>
@@ -1130,7 +1170,7 @@ const HotelDetails = () => {
                 <img
                   src={hotel.images[currentImageIndex]}
                   alt={`${hotel.name} - ${currentImageIndex + 1}`}
-                  className="w-full h-120 object-contain rounded-lg"
+                  className="w-full max-h-[70vh] object-contain rounded-lg"
                 />
 
                 {hotel.images.length > 1 && (
@@ -1180,6 +1220,15 @@ const HotelDetails = () => {
             </div>
           </div>
         )}
+      </div>
+      {/* Mobile Sticky Book Button */}
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t p-3 sm:hidden z-40">
+        <button
+          onClick={handleBookNow}
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
+        >
+          Book Now
+        </button>
       </div>
     </div>
   );
