@@ -99,7 +99,6 @@ const MyBookings = () => {
         hour12: true,
       });
     }
-
     return "";
   };
 
@@ -131,21 +130,21 @@ const MyBookings = () => {
         {bookings.length > 0 ? (
           bookings.map((booking, index) => (
             <div
-             className="flex flex-col sm:flex-row gap-4 sm:gap-6 py-4 border-b"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 py-4 border-b"
               key={index}
             >
               {/* Image Section */}
               <div className="w-full sm:w-32">
                 {booking.itemId?.images && booking.itemId.images.length > 0 ? (
                   <img
-                    className="w-full sm:w-32 lg:w-40 bg-indigo-50 object-cover rounded"
                     src={booking.itemId.images[0]}
                     alt={
                       booking.itemId?.name || booking.itemId?.title || "Booking"
                     }
+                    className="w-full sm:w-32 h-36 sm:h-auto object-cover rounded"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-indigo-50 flex items-center justify-center">
+                  <div className="w-full sm:w-32 h-20 sm:h-auto bg-indigo-50 flex items-center justify-center rounded">
                     {getItemIcon(booking.itemType)}
                   </div>
                 )}
@@ -153,7 +152,6 @@ const MyBookings = () => {
 
               {/* Details Section */}
               <div className="flex-1 text-sm text-zinc-600">
-                {/* Item name | type */}
                 <p className="text-neutral-800 font-semibold flex flex-wrap items-center gap-2">
                   {booking.itemId?.name ||
                     booking.itemId?.title ||
@@ -163,8 +161,6 @@ const MyBookings = () => {
                     {booking.itemType}
                   </span>
                 </p>
-
-                {/* BookingType + Date & Time */}
                 {booking.itemType === "Hotel" && booking.bookingType && (
                   <>
                     <p className="text-zinc-700 font-medium mt-1">
@@ -182,7 +178,6 @@ const MyBookings = () => {
                       )}
                       ):
                     </p>
-
                     <p className="text-xs text-zinc-600 mt-1">
                       {formatDate(booking.bookingFromDate)}
                       {" | "}
@@ -238,7 +233,6 @@ const MyBookings = () => {
                   </>
                 )}
 
-                {/* Quantity & Price */}
                 <div className="text-xs mt-1 flex items-center gap-4">
                   <p>
                     <span className="text-sm text-neutral-700 font-medium">
@@ -247,7 +241,6 @@ const MyBookings = () => {
                     {booking.totalQuantity}{" "}
                     {booking.itemType === "Hotel" ? "room(s)" : "ticket(s)"}
                   </p>
-
                   <p>
                     <span className="text-sm text-neutral-700 font-medium">
                       Price:
@@ -282,7 +275,6 @@ const MyBookings = () => {
                   </>
                 )}
                 {booking.status === "Cancelled" && (
-                  
                   <button className="flex-1 sm:flex-none text-sm border border-red-500 text-red-500 text-center py-2 px-3 sm:min-w-32 rounded-3xl">
                     Booking Cancelled
                   </button>
