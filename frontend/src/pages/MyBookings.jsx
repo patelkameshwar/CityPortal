@@ -70,8 +70,6 @@ const MyBookings = () => {
 
   const formatTime = (time) => {
     if (!time) return "";
-
-    // If time is a Date object, format it directly
     if (time instanceof Date) {
       return time.toLocaleTimeString([], {
         hour: "2-digit",
@@ -79,8 +77,6 @@ const MyBookings = () => {
         hour12: true,
       });
     }
-
-    // If time is a string
     if (typeof time === "string") {
       if (time.includes("T")) {
         const t = new Date(time);
@@ -90,15 +86,12 @@ const MyBookings = () => {
           hour12: true,
         });
       }
-      // Otherwise, assume it's "HH:mm" format
       return new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       });
     }
-
-    // If time is a number (timestamp), convert to Date
     if (typeof time === "number") {
       return new Date(time).toLocaleTimeString([], {
         hour: "2-digit",
@@ -131,21 +124,21 @@ const MyBookings = () => {
 
   return (
     <div>
-      <p className="pb-3 mt-12 font-medium text-zinc-700 border-b">
+      <p className="pb-3 mt-8 font-medium text-zinc-700 border-b">
         My Bookings
       </p>
       <div>
         {bookings.length > 0 ? (
           bookings.map((booking, index) => (
             <div
-              className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-4 border-b"
+             className="flex flex-col sm:flex-row gap-4 sm:gap-6 py-4 border-b"
               key={index}
             >
               {/* Image Section */}
-              <div>
+              <div className="w-full sm:w-32">
                 {booking.itemId?.images && booking.itemId.images.length > 0 ? (
                   <img
-                    className="w-32 bg-indigo-50 object-cover rounded"
+                    className="w-full sm:w-32 lg:w-40 bg-indigo-50 object-cover rounded"
                     src={booking.itemId.images[0]}
                     alt={
                       booking.itemId?.name || booking.itemId?.title || "Booking"
@@ -161,7 +154,7 @@ const MyBookings = () => {
               {/* Details Section */}
               <div className="flex-1 text-sm text-zinc-600">
                 {/* Item name | type */}
-                <p className="text-neutral-800 font-semibold flex items-center gap-2">
+                <p className="text-neutral-800 font-semibold flex flex-wrap items-center gap-2">
                   {booking.itemId?.name ||
                     booking.itemId?.title ||
                     "Unknown Item"}
@@ -266,11 +259,11 @@ const MyBookings = () => {
               </div>
 
               {/* Action Buttons Section */}
-              <div className="flex flex-col gap-2 justify-end">
+              <div className="flex flex-row sm:flex-col gap-2 justify-end">
                 {booking.status === "Confirmed" && (
                   <>
                     <button
-                      className="text-sm bg-green-600 text-white text-center sm:min-w-32 w-fit py-2 border rounded-3xl hover:bg-green-700 transition-all duration-300"
+                      className="flex-1 sm:flex-none text-sm bg-green-600 text-white text-center py-2 px-3 sm:min-w-32 rounded-3xl"
                       onClick={() =>
                         toast.info("Payment gateway integration coming soon")
                       }
@@ -280,7 +273,7 @@ const MyBookings = () => {
                     <button
                       onClick={() => handleCancelBooking(booking._id)}
                       disabled={cancelLoading === booking._id}
-                      className="text-sm text-stone-500 text-center sm:min-w-32 w-fit py-2 border rounded-3xl hover:bg-red-600 hover:text-white transition-all duration-300"
+                      className="flex-1 sm:flex-none text-sm text-stone-500 text-center py-2 px-3 sm:min-w-32 border rounded-3xl"
                     >
                       {cancelLoading === booking._id
                         ? "Cancelling..."
@@ -289,7 +282,8 @@ const MyBookings = () => {
                   </>
                 )}
                 {booking.status === "Cancelled" && (
-                  <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500">
+                  
+                  <button className="flex-1 sm:flex-none text-sm border border-red-500 text-red-500 text-center py-2 px-3 sm:min-w-32 rounded-3xl">
                     Booking Cancelled
                   </button>
                 )}
