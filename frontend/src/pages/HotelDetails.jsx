@@ -372,47 +372,82 @@ const HotelDetails = () => {
 
             {/* Right Div - Info */}
             <div className="right-div w-full lg:w-1/3 p-3 sm:p-5 md:p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
-              <div className="text-gray-800 text-base sm:text-lg font-bold mb-2">
-                Deluxe Room
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                    Deluxe Room
+                  </h2>
+                </div>
+                <span className="bg-blue-50 text-blue-700 text-[10px] uppercase font-bold px-2 py-1 rounded-md tracking-wider">
+                  Recommended
+                </span>
               </div>
-              <div className="flex flex-col gap-1 mb-3">
-                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
-                  <FiCoffee className="h-4 w-4 text-gray-700" />
-                  Complimentary Meal Upgrade
+              <div className="space-y-2.5 mb-6">
+                <div className="flex items-center gap-3 p-2.5 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+                  <FiCoffee className="h-4 w-4 text-emerald-600" />
+                  <span className="text-emerald-800 text-xs sm:text-sm font-semibold">
+                    Free Breakfast Upgrade
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
-                  <FiZap className="h-4 w-4 text-gray-700" />
-                  Enjoy Happy Hours with 1+1 offer
-                </div>
-                <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
-                  <FiClock className="h-4 w-4 text-gray-700" />
-                  Early check-in upto 2 hrs
-                </div>
-                <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm font-medium">
-                  <FiAlertCircle className="h-4 w-4" />
-                  Non-Refundable
+                <div className="grid grid-cols-1 gap-1 pl-1">
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiZap className="h-4 w-4 text-gray-700" />
+                    Enjoy Happy Hours with 1+1 offer
+                  </div>
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiClock className="h-4 w-4 text-gray-700" />
+                    Early check-in upto 2 hrs
+                  </div>
+                  <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm font-medium">
+                    <FiAlertCircle className="h-4 w-4" />
+                    Non-Refundable
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base font-medium">
-                  <FiUser className="h-4 w-4" />
-                  2 Guests |
-                  <MdOutlineBed className="h-4 w-4" /> 1 Room
-                </div>
-                <div className="flex flex-col sm:items-end">
-                  <div className="text-gray-800 text-xl sm:text-2xl font-bold">
-                    ₹{hotel.pricePerNight}
+              {/* Pricing & Capacity Section */}
+              <div className="border-t border-gray-100 pt-3 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                  {/* Left: Capacity Details */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                      Room Capacity
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-700 font-semibold bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                      <div className="flex items-center gap-1.5">
+                        <FiUser className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">2 Guests</span>
+                      </div>
+                      <div className="w-px h-3 bg-gray-300" />
+                      <div className="flex items-center gap-1.5">
+                        <MdOutlineBed className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">1 Room</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-gray-600 text-xs sm:text-sm font-semibold">
-                    Per Night
-                  </div>
-                  <div className="text-emerald-600 text-xs sm:text-sm font-semibold mt-1">
-                    Hourly: ₹
-                    {(hotel.pricePerHour || hotel.pricePerNight / 24).toFixed(
-                      0,
-                    )}
-                    /hr
+
+                  {/* Right: Pricing Details */}
+                  <div className="flex flex-col sm:items-end">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-gray-900 text-xl font-black tracking-tight">
+                        ₹{hotel.pricePerNight}
+                      </span>
+                      <span className="text-gray-500 text-sm font-medium">
+                        / night
+                      </span>
+                    </div>
+
+                    {/* Hourly Tag - Highlighted slightly */}
+                    <div className="mt-1.5 flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md border border-emerald-100">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[11px] font-bold uppercase tracking-wide">
+                        Hourly: ₹
+                        {(
+                          hotel.pricePerHour || hotel.pricePerNight / 24
+                        ).toFixed(0)}
+                        /hr
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -421,8 +456,11 @@ const HotelDetails = () => {
                 onClick={handleBookNow}
                 className="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer text-sm sm:text-base"
               >
-                Book Now
+                Reserve Now
               </button>
+              <p className="text-center text-[11px] text-gray-400 mt-3 font-medium">
+                No hidden fees • Instant Confirmation
+              </p>
             </div>
           </div>
 
