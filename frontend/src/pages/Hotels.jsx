@@ -65,7 +65,6 @@ const Hotels = () => {
       tomorrow.setDate(today.getDate() + 1);
 
       const formatDate = (date) => date.toLocaleDateString("en-CA");
-
       setBookingData((prev) => ({
         ...prev,
         checkIn: formatDate(today),
@@ -141,7 +140,6 @@ const Hotels = () => {
 
     try {
       let totalPrice = 0;
-
       let bookingFromDate = bookingData.checkIn;
       let bookingToDate = bookingData.checkOut;
 
@@ -250,7 +248,7 @@ const Hotels = () => {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-6 sm:py-8 px-2 sm:px-0">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
           Find Your Perfect Hotel
@@ -267,7 +265,7 @@ const Hotels = () => {
             placeholder="Search hotels by name or location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-5 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
           />
           <FiSearch className="absolute right-4 top-3.5 h-5 w-5 text-gray-400" />
         </div>
@@ -279,57 +277,56 @@ const Hotels = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto px-2 sm:px-0">
         {filteredHotels.length > 0 ? (
           filteredHotels.slice(0, displayCount).map((hotel) => (
             <div
               key={hotel._id}
               onClick={() => navigate(`/hotels/${hotel._id}`)}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
             >
-              <div className="h-48 bg-gray-200 relative">
+              <div className="h-40 sm:h-44 md:h-48 bg-gray-200 relative overflow-hidden">
                 {hotel.images && hotel.images.length > 0 ? (
                   <img
                     src={hotel.images[0]}
                     alt={hotel.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105  cursor-pointer"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <FiHome className="h-16 w-16" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                  ₹{hotel.pricePerNight}/night
-                </div>
-                <div className="absolute top-2 left-2 bg-emerald-600 text-white px-2 py-1 rounded-full text-xs">
-                  Hourly: ₹
-                  {Math.round(hotel.pricePerHour || hotel.pricePerNight / 24)}
-                  /hr
+                <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow">
+                  ₹{hotel.pricePerNight}
+                  <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
+                    /night
+                  </span>
                 </div>
               </div>
 
               <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-2">
                   {hotel.name}
                 </h3>
-                <div className="flex items-center text-gray-600 mb-2">
+                <div className="flex items-center text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm">
                   <FiMapPin className="h-4 w-4 mr-1" />
                   {hotel.location}
                 </div>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                   {hotel.description}
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
-                    {hotel.totalRooms} rooms available
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs sm:text-sm text-gray-700 bg-gray-100 border px-3 py-1 rounded-full whitespace-nowrap">
+                    {hotel.totalRooms} Rooms
                   </span>
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleBookNow(hotel);
                     }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-2xl hover:bg-blue-700 transition font-medium cursor-pointer"
+                    className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-2xl hover:bg-blue-700 transition font-medium cursor-pointer whitespace-nowrap"
                   >
                     Book Now
                   </button>
@@ -345,10 +342,10 @@ const Hotels = () => {
       </div>
 
       {filteredHotels.length > displayCount && (
-        <div className="text-center mt-8">
+        <div className="text-center mt-6 sm:mt-8 px-2">
           <button
             onClick={() => setDisplayCount((prev) => prev + 9)}
-            className="bg-gray-600/70 text-white px-8 py-3 rounded-3xl hover:bg-blue-700 transition font-semibold text-base cursor-pointer"
+            className="bg-gray-600/70 text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-3xl hover:bg-blue-700 transition font-semibold text-sm sm:text-base cursor-pointer"
           >
             Load More Hotels ( {filteredHotels.length - displayCount} left )
           </button>
@@ -357,9 +354,9 @@ const Hotels = () => {
 
       {showBookingModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                 Book {selectedHotel.name}
               </h3>
               <button
@@ -425,7 +422,7 @@ const Hotels = () => {
                       }
                       min={getTodayDate()}
                       required
-                      className="w-full px-4 py-2 border rounded-lg"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
                     />
                   </div>
 
@@ -454,7 +451,7 @@ const Hotels = () => {
                             ).toLocaleDateString("en-CA")
                       }
                       required
-                      className="w-full px-4 py-2 border rounded-lg"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
                     />
                   </div>
                   <div>
@@ -482,13 +479,13 @@ const Hotels = () => {
                         key={hrs}
                         type="button"
                         onClick={() => setSelectedHours(hrs)}
-                        className={`flex-1 py-2 rounded-lg border ${
+                        className={`flex-1 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg border ${
                           selectedHours === hrs
                             ? "bg-blue-600 text-white"
                             : "bg-white text-gray-700 hover:bg-gray-100"
                         }`}
                       >
-                        {hrs}h
+                        {hrs} Hours
                       </button>
                     ))}
                   </div>
@@ -545,7 +542,7 @@ const Hotels = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <div className="bg-gray-50 border rounded-xl p-4 space-y-2">
+              <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                 {bookingType === "night" && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Price per night:</span>
@@ -601,7 +598,7 @@ const Hotels = () => {
               <button
                 type="submit"
                 disabled={bookingLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+                className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
               >
                 {bookingLoading ? "Processing..." : "Confirm Booking"}
               </button>
