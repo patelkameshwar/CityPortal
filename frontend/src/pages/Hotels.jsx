@@ -249,16 +249,16 @@ const Hotels = () => {
 
   return (
     <div className="py-6 sm:py-8 px-2 sm:px-0">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
           Find Your Perfect Hotel
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
           Discover comfortable stays across the city
         </p>
       </div>
 
-      <div className="max-w-xl mx-auto mb-8">
+      <div className="max-w-xl mx-auto mb-6 sm:mb-8">
         <div className="relative">
           <input
             type="text"
@@ -267,12 +267,12 @@ const Hotels = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
           />
-          <FiSearch className="absolute right-4 top-3.5 h-5 w-5 text-gray-400" />
+          <FiSearch className="absolute right-4 top-3 h-5 w-5 text-gray-400" />
         </div>
       </div>
 
       {error && (
-        <div className="max-w-4xl mx-auto mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="max-w-4xl mx-auto mb-4 p-3 text-sm bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
         </div>
       )}
@@ -294,10 +294,10 @@ const Hotels = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <FiHome className="h-16 w-16" />
+                    <FiHome className="h-12 w-12 sm:h-16 sm:w-16" />
                   </div>
                 )}
-                <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow">
+                <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow">
                   ₹{hotel.pricePerNight}
                   <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
                     /night
@@ -305,8 +305,8 @@ const Hotels = () => {
                 </div>
               </div>
 
-              <div className="p-4">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-2">
+              <div className="p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 line-clamp-1">
                   {hotel.name}
                 </h3>
                 <div className="flex items-center text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm">
@@ -326,7 +326,7 @@ const Hotels = () => {
                       e.stopPropagation();
                       handleBookNow(hotel);
                     }}
-                    className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-2xl hover:bg-blue-700 transition font-medium cursor-pointer whitespace-nowrap"
+                    className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition  cursor-pointer whitespace-nowrap"
                   >
                     Book Now
                   </button>
@@ -335,7 +335,7 @@ const Hotels = () => {
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-12">
+          <div className="col-span-full text-center py-10">
             <p className="text-gray-500 text-lg">No hotels found</p>
           </div>
         )}
@@ -371,7 +371,7 @@ const Hotels = () => {
             </div>
 
             {bookingSuccess && (
-              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+              <div className="mb-4 p-3 text-sm bg-green-100 border border-green-400 text-green-700 rounded">
                 {bookingSuccess}
               </div>
             )}
@@ -422,7 +422,7 @@ const Hotels = () => {
                       }
                       min={getTodayDate()}
                       required
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg  focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                   </div>
 
@@ -451,7 +451,7 @@ const Hotels = () => {
                             ).toLocaleDateString("en-CA")
                       }
                       required
-                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg  focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <div>
@@ -479,7 +479,7 @@ const Hotels = () => {
                         key={hrs}
                         type="button"
                         onClick={() => setSelectedHours(hrs)}
-                        className={`flex-1 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg border ${
+                        className={`flex-1 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg border border-gray-300 ${
                           selectedHours === hrs
                             ? "bg-blue-600 text-white"
                             : "bg-white text-gray-700 hover:bg-gray-100"
@@ -542,7 +542,7 @@ const Hotels = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
+              <div className="bg-gray-50 border border-gray-300 rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                 {bookingType === "night" && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Price per night:</span>
