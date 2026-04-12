@@ -32,9 +32,7 @@ const App = () => {
       <AuthProvider>
         
         <div className="min-h-screen flex flex-col">
-          <div className="mx-4 sm:mx-[10%]">
-            <Navbar />
-          </div>
+          <Navbar />
           <ToastContainer position="top-right" autoClose={3000} />
 
           {/* Pages */}
