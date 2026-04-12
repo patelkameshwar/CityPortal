@@ -4,20 +4,20 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../services/api";
 import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Error handling moved to toast
     setLoading(true);
 
     try {
@@ -38,13 +38,26 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    if (credentialResponse?.credential) {
-      setLoading(true);
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code",
+    scope: "openid email profile",
+    redirect_uri: window.location.origin,
+
+    onSuccess: async (tokenResponse) => {
+      console.log("TOKEN:", tokenResponse);
+      console.log("FRONTEND ORIGIN:", window.location.origin);
+
+      if (!tokenResponse.code) {
+        toast.error("Google login failed (no code)");
+        return;
+      }
+
+      setGoogleLoading(true);
       try {
         const response = await authAPI.googleLogin({
-          token: credentialResponse.credential,
+          code: tokenResponse.code,
         });
+
         if (response.data.success) {
           login(response.data.user, response.data.token, rememberMe);
           toast.success("Google login successful!");
@@ -53,16 +66,18 @@ const Login = () => {
           toast.error(response.data.message || "Google login failed");
         }
       } catch (err) {
-        toast.error(err.response?.data?.message || "Google login error");
+        console.error(err);
+        toast.error("Google login failed");
       } finally {
-        setLoading(false);
+        setGoogleLoading(false);
       }
-    }
-  };
+    },
 
-  const handleGoogleError = () => {
-    toast.error("Google login cancelled");
-  };
+    onError: () => {
+      toast.error("Google login failed");
+      setGoogleLoading(false);
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-3 sm:px-4">
@@ -171,16 +186,18 @@ const Login = () => {
 
           <div className="flex justify-center">
             <div className="w-full">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-                width="100%"
-                logo_alignment="center"
-                text="signin_with"
-              />
+              <button
+                onClick={googleLogin}
+                disabled={googleLoading}
+                className="w-full flex items-center justify-center gap-3 border border-gray-300 py-2.5 sm:py-3 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base font-medium disabled:opacity-50"
+              >
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="google"
+                  className="w-5 h-5"
+                />
+                {googleLoading ? "Signing in..." : "Sign in with Google"}
+              </button>
             </div>
           </div>
         </div>

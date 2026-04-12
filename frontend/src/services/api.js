@@ -1,20 +1,23 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Add token to requests if available
 api.interceptors.request.use((config) => {
-  const sessionToken = sessionStorage.getItem('token');
-  const localToken = localStorage.getItem('token');
+  const sessionToken = sessionStorage.getItem("token");
+  const localToken = localStorage.getItem("token");
   const token = sessionToken || localToken;
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -24,49 +27,56 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-if (error.response?.status === 401) {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  sessionStorage.removeItem('token');
-  sessionStorage.removeItem('user');
-  window.location.href = '/login';
-}
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    if (error.response?.status === 403) {
+      console.warn("Access forbidden");
+    }
+    if (!error.response) {
+      console.error("Network error:", error.message);
+    }
     return Promise.reject(error);
-  }
+  },
 );
 
 // Auth APIs
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  googleLogin: (data) => api.post('/auth/google', data),
-  updateProfile: (data) => api.put('/auth/profile', data),
-  uploadProfilePicture: (formData) => api.post('/auth/profile-picture', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  googleLogin: (data) => api.post("/auth/google", data),
+  updateProfile: (data) => api.put("/auth/profile", data),
+  uploadProfilePicture: (formData) =>
+    api.post("/auth/profile-picture", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  forgotPassword: (data) => api.post("/auth/forgot-password", data),
 };
-
-
 
 // Hotel APIs
 export const hotelAPI = {
-  getAll: () => api.get('/hotels'),
+  getAll: () => api.get("/hotels"),
   getById: (id) => api.get(`/hotels/${id}`),
   getSimilar: (id) => api.get(`/hotels/${id}/similar`),
-  create: (data) => api.post('/hotels', data),
+  create: (data) => api.post("/hotels", data),
   update: (id, data) => api.put(`/hotels/${id}`, data),
   delete: (id) => api.delete(`/hotels/${id}`),
 };
 
 // Event APIs
 export const eventAPI = {
-  getAll: () => api.get('/events'),
+  getAll: () => api.get("/events"),
   getById: (id) => api.get(`/events/${id}`),
   getSimilar: (id) => api.get(`/events/${id}/similar`),
-  create: (data) => api.post('/events', data),
+  create: (data) => api.post("/events", data),
   update: (id, data) => api.put(`/events/${id}`, data),
   delete: (id) => api.delete(`/events/${id}`),
   book: (id, data) => api.post(`/events/${id}/book`, data),
@@ -74,32 +84,31 @@ export const eventAPI = {
 
 // Tourism APIs
 export const tourismAPI = {
-  getAll: () => api.get('/tourism'),
+  getAll: () => api.get("/tourism"),
   getById: (id) => api.get(`/tourism/${id}`),
   getSimilar: (id) => api.get(`/tourism/${id}/similar`),
-  create: (data) => api.post('/tourism', data),
+  create: (data) => api.post("/tourism", data),
   update: (id, data) => api.put(`/tourism/${id}`, data),
   delete: (id) => api.delete(`/tourism/${id}`),
   book: (id, data) => api.post(`/tourism/${id}/book`, data),
 };
 
-
 // Blog APIs
 export const blogAPI = {
-  getAll: () => api.get('/blogs'),
+  getAll: () => api.get("/blogs"),
   getById: (id) => api.get(`/blogs/${id}`),
-  create: (data) => api.post('/blogs', data),
+  create: (data) => api.post("/blogs", data),
   update: (id, data) => api.put(`/blogs/${id}`, data),
   delete: (id) => api.delete(`/blogs/${id}`),
 };
 
 // Booking APIs
 export const bookingAPI = {
-  getMyBookings: () => api.get('/bookings/my'),
-  getClientBookings: () => api.get('/bookings/client'),
-  getAdminBookings: () => api.get('/bookings/admin'),
+  getMyBookings: () => api.get("/bookings/my"),
+  getClientBookings: () => api.get("/bookings/client"),
+  getAdminBookings: () => api.get("/bookings/admin"),
   cancel: (id) => api.put(`/bookings/cancel/${id}`),
-  create: (data) => api.post('/bookings', data),
+  create: (data) => api.post("/bookings", data),
 };
 
 export default api;

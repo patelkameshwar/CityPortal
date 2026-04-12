@@ -1,7 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { OAuth2Client } = require("google-auth-library");
 
 // REGISTER
 exports.register = async (req, res) => {
@@ -28,7 +27,7 @@ exports.register = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.status(201).json({
@@ -58,8 +57,7 @@ exports.login = async (req, res) => {
     const { email, password, role } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
@@ -72,7 +70,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.json({
@@ -107,27 +105,26 @@ exports.updateProfile = async (req, res) => {
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) {
       // Handle address - can be string or object with line1/line2
-      if (typeof address === 'string') {
+      if (typeof address === "string") {
         updateData.address = address;
-      } else if (address && typeof address === 'object') {
+      } else if (address && typeof address === "object") {
         // Combine line1 and line2 for storage
-        const line1 = address.line1 || '';
-        const line2 = address.line2 || '';
+        const line1 = address.line1 || "";
+        const line2 = address.line2 || "";
         updateData.address = line2 ? `${line1}, ${line2}` : line1;
       }
     }
     if (gender !== undefined) updateData.gender = gender.toLowerCase();
     if (birthday !== undefined) updateData.birthday = birthday;
     // Handle profile picture removal
-    if ('profilePicture' in req.body) {
+    if ("profilePicture" in req.body) {
       updateData.profilePicture = req.body.profilePicture || null;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -165,7 +162,7 @@ exports.uploadProfilePicture = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { profilePicture: req.file.path },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedUser) {
@@ -194,7 +191,7 @@ exports.uploadProfilePicture = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -215,155 +212,195 @@ exports.forgotPassword = async (req, res) => {
     }
 
     // Generate reset token
-    const crypto = require('crypto');
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const crypto = require("crypto");
+    const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
-
 
     await user.save();
 
     // Construct reset URL
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
     // Send real email with nodemailer
-    const nodemailer = require('nodemailer');
-
+    const nodemailer = require("nodemailer");
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
-
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'CityPortal Password Reset',
+      subject: "CityPortal Password Reset",
       html: `
         <h2>Password Reset Request</h2>
         <p>You requested a password reset. Click the link below to reset your password:</p>
         <a href="${resetUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
         <p>This link expires in 1 hour.</p>
         <p>If you didn't request this, ignore this email.</p>
-      `
+      `,
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
-      message: 'Password reset link sent to your email!' 
+      message: "Password reset link sent to your email!",
     });
   } catch (error) {
-    console.error('Email error:', error);
-    res.status(500).json({ message: 'Failed to send email. Please try again.' });
+    console.error("Email error:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to send email. Please try again." });
   }
 };
 
-  // RESET PASSWORD VERIFY
-  exports.resetPasswordVerify = async (req, res) => {
-    try {
-      const { token } = req.params;
-
-      const user = await User.findOne({ 
-        resetToken: token, 
-        resetTokenExpiry: { $gt: Date.now() } 
-      });
-
-      if (!user) {
-        return res.status(400).json({ message: "Invalid or expired token" });
-      }
-
-      res.status(200).json({ 
-        success: true, 
-        message: "Token is valid" 
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-
-  // RESET PASSWORD
-  exports.resetPassword = async (req, res) => {
-    try {
-      const { token } = req.params;
-      const { password } = req.body;
-
-      if (!password || password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
-      }
-
-      const user = await User.findOne({ 
-        resetToken: token, 
-        resetTokenExpiry: { $gt: Date.now() } 
-      });
-
-      if (!user) {
-        return res.status(400).json({ message: "Invalid or expired token" });
-      }
-
-      // Hash new password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-      user.resetToken = undefined;
-      user.resetTokenExpiry = undefined;
-
-      await user.save();
-
-      res.status(200).json({ 
-        success: true, 
-        message: "Password reset successful" 
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-
-  // GOOGLE OAUTH LOGIN
-  exports.googleLogin = async (req, res) => {
+// RESET PASSWORD VERIFY
+exports.resetPasswordVerify = async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token } = req.params;
 
-    if (!token) {
-      return res.status(400).json({ message: "Token missing" });
-    }
-
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
     });
 
-    const payload = ticket.getPayload();
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
 
-    const { email, name, picture, sub: googleId } = payload;
+    res.status(200).json({
+      success: true,
+      message: "Token is valid",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// RESET PASSWORD
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
+    }
+
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// GOOGLE OAUTH LOGIN
+const axios = require("axios");
+
+exports.googleLogin = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ message: "Authorization code missing" });
+    }
+
+    console.log("Sending to Google:", {
+      code,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    });
+
+    const params = new URLSearchParams();
+    params.append("code", code);
+    params.append("client_id", process.env.GOOGLE_CLIENT_ID);
+    params.append("client_secret", process.env.GOOGLE_CLIENT_SECRET);
+    params.append("redirect_uri", process.env.GOOGLE_REDIRECT_URI);
+    params.append("grant_type", "authorization_code");
+
+    const tokenRes = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      params,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      },
+    );
+
+    const access_token = tokenRes.data.access_token;
+
+    const googleRes = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
+
+    const { email, name, picture, sub: googleId } = googleRes.data;
 
     let user = await User.findOne({ email });
 
-    if (user && !user.googleId) {
+    if (user && user.googleId && user.googleId !== googleId) {
       return res.status(400).json({
-        message: "Please login with email/password",
+        message: "Google account mismatch",
       });
     }
 
     if (!user) {
       user = await User.create({
-        name: name || email.split("@")[0],
+        name,
         email,
         googleId,
         profilePicture: picture,
         role: "user",
       });
+    } else {
+      let updated = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        updated = true;
+      }
+
+      if (!user.profilePicture) {
+        user.profilePicture = picture;
+        updated = true;
+      }
+
+      if (updated) await user.save();
     }
 
     const jwtToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.json({
@@ -382,14 +419,13 @@ exports.forgotPassword = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (error) {
-    console.error("Google auth error:", error);
+    console.error("Google auth error FULL:", {
+      message: error.message,
+      data: error.response?.data,
+    });
     res.status(500).json({
       message: "Google authentication failed",
     });
   }
 };
-
-
-
