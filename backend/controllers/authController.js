@@ -331,16 +331,18 @@ exports.googleLogin = async (req, res) => {
       return res.status(400).json({ message: "Authorization code missing" });
     }
 
-    console.log("Sending to Google:", {
-      code,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-    });
+    const redirectUri =
+      req.headers.origin === "http://localhost:5173"
+        ? "http://localhost:5173"
+        : "https://cityportal-frontend.onrender.com";
+
+    console.log("Using redirect URI:", redirectUri);
 
     const params = new URLSearchParams();
     params.append("code", code);
     params.append("client_id", process.env.GOOGLE_CLIENT_ID);
     params.append("client_secret", process.env.GOOGLE_CLIENT_SECRET);
-    params.append("redirect_uri", process.env.GOOGLE_REDIRECT_URI);
+    params.append("redirect_uri", redirectUri);
     params.append("grant_type", "authorization_code");
 
     const tokenRes = await axios.post(
