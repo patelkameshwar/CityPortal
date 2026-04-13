@@ -15,11 +15,13 @@ import {
   FiClock,
   FiAlertCircle,
   FiNavigation,
+  FiZap,
   FiCircle,
   FiChevronLeft,
   FiChevronRight,
   FiMusic,
   FiGift,
+  FiCoffee,
 } from "react-icons/fi";
 import { MdEventSeat } from "react-icons/md";
 
@@ -122,8 +124,8 @@ const EventDetails = () => {
   const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
   const { isLoaded, loadError } = useLoadScript({
-      googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    });
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
   useEffect(() => {
     fetchEvent();
@@ -308,26 +310,28 @@ const EventDetails = () => {
 
   return (
     <div className="py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate("/events")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8"
+          className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
         >
           <FiArrowLeft className="h-5 w-5" />
           Back to Events
         </button>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{event.title}</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          {event.title}
+        </h1>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="flex flex-row gap-4 p-4 -mb-8">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden pb-20 sm:pb-0">
+          <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
             {/* Left Div - Image */}
-            <div className="left-div w-2/3 rounded-xl">
-              <div className="h-90 bg-gray-200 relative rounded-xl">
+            <div className="left-div w-full lg:w-2/3 rounded-xl">
+              <div className="h-52  sm:h-64 md:h-80 lg:h-105 bg-gray-200 relative rounded-xl overflow-hidden">
                 {event.images && event.images.length > 0 ? (
                   <img
                     src={event.images[0]}
                     alt={event.title}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-xl transition duration-300 hover:scale-105"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -339,7 +343,7 @@ const EventDetails = () => {
                 {event.images && event.images.length > 0 && (
                   <button
                     onClick={openPhotoModal}
-                    className="absolute bottom-4 right-4 bg-gray-800/70 border-2 border-white text-white px-4 py-2 rounded-4xl font-medium flex items-center gap-2 hover:bg-gray-800 transition -mb-2 cursor-pointer"
+                    className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-gray-800/70 border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 hover:bg-gray-800 transition cursor-pointer"
                   >
                     <span>{event.images.length}</span>
                     <span>Event Photos</span>
@@ -350,50 +354,105 @@ const EventDetails = () => {
             </div>
 
             {/* Right Div - Info */}
-            <div className="right-div w-1/3 p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
-              <div className="text-gray-800 text-lg font-bold mb-2">
-                General Ticket
+            <div className="right-div w-full lg:w-1/3 p-3 sm:p-5 md:p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                    Premium Ticket
+                  </h2>
+                </div>
+                <span className="bg-blue-50 text-blue-700 text-[10px] uppercase font-bold px-2 py-1 rounded-md tracking-wider">
+                  Trending
+                </span>
               </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiGift className="h-4 w-4 text-gray-700" />
-                Free Refreshments
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiMusic className="h-4 w-4 text-gray-700" />
-                Live Music Experience
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiClock className="h-4 w-4 text-gray-700" />
-                Doors open 1 hr early
-              </div>
-              <div className="flex items-center gap-1 text-red-500 text-sm font-medium mb-4">
-                <FiAlertCircle className="h-4 w-4" />
-                Non-Refundable
+              <div className="space-y-2.5 mb-6">
+                <div className="flex items-center gap-3 p-2.5 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+                  <FiZap className="h-4 w-4 text-gray-700" />
+                  <span className="text-emerald-800 text-xs sm:text-sm font-semibold">
+                    Free Entry for Early Birds
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-1 pl-1">
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiCoffee className="h-4 w-4 text-gray-700" />
+                    Complimentary snacks & drinks
+                  </div>
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiGift className="h-4 w-4 text-gray-700" />
+                    Free Refreshments
+                  </div>
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiClock className="h-4 w-4 text-gray-700" />
+                    Doors open 1 hr early
+                  </div>
+                  <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm font-medium">
+                    <FiAlertCircle className="h-4 w-4" />
+                    Non-Refundable
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-baseline justify-between mb-4">
-                <div className="flex items-center gap-1 text-gray-600 text-base font-medium">
-                  <MdEventSeat className="h-4 w-4" />
-                  {event.totalSeats} Seats |
-                  <FiClock className="h-4 w-4" /> {event.eventTime}
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-gray-800 text-2xl font-bold">
-                    <span>₹</span>
-                    {event.price}
+              {/* Pricing & Capacity Section */}
+              <div className="border-t border-gray-100 pt-3 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                  {/* Left: Event Details */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                      Event Details
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 font-semibold bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                      {/* Seats */}
+                      <div className="flex items-center gap-1.5">
+                        <MdEventSeat className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm">
+                          {event?.totalSeats || 0} Seats
+                        </span>
+                      </div>
+
+                      <div className="w-px h-3 bg-gray-300" />
+
+                      {/* Time */}
+                      <div className="flex items-center gap-1.5">
+                        <FiClock className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm">
+                          {event?.eventTime || "N/A"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-gray-600 text-sm font-semibold">
-                    Per Ticket
+
+                  {/* Right: Pricing */}
+                  <div className="flex flex-col sm:items-end">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-gray-900 text-xl font-black tracking-tight">
+                        ₹{Number(event?.price || 0).toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-gray-500 text-sm font-medium">
+                        /ticket
+                      </span>
+                    </div>
+
+                    {/* Highlight Tag */}
+                    <div className="mt-1.5 flex items-center gap-1.5 bg-purple-50 text-purple-700 px-2.5 py-1 rounded-md border border-purple-100">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                      <span className="text-[11px] font-bold uppercase tracking-wide">
+                        Limited Seats
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <button
                 onClick={handleBookTickets}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer"
+                className="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer text-sm sm:text-base"
               >
                 Book Tickets
               </button>
+              <p className="text-center text-[11px] text-gray-400 mt-3 font-medium">
+                Instant Confirmation • Secure Payment
+              </p>
             </div>
           </div>
 

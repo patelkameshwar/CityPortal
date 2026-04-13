@@ -433,7 +433,7 @@ const HotelDetails = () => {
                         ₹{hotel.pricePerNight}
                       </span>
                       <span className="text-gray-500 text-sm font-medium">
-                        / night
+                        /night
                       </span>
                     </div>
 
