@@ -702,12 +702,12 @@ const mapContainerStyle = {
                   ) : similarError ? (
                     <p className="text-red-600">{similarError}</p>
                   ) : similarEvents.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto sm:overflow-visible pb-2">
                       {similarEvents.map((evt) => (
                         <div
                           key={evt._id}
                           onClick={() => navigate(`/events/${evt._id}`)}
-                          className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+                          className="min-w-[220px] sm:min-w-0 w-full bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
                         >
                           <div className="h-40 bg-gray-200 relative">
                             {evt.images && evt.images.length > 0 ? (
@@ -718,30 +718,38 @@ const mapContainerStyle = {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <FiMusic className="h-12 w-12" />
+                                <FiMusic className="h-10 w-10" />
                               </div>
                             )}
-                            <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                              ₹{evt.price}/ticket
+                            <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium shadow">
+                              ₹{evt.price}
+                              <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
+                                /ticket
+                              </span>
                             </div>
                           </div>
-                          <div className="p-4">
-                            <h3 className="font-bold text-gray-800 text-md">
+
+                          <div className="p-3">
+                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-1">
                               {evt.title}
                             </h3>
-                            <div className="flex items-center text-gray-600 text-sm mb-1">
-                              <FiMapPin className="h-3 w-3 mr-1" />
-                              {evt.location}
+
+                            <div className="flex gap-1 text-gray-600 text-xs sm:text-sm mt-1 min-w-0">
+                              <FiMapPin className="h-3.5 w-3.5 shrink-0 mt-[2px]" />
+                              <span className="break-words line-clamp-1">
+                                {evt.location}
+                              </span>
                             </div>
-                            <p className="text-gray-600 text-sm line-clamp-2">
+                            <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mt-1">
                               {evt.description}
                             </p>
+
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/events/${evt._id}`);
                               }}
-                              className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                              className="mt-2 w-full bg-blue-600 text-white py-1.5 rounded-lg hover:bg-blue-700 transition text-xs font-medium"
                             >
                               View Details
                             </button>
