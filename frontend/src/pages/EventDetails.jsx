@@ -456,15 +456,15 @@ const EventDetails = () => {
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {/* About Event Section */}
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
+              <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-2">
                 About Event
               </h2>
               {isDescriptionExpanded ? (
                 <>
-                  <p className="text-gray-600">{event.description}</p>
+                  <p className="text-gray-600 leading-relaxed wrap-break-word text-sm sm:text-base">{event.description}</p>
                   <button
                     onClick={() => setIsDescriptionExpanded(false)}
                     className="mt-2 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
@@ -473,7 +473,7 @@ const EventDetails = () => {
                   </button>
                 </>
               ) : (
-                <p className="text-gray-600">
+                <p className="text-gray-600 transition-all duration-300 leading-relaxed wrap-break-word text-sm sm:text-base">
                   {event.description
                     ? event.description.slice(0, 320) + "..."
                     : ""}
