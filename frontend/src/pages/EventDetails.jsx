@@ -464,7 +464,9 @@ const EventDetails = () => {
               </h2>
               {isDescriptionExpanded ? (
                 <>
-                  <p className="text-gray-600 leading-relaxed wrap-break-word text-sm sm:text-base">{event.description}</p>
+                  <p className="text-gray-600 leading-relaxed wrap-break-word text-sm sm:text-base">
+                    {event.description}
+                  </p>
                   <button
                     onClick={() => setIsDescriptionExpanded(false)}
                     className="mt-2 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
@@ -488,32 +490,42 @@ const EventDetails = () => {
             </div>
 
             {/* Location and Details */}
-            <div className="flex items-center justify-start gap-36 text-gray-600 mb-6">
-              <div className="flex items-center gap-2">
-                <FiUser className="h-5 w-5 text-blue-500" />
-                <span>{event.artist}</span>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 text-gray-600 mb-6">
+              {/* Artist */}
+              <div className="flex items-center gap-2 min-w-0">
+                <FiUser className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">
+                  {event.artist}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiMapPin className="h-5 w-5 text-blue-500" />
-                <span>{event.location}</span>
+
+              {/* Location */}
+              <div className="flex items-center gap-2 min-w-0">
+                <FiMapPin className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">
+                  {event.location}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiCalendar className="h-5 w-5 text-blue-500" />
-                <span>
+
+              {/* Event Type */}
+              <div className="flex items-center gap-2 min-w-0">
+                <FiCalendar className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base">
                   {new Date(event.bookingFromDate).toDateString() ===
                   new Date(event.bookingToDate).toDateString()
                     ? "One Day Event"
                     : "Multi-Day Event"}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiCalendar className="h-5 w-5 text-blue-500" />
-                <span>
+
+              {/* Date */}
+              <div className="flex items-center gap-2 min-w-0">
+                <FiCalendar className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words">
                   {formatEventDate(event.bookingFromDate, event.bookingToDate)}
                 </span>
               </div>
             </div>
-
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 mb-6">
               <button
