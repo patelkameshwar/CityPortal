@@ -126,14 +126,14 @@ const EventDetails = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
-  
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
-useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth < 640);
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     fetchEvent();
@@ -280,10 +280,10 @@ useEffect(() => {
     setShowPhotoModal(false);
   };
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "100%",
-};
+  const mapContainerStyle = {
+    width: "100%",
+    height: "100%",
+  };
 
   const hasMoreAmenities = !!(event?.amenities?.length > 4); // Assume amenities field
 
@@ -842,7 +842,9 @@ const mapContainerStyle = {
                 <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Price per ticket:</span>
-                    <span className="font-medium text-gray-800">₹{event.price}</span>
+                    <span className="font-medium text-gray-800">
+                      ₹{event.price}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between items-center">
                     <span className="text-gray-700 font-medium">Total:</span>
@@ -857,9 +859,7 @@ const mapContainerStyle = {
                   disabled={bookingLoading}
                   className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
                 >
-                  {bookingLoading
-                    ? "Processing..."
-                    : "Confirm Booking"}
+                  {bookingLoading ? "Processing..." : "Confirm Booking"}
                 </button>
               </form>
             </div>
@@ -880,7 +880,7 @@ const mapContainerStyle = {
                 <img
                   src={event.images[currentImageIndex]}
                   alt={`${event.title} - ${currentImageIndex + 1}`}
-                  className="w-full h-[480px] object-contain rounded-lg"
+                  className="w-full max-h-[70vh] object-contain rounded-lg"
                 />
                 {event.images.length > 1 && (
                   <button
@@ -899,6 +899,7 @@ const mapContainerStyle = {
                   </button>
                 )}
               </div>
+
               <div className="text-center text-white mt-4">
                 {currentImageIndex + 1} / {event.images.length}
               </div>
