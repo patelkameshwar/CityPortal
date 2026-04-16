@@ -126,6 +126,14 @@ const EventDetails = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
+  
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 640);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
   useEffect(() => {
     fetchEvent();
@@ -239,9 +247,7 @@ const EventDetails = () => {
 
   const openDirections = () => {
     if (!mapCenter) return;
-
     const { lat, lng } = mapCenter;
-
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, "_blank");
   };
@@ -274,13 +280,10 @@ const EventDetails = () => {
     setShowPhotoModal(false);
   };
 
-  const mapContainerStyle = useMemo(
-    () => ({
-      height: "400px",
-      width: "100%",
-    }),
-    [],
-  );
+const mapContainerStyle = {
+  width: "100%",
+  height: "100%",
+};
 
   const hasMoreAmenities = !!(event?.amenities?.length > 4); // Assume amenities field
 
@@ -326,7 +329,7 @@ const EventDetails = () => {
           <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
             {/* Left Div - Image */}
             <div className="left-div w-full lg:w-2/3 rounded-xl">
-              <div className="h-52  sm:h-64 md:h-80 lg:h-105 bg-gray-200 relative rounded-xl overflow-hidden">
+              <div className="h-52  sm:h-64 md:h-80 lg:h-[420px] bg-gray-200 relative rounded-xl overflow-hidden">
                 {event.images && event.images.length > 0 ? (
                   <img
                     src={event.images[0]}
@@ -464,7 +467,7 @@ const EventDetails = () => {
               </h2>
               {isDescriptionExpanded ? (
                 <>
-                  <p className="text-gray-600 leading-relaxed wrap-break-word text-sm sm:text-base">
+                  <p className="text-gray-600 leading-relaxed break-words text-sm sm:text-base">
                     {event.description}
                   </p>
                   <button
@@ -475,7 +478,7 @@ const EventDetails = () => {
                   </button>
                 </>
               ) : (
-                <p className="text-gray-600 transition-all duration-300 leading-relaxed wrap-break-word text-sm sm:text-base">
+                <p className="text-gray-600 transition-all duration-300 leading-relaxed break-words text-sm sm:text-base">
                   {event.description
                     ? event.description.slice(0, 320) + "..."
                     : ""}
@@ -526,29 +529,30 @@ const EventDetails = () => {
                 </span>
               </div>
             </div>
+
             {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide gap-2 px-1">
               <button
                 onClick={() => setActiveTab("amenities")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "amenities" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "amenities" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Amenities
               </button>
               <button
                 onClick={() => setActiveTab("policies")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "policies" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "policies" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Event Policies
               </button>
               <button
                 onClick={() => setActiveTab("location")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "location" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "location" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Location
               </button>
               <button
                 onClick={() => setActiveTab("similar")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "similar" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "similar" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Similar Events
               </button>
@@ -559,7 +563,7 @@ const EventDetails = () => {
               {activeTab === "amenities" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 mb-4">
+                    <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                       Popular Amenities
                     </h2>
                     {event.amenities && event.amenities.length > 0 ? (
@@ -604,7 +608,7 @@ const EventDetails = () => {
 
               {activeTab === "policies" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Event Policies
                   </h2>
                   {event.policies && event.policies.length > 0 ? (
@@ -620,7 +624,7 @@ const EventDetails = () => {
                     </ul>
                   ) : (
                     <p className="text-indigo-600 italic">
-                      No specific policies listed for this event.
+                      No policies listed.
                     </p>
                   )}
                 </div>
@@ -628,10 +632,10 @@ const EventDetails = () => {
 
               {activeTab === "location" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Location
                   </h2>
-                  <div className="flex items-start gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-2">
                     <FiMapPin className="h-5 w-5 text-gray-600 mt-0.5" />
                     <div>
                       <p className="text-gray-800">{event.location}</p>
@@ -643,12 +647,19 @@ const EventDetails = () => {
                         <p className="text-gray-600">Loading map...</p>
                       </div>
                     ) : (
-                      <div className="relative">
+                      <div className="relative h-[250px] sm:h-[350px] md:h-[400px]">
                         <GoogleMap
                           mapContainerStyle={mapContainerStyle}
                           center={mapCenter}
                           zoom={14}
                           options={{
+                            streetViewControl: !isMobile,
+                            mapTypeControl: !isMobile,
+                            fullscreenControl: true, // Fullscreen
+                            zoomControl: !isMobile, // Keep zoom (good UX)
+
+                            clickableIcons: false,
+
                             styles: [
                               {
                                 featureType: "poi",
@@ -665,7 +676,7 @@ const EventDetails = () => {
                         <button
                           onClick={openDirections}
                           title="Get Directions"
-                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                          className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-md text-blue-600 p-2.5 sm:p-3 rounded-full shadow-lg hover:bg-blue-500 hover:text-white transition cursor-pointer z-10"
                         >
                           <FiNavigation className="h-4.5 w-4.5" />
                         </button>
@@ -681,7 +692,7 @@ const EventDetails = () => {
 
               {activeTab === "similar" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Similar Events
                   </h2>
                   {similarLoading ? (
@@ -744,22 +755,15 @@ const EventDetails = () => {
                 </div>
               )}
             </div>
-
-            <button
-              onClick={handleBookTickets}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium text-lg mt-6"
-            >
-              Book Tickets
-            </button>
           </div>
         </div>
 
         {showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">
-                  Book Tickets for {event.title}
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                  Book {event.title}
                 </h3>
                 <button
                   onClick={closeBookingModal}
@@ -798,7 +802,7 @@ const EventDetails = () => {
                             .split("T")[0]
                         : ""
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Available:{" "}
@@ -824,29 +828,30 @@ const EventDetails = () => {
                       })
                     }
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
-                <div className="bg-gray-100 p-3 rounded-lg">
+                <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Price per ticket:</span>
-                    <span className="font-medium">₹{event.price}</span>
+                    <span className="font-medium text-gray-800">₹{event.price}</span>
                   </div>
-                  <div className="flex justify-between text-sm mt-2">
-                    <span className="text-gray-600">Total:</span>
-                    <span className="font-bold text-lg">
+                  <div className="border-t pt-2 flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">Total:</span>
+                    <span className="font-bold text-lg text-gray-800">
                       ₹{calculateTotal()}
                     </span>
                   </div>
                 </div>
+
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                  className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
                 >
                   {bookingLoading
                     ? "Processing..."
-                    : `Confirm Booking (₹${calculateTotal()})`}
+                    : "Confirm Booking"}
                 </button>
               </form>
             </div>
@@ -867,7 +872,7 @@ const EventDetails = () => {
                 <img
                   src={event.images[currentImageIndex]}
                   alt={`${event.title} - ${currentImageIndex + 1}`}
-                  className="w-full h-120 object-contain rounded-lg"
+                  className="w-full h-[480px] object-contain rounded-lg"
                 />
                 {event.images.length > 1 && (
                   <button

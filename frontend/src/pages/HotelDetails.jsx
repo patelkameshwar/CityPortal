@@ -973,7 +973,7 @@ const HotelDetails = () => {
                         }}
                         min={getTodayDate()}
                         required
-                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                       />
                     </div>
 
@@ -1012,7 +1012,7 @@ const HotelDetails = () => {
                               ).toLocaleDateString("en-CA")
                         }
                         required
-                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                       />
                     </div>
                     <div>
