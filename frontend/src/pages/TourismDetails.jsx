@@ -261,28 +261,28 @@ const TourismDetails = () => {
 
   return (
     <div className="py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <button
           onClick={() => navigate("/tourism")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8"
+          className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
         >
           <FiArrowLeft className="h-5 w-5" />
           Back to Tourism
         </button>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">
           {tourism.name}
         </h1>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="flex flex-row gap-4 p-4 -mb-8">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden pb-20 sm:pb-0">
+          <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
             {/* Left Div - Image */}
-            <div className="left-div w-2/3 rounded-xl">
-              <div className="h-90 bg-gray-200 relative rounded-xl">
+            <div className="left-div w-full lg:w-2/3 rounded-xl">
+              <div className="h-52 sm:h-64 md:h-80 lg:h-105 bg-gray-200 relative rounded-xl overflow-hidden">
                 {tourism.images && tourism.images.length > 0 ? (
                   <img
                     src={tourism.images[0]}
                     alt={tourism.name}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-xl transition duration-300 hover:scale-105"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -294,7 +294,7 @@ const TourismDetails = () => {
                 {tourism.images && tourism.images.length > 0 && (
                   <button
                     onClick={openPhotoModal}
-                    className="absolute bottom-4 right-4 bg-gray-800/70 border-2 border-white text-white px-4 py-2 rounded-4xl font-medium flex items-center gap-2 hover:bg-gray-800 transition -mb-2 cursor-pointer"
+                    className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-gray-800/70 border border-white text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 hover:bg-gray-800 transition cursor-pointer"
                   >
                     <span>{tourism.images.length}</span>
                     <span>Tourism Photos</span>
