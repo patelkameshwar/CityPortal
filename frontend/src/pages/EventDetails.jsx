@@ -381,10 +381,6 @@ const EventDetails = () => {
                     Complimentary snacks & drinks
                   </div>
                   <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
-                    <FiGift className="h-4 w-4 text-gray-700" />
-                    Free Refreshments
-                  </div>
-                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
                     <FiClock className="h-4 w-4 text-gray-700" />
                     Doors open 1 hr early
                   </div>
