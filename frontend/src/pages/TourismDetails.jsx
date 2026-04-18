@@ -431,24 +431,25 @@ const TourismDetails = () => {
             </div>
 
             {/* Location and Details */}
-            <div className="flex items-center justify-start gap-34 text-gray-600 mb-6">
-              <div className="flex items-center gap-2">
-                <MdEventSeat className="h-5 w-5 text-blue-500" />
-                {tourism.totalVisitors} Visitors/Day
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 text-gray-600 mb-6">
+              <div className="flex items-center gap-2 min-w-0">
+                <MdEventSeat className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">
+                {tourism.totalVisitors} Visitors/Day </span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiMapPin className="h-5 w-5 text-blue-500" />
-                <span>{tourism.location}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <FiMapPin className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">{tourism.location}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiClock className="h-5 w-5 text-blue-500" />
-                <span>
+              <div className="flex items-center gap-2 min-w-0">
+                <FiClock className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">
                   {tourism.openTime} - {tourism.closeTime}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <FiCalendar className="h-5 w-5 text-blue-500" />
-                <span>
+              <div className="flex items-center gap-2 min-w-0">
+                <FiCalendar className="h-5 w-5 text-blue-500 shrink-0" />
+                <span className="text-sm sm:text-base break-words truncate">
                   {formatTourismDate(
                     tourism.bookingFromDate,
                     tourism.bookingToDate,
