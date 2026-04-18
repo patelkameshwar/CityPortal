@@ -79,8 +79,8 @@ const TourismDetails = () => {
   const [mapCenter, setMapCenter] = useState(null);
   const { isAuthenticated } = useAuth();
   const { isLoaded, loadError } = useLoadScript({
-      googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    });
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
   useEffect(() => {
     fetchTourism();
@@ -305,44 +305,97 @@ const TourismDetails = () => {
             </div>
 
             {/* Right Div - Info */}
-            <div className="right-div w-1/3 p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
-              <div className="text-gray-800 text-lg font-bold mb-2">
-                General Entry
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiGift className="h-4 w-4 text-gray-700" />
-                Flexible Timing
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiMapPin className="h-4 w-4 text-gray-700" />
-                On-site Guides
-              </div>
-              <div className="flex items-center gap-1 text-teal-700 text-sm font-medium mb-1">
-                <FiClock className="h-4 w-4 text-gray-700" />
-                Entry before closing
-              </div>
-              <div className="flex items-center gap-1 text-red-500 text-sm font-medium mb-4">
-                <FiAlertCircle className="h-4 w-4" />
-                Non-Refundable
-              </div>
-
-              <div className="flex items-center justify-start mb-4">
-                <div className="flex flex-col text-gray-600 text-sm font-semibold leading-tight">
-                  <span>Price :</span>
-                  <span>Per Person</span>
+            <div className="right-div w-full lg:w-1/3 p-3 sm:p-5 md:p-6 bg-gray-100 border border-gray-300 flex flex-col rounded-xl">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                    General Entry
+                  </h2>
                 </div>
+                <span className="bg-blue-50 text-blue-700 text-[10px] uppercase font-bold px-2 py-1 rounded-md tracking-wider">
+                  Popular
+                </span>
+              </div>
+              <div className="space-y-2.5 mb-6">
+                <div className="flex items-center gap-3 p-2.5 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+                  <FiGift className="h-4 w-4 text-gray-600" />
+                  <span className="text-emerald-800 text-xs sm:text-sm font-semibold">
+                    Flexible Timing Access
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-1 pl-1">
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiMapPin className="h-4 w-4 text-gray-700" />
+                    On-site Guides Available
+                  </div>
+                  <div className="flex items-center gap-2 text-teal-700 text-xs sm:text-sm font-medium">
+                    <FiClock className="h-4 w-4 text-gray-700" />
+                    Entry before closing
+                  </div>
+                  <div className="flex items-center gap-2 text-red-500 text-xs sm:text-sm font-medium">
+                    <FiAlertCircle className="h-4 w-4" />
+                    Non-Refundable
+                  </div>
+                </div>
+              </div>
 
-                <div className="ml-36 text-gray-800 text-2xl font-bold">
-                  ₹{tourism.entryFee}
+              <div className="border-t border-gray-100 pt-3 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                  {/* Left: Tourism Details */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                      Ticket Details
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-700 font-semibold bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                      {/* Person */}
+                      <div className="flex items-center gap-1.5">
+                        <FiUser className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">Per Person</span>
+                      </div>
+
+                      <div className="w-px h-3 bg-gray-300" />
+
+                      {/* Validity */}
+                      <div className="flex items-center gap-1.5">
+                        <FiCalendar className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">1 Day Access</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Pricing */}
+                  <div className="flex flex-col sm:items-end">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-gray-900 text-xl font-black tracking-tight">
+                        ₹{Number(tourism.entryFee || 0).toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-gray-500 text-sm font-medium">
+                        /person
+                      </span>
+                    </div>
+
+                    {/* Highlight Tag */}
+                    <div className="mt-1.5 flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md border border-emerald-100">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[11px] font-bold uppercase tracking-wide">
+                        Instant Entry
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <button
                 onClick={handleBookVisit}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer"
+                className="w-full bg-blue-600 text-white py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium hover:bg-blue-700 transition cursor-pointer text-sm sm:text-base"
               >
                 Book Visit
               </button>
+
+              <p className="text-center text-[11px] text-gray-400 mt-3 font-medium">
+                Instant Confirmation • Secure Payment
+              </p>
             </div>
           </div>
 
