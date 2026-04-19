@@ -459,28 +459,28 @@ const TourismDetails = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide gap-2 px-1">
               <button
                 onClick={() => setActiveTab("amenities")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "amenities" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "amenities" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Amenities
               </button>
               <button
                 onClick={() => setActiveTab("policies")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "policies" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "policies" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Policies
               </button>
               <button
                 onClick={() => setActiveTab("location")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "location" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "location" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Location
               </button>
               <button
                 onClick={() => setActiveTab("similar")}
-                className={`px-4 py-2 font-medium text-sm cursor-pointer ${activeTab === "similar" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap shrink-0 cursor-pointer ${activeTab === "similar" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-800"}`}
               >
                 Similar Spots
               </button>

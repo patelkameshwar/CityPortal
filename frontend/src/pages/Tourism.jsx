@@ -1,31 +1,30 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from 'react-toastify';
-import { tourismAPI, bookingAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { FiSearch, FiMapPin, FiClock, FiX, FiUsers } from 'react-icons/fi';
+import { toast } from "react-toastify";
+import { tourismAPI, bookingAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { FiSearch, FiMapPin, FiClock, FiX, FiUsers } from "react-icons/fi";
 
 const getTodayDate = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 const Tourism = () => {
   const [tourismSpots, setTourismSpots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [bookingData, setBookingData] = useState({
-    date: '',
+    date: "",
     visitors: 1,
   });
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState('');
+  const [bookingSuccess, setBookingSuccess] = useState("");
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -38,20 +37,21 @@ const Tourism = () => {
       const response = await tourismAPI.getAll();
       setTourismSpots(response.data.tourismPlaces || []);
     } catch (err) {
-      setError('Failed to load tourism spots');
+      setError("Failed to load tourism spots");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredSpots = tourismSpots.filter((spot) =>
-    spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    spot.location.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSpots = tourismSpots.filter(
+    (spot) =>
+      spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      spot.location.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleBookNow = (spot) => {
     if (!isAuthenticated) {
-      toast.error('Please login to book your visit');
+      toast.error("Please login to book your visit");
       return;
     }
     setSelectedSpot(spot);
@@ -64,28 +64,28 @@ const Tourism = () => {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setBookingLoading(true);
-    setBookingSuccess('');
+    setBookingSuccess("");
 
     try {
       const totalPrice = selectedSpot.entryFee * bookingData.visitors;
 
       await bookingAPI.create({
-        itemType: 'Tourism',
+        itemType: "Tourism",
         itemId: selectedSpot._id,
         bookingDate: bookingData.date,
-        bookingTime: '10:00 AM', 
+        bookingTime: "10:00 AM",
         totalQuantity: bookingData.visitors,
         totalPrice,
       });
 
-      toast.success('Visit booked successfully!');
+      toast.success("Visit booked successfully!");
       setTimeout(() => {
         setSelectedSpot(null);
-        setBookingSuccess('');
+        setBookingSuccess("");
         navigate("/my-bookings");
       }, 1500);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Booking failed');
+      toast.error(err.response?.data?.message || "Booking failed");
     } finally {
       setBookingLoading(false);
     }
@@ -105,22 +105,26 @@ const Tourism = () => {
   }
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Explore Tourist Spots</h1>
-        <p className="text-gray-600 mt-2">Discover amazing places to visit in the city</p>
+    <div className="py-6 sm:py-8 px-2 sm:px-0">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+          Explore Tourist Spots
+        </h1>
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          Discover amazing places to visit in the city
+        </p>
       </div>
 
-      <div className="max-w-xl mx-auto mb-8">
+      <div className="max-w-xl mx-auto mb-6 sm:mb-8">
         <div className="relative">
           <input
             type="text"
             placeholder="Search tourist spots by name or location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-5 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
           />
-          <FiSearch className="absolute right-4 top-3.5 h-5 w-5 text-gray-400" />
+          <FiSearch className="absolute right-4 top-3 h-5 w-5 text-gray-400" />
         </div>
       </div>
 
@@ -133,14 +137,18 @@ const Tourism = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {filteredSpots.length > 0 ? (
           filteredSpots.map((spot) => (
-            <div 
-              key={spot._id} 
+            <div
+              key={spot._id}
               onClick={() => navigate(`/tourism/${spot._id}`)}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
             >
               <div className="h-48 bg-gray-200 relative">
                 {spot.images && spot.images.length > 0 ? (
-                  <img src={spot.images[0]} alt={spot.name} className="w-full h-full object-cover" />
+                  <img
+                    src={spot.images[0]}
+                    alt={spot.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <FiMapPin className="h-16 w-16" />
@@ -150,9 +158,11 @@ const Tourism = () => {
                   ${spot.entryFee}/person
                 </div>
               </div>
-              
+
               <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{spot.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {spot.name}
+                </h3>
                 <div className="flex items-center text-gray-600 mb-2">
                   <FiMapPin className="h-4 w-4 mr-1" />
                   {spot.location}
@@ -161,9 +171,13 @@ const Tourism = () => {
                   <FiClock className="h-4 w-4 mr-1" />
                   {spot.openTime} - {spot.closeTime}
                 </div>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{spot.description}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {spot.description}
+                </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{spot.totalVisitors} visitors/day</span>
+                  <span className="text-sm text-gray-500">
+                    {spot.totalVisitors} visitors/day
+                  </span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -188,8 +202,13 @@ const Tourism = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Book Visit to {selectedSpot.name}</h3>
-              <button onClick={() => setSelectedSpot(null)} className="text-gray-400 hover:text-gray-600">
+              <h3 className="text-xl font-bold text-gray-800">
+                Book Visit to {selectedSpot.name}
+              </h3>
+              <button
+                onClick={() => setSelectedSpot(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <FiX className="h-6 w-6" />
               </button>
             </div>
@@ -202,24 +221,35 @@ const Tourism = () => {
 
             <form onSubmit={handleBookingSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Visit Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Visit Date
+                </label>
                 <input
                   type="date"
                   value={bookingData.date}
-                  onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
+                  onChange={(e) =>
+                    setBookingData({ ...bookingData, date: e.target.value })
+                  }
                   required
                   min={getTodayDate()}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Number of Visitors</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Number of Visitors
+                </label>
                 <input
                   type="number"
                   min="1"
                   max={selectedSpot.totalVisitors}
                   value={bookingData.visitors}
-                  onChange={(e) => setBookingData({ ...bookingData, visitors: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setBookingData({
+                      ...bookingData,
+                      visitors: parseInt(e.target.value),
+                    })
+                  }
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
@@ -239,7 +269,7 @@ const Tourism = () => {
                 disabled={bookingLoading}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
               >
-                {bookingLoading ? 'Processing...' : 'Confirm Booking'}
+                {bookingLoading ? "Processing..." : "Confirm Booking"}
               </button>
             </form>
           </div>
@@ -250,4 +280,3 @@ const Tourism = () => {
 };
 
 export default Tourism;
-
