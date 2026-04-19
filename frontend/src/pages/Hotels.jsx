@@ -566,7 +566,7 @@ const Hotels = () => {
                   </div>
                 )}
 
-                <div className="border-t pt-2 flex justify-between items-center">
+                <div className="border-t pt-2 flex justify-between items-center text-sm mt-2">
                   <span className="text-gray-700 font-medium">Total:</span>
 
                   {bookingType === "hour" &&

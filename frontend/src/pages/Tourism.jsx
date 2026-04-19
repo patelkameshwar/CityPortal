@@ -155,7 +155,7 @@ const Tourism = () => {
                   </div>
                 )}
                 <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow">
-                  ${spot.entryFee}
+                  ₹{spot.entryFee}
                   <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
                     /person
                   </span>
@@ -202,11 +202,11 @@ const Tourism = () => {
       </div>
 
       {selectedSpot && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">
-                Book Visit to {selectedSpot.name}
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                Pass to {selectedSpot.name}
               </h3>
               <button
                 onClick={() => setSelectedSpot(null)}
@@ -217,7 +217,7 @@ const Tourism = () => {
             </div>
 
             {bookingSuccess && (
-              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+              <div className="mb-4 p-3 text-sm bg-green-100 border border-green-400 text-green-700 rounded">
                 {bookingSuccess}
               </div>
             )}
@@ -235,8 +235,12 @@ const Tourism = () => {
                   }
                   required
                   min={getTodayDate()}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Available: {selectedSpot?.openTime} -{" "}
+                  {selectedSpot?.closeTime}
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -254,23 +258,25 @@ const Tourism = () => {
                     })
                   }
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg  focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <div className="bg-gray-100 p-3 rounded-lg">
+              <div className="bg-gray-50 border border-gray-300 rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Entry fee per person:</span>
-                  <span className="font-medium">${selectedSpot.entryFee}</span>
+                  <span className="text-gray-500">Entry fee per person:</span>
+                  <span className="font-medium text-gray-800">
+                    ₹{selectedSpot.entryFee}
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm mt-2">
-                  <span className="text-gray-600">Total:</span>
-                  <span className="font-bold text-lg">${calculateTotal()}</span>
+                <div className="border-t pt-2 flex justify-between items-center text-sm mt-2">
+                  <span className="text-gray-700 font-medium">Total:</span>
+                  <span className="font-bold text-lg text-gray-800">₹{calculateTotal()}</span>
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={bookingLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
+                className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
               >
                 {bookingLoading ? "Processing..." : "Confirm Booking"}
               </button>
