@@ -129,33 +129,36 @@ const Tourism = () => {
       </div>
 
       {error && (
-        <div className="max-w-4xl mx-auto mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="max-w-4xl mx-auto mb-4 p-3 text-sm bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto px-2 sm:px-0">
         {filteredSpots.length > 0 ? (
           filteredSpots.map((spot) => (
             <div
               key={spot._id}
               onClick={() => navigate(`/tourism/${spot._id}`)}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
             >
-              <div className="h-48 bg-gray-200 relative">
+              <div className="h-40 sm:h-44 md:h-48 bg-gray-200 relative overflow-hidden">
                 {spot.images && spot.images.length > 0 ? (
                   <img
                     src={spot.images[0]}
                     alt={spot.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105  cursor-pointer"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <FiMapPin className="h-16 w-16" />
+                    <FiMapPin className="h-12 w-12 sm:h-16 sm:w-16" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  ${spot.entryFee}/person
+                <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold shadow">
+                  ${spot.entryFee}
+                  <span className="text-[10px] sm:text-xs ml-1 text-gray-200">
+                    /person
+                  </span>
                 </div>
               </div>
 
