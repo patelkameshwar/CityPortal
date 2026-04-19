@@ -162,23 +162,23 @@ const Tourism = () => {
                 </div>
               </div>
 
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <div className="p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 line-clamp-1">
                   {spot.name}
                 </h3>
-                <div className="flex items-center text-gray-600 mb-2">
+                <div className="flex items-center text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm">
                   <FiMapPin className="h-4 w-4 mr-1" />
                   {spot.location}
                 </div>
-                <div className="flex items-center text-gray-600 mb-2">
+                <div className="flex items-center text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm">
                   <FiClock className="h-4 w-4 mr-1" />
                   {spot.openTime} - {spot.closeTime}
                 </div>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
                   {spot.description}
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs sm:text-sm text-gray-700 bg-gray-100 border px-3 py-1 rounded-full whitespace-nowrap">
                     {spot.totalVisitors} visitors/day
                   </span>
                   <button
@@ -186,7 +186,7 @@ const Tourism = () => {
                       e.stopPropagation();
                       handleBookNow(spot);
                     }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                    className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition  cursor-pointer whitespace-nowrap"
                   >
                     Book Now
                   </button>
@@ -195,7 +195,7 @@ const Tourism = () => {
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-12">
+          <div className="col-span-full text-center py-10">
             <p className="text-gray-500 text-lg">No tourist spots found</p>
           </div>
         )}
