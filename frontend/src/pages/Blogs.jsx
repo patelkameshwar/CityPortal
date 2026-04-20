@@ -62,7 +62,7 @@ const Blogs = () => {
       `}</style>
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
-          Our Blog
+          Our Blogs
         </h1>
         <p className="text-gray-600 text-center mb-12">
           Latest news, tips, and guides for your city adventures
