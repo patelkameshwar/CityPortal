@@ -656,13 +656,6 @@ const TourismDetails = () => {
                 </div>
               )}
             </div>
-
-            <button
-              onClick={handleBookVisit}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium text-lg mt-6"
-            >
-              Book Visit
-            </button>
           </div>
         </div>
 
