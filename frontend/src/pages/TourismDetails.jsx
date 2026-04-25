@@ -82,6 +82,14 @@ const TourismDetails = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     fetchTourism();
   }, [id]);
@@ -225,13 +233,10 @@ const TourismDetails = () => {
     setShowPhotoModal(false);
   };
 
-  const mapContainerStyle = useMemo(
-    () => ({
-      height: "400px",
-      width: "100%",
-    }),
-    [],
-  );
+  const mapContainerStyle = {
+    width: "100%",
+    height: "100%",
+  };
 
   const hasMoreAmenities = !!(tourism?.amenities?.length > 4);
 
@@ -407,7 +412,9 @@ const TourismDetails = () => {
               </h2>
               {isDescriptionExpanded ? (
                 <>
-                  <p className="text-gray-600 leading-relaxed break-words text-sm sm:text-base">{tourism.description}</p>
+                  <p className="text-gray-600 leading-relaxed break-words text-sm sm:text-base">
+                    {tourism.description}
+                  </p>
                   <button
                     onClick={() => setIsDescriptionExpanded(false)}
                     className="mt-2 text-blue-600 hover:underline font-medium text-sm cursor-pointer"
@@ -435,11 +442,14 @@ const TourismDetails = () => {
               <div className="flex items-center gap-2 min-w-0">
                 <MdEventSeat className="h-5 w-5 text-blue-500 shrink-0" />
                 <span className="text-sm sm:text-base break-words truncate">
-                {tourism.totalVisitors} Visitors/Day </span>
+                  {tourism.totalVisitors} Visitors/Day{" "}
+                </span>
               </div>
               <div className="flex items-center gap-2 min-w-0">
                 <FiMapPin className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-sm sm:text-base break-words truncate">{tourism.location}</span>
+                <span className="text-sm sm:text-base break-words truncate">
+                  {tourism.location}
+                </span>
               </div>
               <div className="flex items-center gap-2 min-w-0">
                 <FiClock className="h-5 w-5 text-blue-500 shrink-0" />
@@ -540,10 +550,10 @@ const TourismDetails = () => {
 
               {activeTab === "location" && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  <h2 className="text-base sm:text-xl font-bold text-gray-800 mb-4">
                     Location
                   </h2>
-                  <div className="flex items-start gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-2">
                     <FiMapPin className="h-5 w-5 text-gray-600 mt-0.5" />
                     <div>
                       <p className="text-gray-800">{tourism.location}</p>
@@ -555,12 +565,19 @@ const TourismDetails = () => {
                         <p className="text-gray-600">Loading map...</p>
                       </div>
                     ) : (
-                      <div className="relative">
+                      <div className="relative h-[250px] sm:h-[350px] md:h-[400px]">
                         <GoogleMap
                           mapContainerStyle={mapContainerStyle}
                           center={mapCenter}
                           zoom={14}
                           options={{
+                            streetViewControl: !isMobile,
+                            mapTypeControl: !isMobile,
+                            fullscreenControl: true, // Fullscreen
+                            zoomControl: !isMobile, // Keep zoom (good UX)
+
+                            clickableIcons: false,
+
                             styles: [
                               {
                                 featureType: "poi",
@@ -577,7 +594,7 @@ const TourismDetails = () => {
                         <button
                           onClick={openDirections}
                           title="Get Directions"
-                          className="absolute bottom-40 right-2.5 bg-white text-blue-600 p-3 rounded-full shadow-xl hover:bg-blue-400 hover:text-white transition cursor-pointer"
+                          className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur-md text-blue-600 p-2.5 sm:p-3 rounded-full shadow-lg hover:bg-blue-500 hover:text-white transition cursor-pointer z-10"
                         >
                           <FiNavigation className="h-4.5 w-4.5" />
                         </button>
