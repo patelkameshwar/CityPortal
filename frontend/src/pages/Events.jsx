@@ -356,6 +356,7 @@ const Events = () => {
                   </span>
                 </div>
               </div>
+              
               <button
                 type="submit"
                 disabled={bookingLoading}

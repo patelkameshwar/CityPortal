@@ -835,14 +835,14 @@ const EventDetails = () => {
                     className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
-                <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
+                <div className="bg-gray-50 border border-gray-300 rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Price per ticket:</span>
+                    <span className="text-gray-500">Price per ticket:</span>
                     <span className="font-medium text-gray-800">
                       ₹{event.price}
                     </span>
                   </div>
-                  <div className="border-t pt-2 flex justify-between items-center">
+                  <div className="border-t pt-2 flex justify-between items-center text-sm mt-2">
                     <span className="text-gray-700 font-medium">Total:</span>
                     <span className="font-bold text-lg text-gray-800">
                       ₹{calculateTotal()}
