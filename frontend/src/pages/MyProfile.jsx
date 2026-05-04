@@ -178,11 +178,11 @@ const MyProfile = () => {
   }
 
   return (
-    <div className="flex justify-center py-8">
-      <div className="max-w-lg w-full bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen flex justify-center px-4 sm:px-6 py-6 sm:py-8 bg-gray-50">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
         {/* Profile Image */}
         <div className="flex flex-col items-center">
-          <div className="group relative w-46 h-46">
+          <div className="group relative w-32 h-32 sm:w-40 sm:h-40 md:w-46 md:h-46">
             <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-md ring-1 ring-gray-200">
               <img
                 className={`w-full h-full object-cover transition-all duration-300 ${
