@@ -212,11 +212,11 @@ const MyProfile = () => {
                     {userData.image ? (
                       <button
                         onClick={handleRemoveProfilePic}
-                        className="absolute inset-0 flex flex-col items-center justify-center bg-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer z-10"
+                        className="absolute inset-0 flex items-center justify-center bg-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer z-10"
                         title="Remove Photo"
                       >
-                        <div className="bg-black/20 p-3 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                          <FiTrash2 className="text-white text-2xl" />
+                        <div className="bg-black/20 p-3 rounded-full shadow-lg">
+                          <FiTrash2 className="text-white text-xl sm:text-2xl" />
                         </div>
                       </button>
                     ) : (
@@ -225,13 +225,13 @@ const MyProfile = () => {
                         className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer z-10"
                       >
                         <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm">
-                          <FiCamera className="text-white text-2xl" />
+                          <FiCamera className="text-white text-xl sm:text-2xl" />
                         </div>
                       </label>
                     )}
                     <label
                       htmlFor="image"
-                      className="absolute bottom-1 right-1 bg-blue-600 p-2.5 rounded-full border-2 border-white text-white shadow-lg cursor-pointer hover:bg-blue-700 hover:scale-110 transition-all z-20"
+                      className="absolute bottom-1 right-1 bg-blue-500 p-2 sm:p-2.5 rounded-full border-2 border-white text-white shadow-lg cursor-pointer hover:bg-blue-700 hover:scale-110 transition-all z-20"
                     >
                       <FiCamera size={18} />
                     </label>
@@ -252,7 +252,7 @@ const MyProfile = () => {
 
           {/* Subtext indication */}
           {isEdit && !saving && (
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-3 font-bold">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-3 font-bold text-center">
               {userData.image ? "Hover to remove" : "Click camera to upload"}
             </p>
           )}
@@ -262,7 +262,7 @@ const MyProfile = () => {
         <div className="flex justify-center mt-4">
           {isEdit ? (
             <input
-              className="bg-gray-50 text-3xl font-medium max-w-64 mt-4 text-center border-b-2 border-blue-400 focus:outline-none"
+              className="w-full max-w-xs bg-gray-50 text-2xl sm:text-3xl font-medium mt-4 text-center border-b-2 border-blue-400 focus:outline-none"
               type="text"
               value={userData.name}
               onChange={(e) =>
@@ -270,20 +270,20 @@ const MyProfile = () => {
               }
             />
           ) : (
-            <p className="font-medium text-3xl text-neutral-800 text-center">
+            <p className="font-medium text-2xl sm:text-3xl text-neutral-800 text-center break-words">
               {userData.name}
             </p>
           )}
         </div>
 
-        <hr className="bg-zinc-400 h-px border-none my-4" />
+        <hr className="bg-zinc-300 h-px border-none my-5" />
 
         {/* Contact Information */}
         <div>
-          <p className="text-neutral-500 underline mt-3">CONTACT INFORMATION</p>
-          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-2 text-neutral-700">
+          <p className="text-neutral-500 underline mt-3 text-sm sm:text-base">CONTACT INFORMATION</p>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_3fr] gap-y-2.5 sm:gap-x-4 mt-3 text-neutral-700 text-sm sm:text-base">
             <p className="font-medium">Email id:</p>
-            <p className="text-blue-500">{userData.email}</p>
+            <p className="text-blue-500 break-all">{userData.email}</p>
 
             <p className="font-medium">Phone:</p>
             {isEdit ? (
