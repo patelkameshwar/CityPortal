@@ -796,7 +796,7 @@ const TourismDetails = () => {
                 <img
                   src={tourism.images[currentImageIndex]}
                   alt={`${tourism.name} - ${currentImageIndex + 1}`}
-                  className="w-full h-120 object-contain rounded-lg"
+                  className="w-full max-h-[70vh] object-contain rounded-lg"
                 />
                 {tourism.images.length > 1 && (
                   <button
