@@ -288,7 +288,7 @@ const MyProfile = () => {
             <p className="font-medium">Phone:</p>
             {isEdit ? (
               <input
-                className="bg-gray-100 max-w-52 px-3 py-1  rounded text-sm mt-1"
+                className="bg-gray-100 w-full sm:max-w-52 px-3 py-2 rounded text-sm"
                 type="text"
                 value={userData.phone}
                 onChange={(e) => {
@@ -301,14 +301,14 @@ const MyProfile = () => {
                 maxLength={10}
               />
             ) : (
-              <p className="text-blue-500">{userData.phone || "Not set"}</p>
+              <p className="text-blue-500 break-words">{userData.phone || "Not set"}</p>
             )}
 
             <p className="font-medium">Address:</p>
             {isEdit ? (
-              <div>
+              <div className="w-full space-y-2">
                 <input
-                  className="bg-gray-100 w-full px-3 py-1 rounded text-sm"
+                  className="bg-gray-100 w-full px-3 py-2 rounded text-sm"
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
@@ -321,7 +321,7 @@ const MyProfile = () => {
                 />
                 <br />
                 <input
-                  className="bg-gray-100 w-full px-3 py-1 rounded text-sm mt-1"
+                  className="bg-gray-100 w-full px-3 py-2 rounded text-sm"
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
@@ -334,7 +334,7 @@ const MyProfile = () => {
                 />
               </div>
             ) : (
-              <p className="text-gray-500">
+              <p className="text-gray-500 break-words">
                 {userData.address.line1 || userData.address.line2 ? (
                   <>
                     {userData.address.line1}
@@ -350,13 +350,13 @@ const MyProfile = () => {
         </div>
 
         {/* Basic Information */}
-        <div>
-          <p className="text-neutral-500 underline mt-2">BASIC INFORMATION</p>
-          <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700">
+        <div className="mt-5">
+          <p className="text-neutral-500 underline text-sm sm:text-base">BASIC INFORMATION</p>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_3fr] gap-y-2.5 sm:gap-x-4 mt-3 text-neutral-700 text-sm sm:text-base">
             <p className="font-medium">Gender:</p>
             {isEdit ? (
               <select
-                className="max-w-24 bg-gray-100 px-3 py-1 rounded text-sm"
+                className="w-full sm:max-w-32 bg-gray-100 px-3 py-2 rounded text-sm"
                 onChange={(e) =>
                   setUserData((prev) => ({ ...prev, gender: e.target.value }))
                 }
@@ -379,7 +379,7 @@ const MyProfile = () => {
             <p className="font-medium">Birthday:</p>
             {isEdit ? (
               <input
-                className="max-w-32 bg-gray-100 px-3 py-1 rounded text-sm"
+                className="w-full sm:max-w-40 bg-gray-100 px-3 py-2 rounded text-sm"
                 type="date"
                 onChange={(e) =>
                   setUserData((prev) => ({ ...prev, dob: e.target.value }))
@@ -397,10 +397,10 @@ const MyProfile = () => {
         </div>
 
         {/* Buttons */}
-        <div className="mt-10 flex justify-center gap-4">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           {isEdit ? (
             <button
-              className="border border-blue-600 text-blue-600 px-8 py-2 rounded-full hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50"
+              className="w-full sm:w-auto border border-blue-600 text-blue-600 px-8 py-2.5 rounded-full hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50"
               onClick={updateUserProfileData}
               disabled={saving}
             >
@@ -408,7 +408,7 @@ const MyProfile = () => {
             </button>
           ) : (
             <button
-              className="border border-blue-600 text-blue-600 px-16 py-2 rounded-full hover:bg-blue-600 hover:text-white transition-all"
+              className="w-full sm:w-auto border border-blue-600 text-blue-600 px-12 sm:px-16 py-2.5 rounded-full hover:bg-blue-600 hover:text-white transition-all"
               onClick={() => setIsEdit(true)}
             >
               Edit Profile
@@ -416,7 +416,7 @@ const MyProfile = () => {
           )}
           {isEdit && (
             <button
-              className="border border-gray-500 text-gray-500 px-8 py-2 rounded-full hover:bg-gray-500 hover:text-white transition-all"
+              className="w-full sm:w-auto border border-gray-500 text-gray-500 px-8 py-2.5 rounded-full hover:bg-gray-500 hover:text-white transition-all"
               onClick={() => setIsEdit(false)}
             >
               Cancel
@@ -424,7 +424,7 @@ const MyProfile = () => {
           )}
         </div>
 
-        <hr className="bg-zinc-400 h-px border-none mt-8" />
+        <hr className="bg-zinc-300 h-px border-none mt-8" />
 
         {/* Logout Button */}
         <div className="pt-6 flex justify-center">
