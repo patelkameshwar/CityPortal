@@ -685,10 +685,10 @@ const TourismDetails = () => {
 
         {showBookingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-800">
-                  Book Visit for {tourism.name}
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                  Book {tourism.name}
                 </h3>
                 <button
                   onClick={closeBookingModal}
@@ -727,7 +727,7 @@ const TourismDetails = () => {
                             .split("T")[0]
                         : ""
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Available:{" "}
@@ -753,17 +753,17 @@ const TourismDetails = () => {
                       })
                     }
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
-                <div className="bg-gray-100 p-3 rounded-lg">
+                <div className="bg-gray-50 border rounded-xl p-3 sm:p-4 space-y-2 text-sm sm:text-base">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Price per person:</span>
-                    <span className="font-medium">₹{tourism.entryFee}</span>
+                    <span className="font-medium text-gray-800">₹{tourism.entryFee}</span>
                   </div>
-                  <div className="flex justify-between text-sm mt-2">
-                    <span className="text-gray-600">Total:</span>
-                    <span className="font-bold text-lg">
+                  <div className="border-t pt-2 flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">Total:</span>
+                    <span className="font-bold text-lg text-gray-800">
                       ₹{calculateTotal()}
                     </span>
                   </div>
@@ -771,11 +771,11 @@ const TourismDetails = () => {
                 <button
                   type="submit"
                   disabled={bookingLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                  className="w-full bg-blue-600 text-white py-2.5 sm:py-3 text-sm sm:text-base rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium"
                 >
                   {bookingLoading
                     ? "Processing..."
-                    : `Confirm Booking (₹${calculateTotal()})`}
+                    : `Confirm Booking ( ₹${calculateTotal()} )`}
                 </button>
               </form>
             </div>
