@@ -31,9 +31,9 @@ const Blogs = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p>Loading blogs...</p>
         </div>
       </div>
@@ -45,7 +45,7 @@ const Blogs = () => {
   };
 
   return (
-    <div className="py-12">
+    <div className="min-h-screen bg-slate-50 py-6 sm:py-8 lg:py-10 px-3 sm:px-6 lg:px-8">
       <style>{`
         .line-clamp-2 {
           display: -webkit-box;
@@ -60,28 +60,31 @@ const Blogs = () => {
           overflow: hidden;
         }
       `}</style>
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
-          Our Blogs
-        </h1>
-        <p className="text-gray-600 text-center mb-12">
-          Latest news, tips, and guides for your city adventures
-        </p>
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+            Our Blogs
+          </h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base max-w-2xl mx-auto">
+            Latest news, tips, and guides for your city adventures
+          </p>
+        </div>
 
         {error ? (
-          <div className="text-center py-12">
-            <p className="text-red-600 mb-4">{error}</p>
+          <div className="bg-white rounded-xl shadow-sm text-center py-10 px-4">
+            <p className="text-red-600 mb-4 text-sm sm:text-base">{error}</p>
             <button
               onClick={fetchBlogs}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-blue-600 text-white px-5 sm:px-6 py-2 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
             >
               Try Again
             </button>
           </div>
+
         ) : blogs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">No blogs available yet.</p>
-            <p className="text-sm text-gray-400">
+          <div className="bg-white rounded-xl shadow-sm text-center py-10 px-4">
+            <p className="text-gray-500 mb-2 text-sm sm:text-base">No blogs available yet.</p>
+            <p className="text-xs sm:text-sm text-gray-400">
               Check back soon for updates!
             </p>
           </div>
