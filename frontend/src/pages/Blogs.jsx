@@ -93,14 +93,15 @@ const Blogs = () => {
             {blogs.map((blog) => (
               <div
                 key={blog._id}
-                className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${expandedBlog === blog._id ? "shadow-2xl" : "hover:shadow-lg max-h-96 overflow-hidden"}`}
+                className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 ${expandedBlog === blog._id ? "shadow-xl" : "hover:shadow-lg"
+                }`}
               >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full">
+                <div className="p-4 sm:p-6 lg:p-7">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                    <span className="w-fit px-3 py-1 bg-blue-100 text-blue-600 text-xs sm:text-sm rounded-full">
                       {blog.category}
                     </span>
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-gray-500 text-xs sm:text-sm">
                       {blog.date
                         ? new Date(blog.date).toLocaleDateString("en-US", {
                             year: "numeric",
@@ -115,93 +116,87 @@ const Blogs = () => {
                     </span>
                   </div>
                   <h2
-                    className={`text-lg font-bold text-gray-800 mb-2 ${expandedBlog === blog._id ? "" : "line-clamp-2"}`}
+                    className={`text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-3 leading-snug ${expandedBlog === blog._id ? "" : "line-clamp-2"}`}
                   >
                     {blog.title}
                   </h2>
+                  
                   {expandedBlog === blog._id ? (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkBreaks, remarkGfm]}
-                      components={{
-                        h1: ({ children }) => (
-                          <h1 className="text-lg font-medium mt-4 mb-3 text-gray-900">
-                            {children}
-                          </h1>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="text-m font-semibold mt-4 mb-2 text-gray-800">
-                            {children}
-                          </h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="text-m font-semibold mt-3 mb-2 text-gray-700">
-                            {children}
-                          </h3>
-                        ),
-                        p: ({ children }) => (
-                          <p className="text-gray-600 mb-4 leading-relaxed text-[15px]">
-                            {children}
-                          </p>
-                        ),
-                        strong: ({ children }) => (
-                          <strong className="font-semibold text-gray-900">
-                            {children}
-                          </strong>
-                        ),
-                        em: ({ children }) => (
-                          <em className="italic text-gray-500">{children}</em>
-                        ),
-                        ul: ({ children }) => (
-                          <ul className="list-disc pl-5 mb-4 space-y-1 text-gray-600">
-                            {children}
-                          </ul>
-                        ),
-                        ol: ({ children }) => (
-                          <ol className="list-decimal pl-5 mb-4 space-y-1 text-gray-600">
-                            {children}
-                          </ol>
-                        ),
-                        li: ({ children }) => <li>{children}</li>,
-                        blockquote: ({ children }) => (
-                          <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-500 my-4">
-                            {children}
-                          </blockquote>
-                        ),
-                        a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            {children}
-                          </a>
-                        ),
-                        code: ({ inline, children }) =>
-                          inline ? (
-                            <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
+                    <div className="prose prose-sm sm:prose-base max-w-none break-words">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkBreaks, remarkGfm]}
+                        components={{
+                          h1: ({ children }) => (
+                            <h1 className="text-xl sm:text-2xl font-semibold mt-5 mb-3 text-gray-900">
                               {children}
-                            </code>
-                          ) : (
-                            <pre className="bg-gray-900 text-white p-3 rounded-lg overflow-x-auto my-4 text-sm">
-                              <code>{children}</code>
-                            </pre>
+                            </h1>
                           ),
-                      }}
-                    >
-                      {blog.content || blog.excerpt}
-                    </ReactMarkdown>
+                          h2: ({ children }) => (
+                            <h2 className="text-lg sm:text-xl font-semibold mt-4 mb-2 text-gray-800">
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-base sm:text-lg font-semibold mt-3 mb-2 text-gray-700">
+                              {children}
+                            </h3>
+                          ),
+                          p: ({ children }) => (
+                            <p className="text-gray-600 mb-4 leading-relaxed text-sm sm:text-[15px]">
+                              {children}
+                            </p>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc pl-5 mb-4 space-y-1 text-gray-600 text-sm sm:text-base">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal pl-5 mb-4 space-y-1 text-gray-600 text-sm sm:text-base">
+                              {children}
+                            </ol>
+                          ),
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-500 my-4 text-sm sm:text-base">
+                              {children}
+                            </blockquote>
+                          ),
+                          a: ({ href, children }) => (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline break-words"
+                            >
+                              {children}
+                            </a>
+                          ),
+                          code: ({ inline, children }) =>
+                            inline ? (
+                              <code className="bg-gray-100 px-1 py-0.5 rounded text-xs sm:text-sm break-words">
+                                {children}
+                              </code>
+                            ) : (
+                              <pre className="bg-gray-900 text-white p-3 rounded-lg overflow-x-auto my-4 text-xs sm:text-sm">
+                                <code>{children}</code>
+                              </pre>
+                            ),
+                        }}
+                      >
+                        {blog.content || blog.excerpt}
+                      </ReactMarkdown>
+                    </div>
                   ) : (
-                    <p className="text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-gray-600 mb-4 line-clamp-3 text-sm sm:text-base leading-relaxed">
                       {blog.excerpt}
                     </p>
                   )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-gray-100">
+                    <span className="text-xs sm:text-sm text-gray-500">
                       By {blog.author}
                     </span>
                     <button
-                      className="text-blue-600 hover:text-blue-700 font-medium flex items-center transition-all"
+                      className="w-full sm:w-auto text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center sm:justify-start transition-all text-sm sm:text-base border sm:border-0 border-blue-100 rounded-lg py-2 sm:py-0"
                       onClick={() => toggleExpand(blog._id)}
                     >
                       {expandedBlog === blog._id ? (
