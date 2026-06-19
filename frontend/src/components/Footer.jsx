@@ -112,13 +112,17 @@ const Footer = () => {
                 <FiFacebook className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="https://x.com/Kameshwarp26"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-gray-200 p-2 rounded-full hover:bg-black hover:text-white transition"
               >
                 <FiTwitter className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/walkinggsid"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-gray-200 p-2 rounded-full hover:bg-pink-600 hover:text-white transition"
               >
                 <FiInstagram className="h-5 w-5" />
