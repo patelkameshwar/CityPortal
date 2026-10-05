@@ -228,10 +228,10 @@ exports.forgotPassword = async (req, res) => {
 
     // Send real email with sendGrid
     await sgMail.send({
-  to: email,
-  from: process.env.EMAIL_USER,
-  subject: "CityPortal Password Reset",
-  html: `
+      to: email,
+      from: process.env.EMAIL_USER,
+      subject: "CityPortal Password Reset",
+      html: `
     <h2>Password Reset Request</h2>
 
     <p>
@@ -262,7 +262,7 @@ exports.forgotPassword = async (req, res) => {
       If you didn't request this password reset, you can safely ignore this email.
     </p>
   `,
-});
+    });
 
     res.status(200).json({
       success: true,
@@ -408,7 +408,7 @@ exports.googleLogin = async (req, res) => {
         updated = true;
       }
 
-      if (!user.profilePicture) {
+      if (picture && user.profilePicture !== picture) {
         user.profilePicture = picture;
         updated = true;
       }
