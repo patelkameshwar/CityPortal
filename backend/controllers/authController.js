@@ -2,6 +2,9 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 // REGISTER
 exports.register = async (req, res) => {
   try {
@@ -223,35 +226,43 @@ exports.forgotPassword = async (req, res) => {
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
-    // Send real email with nodemailer
-    const nodemailer = require("nodemailer");
+    // Send real email with sendGrid
+    await sgMail.send({
+  to: email,
+  from: process.env.EMAIL_USER,
+  subject: "CityPortal Password Reset",
+  html: `
+    <h2>Password Reset Request</h2>
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      family: 4,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    <p>
+      You requested a password reset for your CityPortal account.
+    </p>
 
-    await transporter.verify();
-    console.log("Gmail SMTP connection successful");
+    <p>
+      Click the button below to reset your password:
+    </p>
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "CityPortal Password Reset",
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>You requested a password reset. Click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
-        <p>This link expires in 1 hour.</p>
-        <p>If you didn't request this, ignore this email.</p>
-      `,
-    });
+    <a
+      href="${resetUrl}"
+      style="
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+      "
+    >
+      Reset Password
+    </a>
+
+    <p>This link expires in 1 hour.</p>
+
+    <p>
+      If you didn't request this password reset, you can safely ignore this email.
+    </p>
+  `,
+});
 
     res.status(200).json({
       success: true,
