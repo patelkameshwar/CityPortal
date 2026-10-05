@@ -227,7 +227,6 @@ exports.forgotPassword = async (req, res) => {
     const nodemailer = require("nodemailer");
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
@@ -237,7 +236,7 @@ exports.forgotPassword = async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
     });
-    
+
     await transporter.verify();
     console.log("Gmail SMTP connection successful");
 
